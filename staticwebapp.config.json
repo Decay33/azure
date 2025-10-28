@@ -4,8 +4,7 @@
     "exclude": ["/images/*", "/css/*", "/js/*"]
   },
   "routes": [
-    { "route": "/members/*", "allowedRoles": ["authenticated"] },
-    { "route": "/api/*", "allowedRoles": ["authenticated"] }
+    { "route": "/members/*", "allowedRoles": ["authenticated"] }
   ],
   "responseOverrides": {
     "401": {
@@ -19,6 +18,9 @@
         "registration": {
           "clientIdSettingName": "GOOGLE_CLIENT_ID",
           "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
+        },
+        "login": {
+          "scopes": ["openid", "profile", "email"]
         }
       }
     }
