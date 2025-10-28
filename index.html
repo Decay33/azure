@@ -7,12 +7,26 @@
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; line-height: 1.5; }
     header { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
-    .btn { display:inline-block; padding:0.5rem 0.8rem; border:1px solid #ccc; border-radius:6px; text-decoration:none; }
+    .btn { display:inline-block; padding:0.5rem 0.8rem; border:1px solid #ccc; border-radius:6px; text-decoration:none; cursor: pointer; }
     .btn:hover { background:#f5f5f5; }
+    .btn-primary { background: #0066cc; color: white; border: none; width: fit-content; }
+    .btn-success { background: #28a745; color: white; border: none; width: fit-content; }
+    .btn-purple { background: #6f42c1; color: white; border: none; width: fit-content; }
     .links a { margin-right:1rem; }
     .card { border:1px solid #e5e5e5; border-radius:8px; padding:1rem; margin-top:1rem; }
     details { margin-top:1rem; }
     code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    
+    /* Scoring Demo Styles */
+    #signout { display: none; }
+    #scoring-demo { display: none; }
+    .demo-section { margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 6px; }
+    .demo-section h3 { margin-top: 0; }
+    .demo-form { display: grid; gap: 0.5rem; max-width: 400px; }
+    .demo-form label { display: block; }
+    .demo-form input { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    .results-container { margin-top: 1rem; }
+    #out { background: #2d2d2d; color: #f8f8f8; padding: 1rem; border-radius: 6px; overflow-x: auto; max-height: 400px; }
   </style>
 </head>
 <body>
@@ -20,7 +34,7 @@
     <h1 id="greeting">Welcome to the Game Hub</h1>
     <nav class="links">
       <a id="signin" class="btn" href="/.auth/login/google?post_login_redirect_uri=/members">Sign in with Google</a>
-      <a id="signout" class="btn" href="/.auth/logout?post_logout_redirect_uri=/" style="display:none;">Sign out</a>
+      <a id="signout" class="btn" href="/.auth/logout?post_logout_redirect_uri=/">Sign out</a>
       <a class="btn" href="/members/">Members Area</a>
     </nav>
   </header>
@@ -34,65 +48,60 @@
     </ul>
   </section>
 
-  <section class="card" id="scoring-demo" style="display:none;">
+  <section class="card" id="scoring-demo">
     <h2>📊 Scoring System Demo</h2>
     <p>Test the scoring API endpoints:</p>
     
-    <div style="margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
-      <h3 style="margin-top: 0;">Submit a Score</h3>
-      <form id="submit-score-form" style="display: grid; gap: 0.5rem; max-width: 400px;">
+    <div class="demo-section">
+      <h3>Submit a Score</h3>
+      <form id="submit-score-form" class="demo-form">
         <label>
           Game ID:
-          <input type="text" id="score-gameId" placeholder="e.g., cavegrok" required 
-                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+          <input type="text" id="score-gameId" placeholder="e.g., cavegrok" required>
         </label>
         <label>
           Score:
-          <input type="number" id="score-value" placeholder="e.g., 1000" required 
-                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+          <input type="number" id="score-value" placeholder="e.g., 1000" required>
         </label>
-        <button type="submit" class="btn" style="width: fit-content; background: #0066cc; color: white; border: none; cursor: pointer;">
+        <button type="submit" class="btn btn-primary">
           Submit Score
         </button>
       </form>
     </div>
 
-    <div style="margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
-      <h3 style="margin-top: 0;">View Leaderboard</h3>
-      <form id="leaderboard-form" style="display: grid; gap: 0.5rem; max-width: 400px;">
+    <div class="demo-section">
+      <h3>View Leaderboard</h3>
+      <form id="leaderboard-form" class="demo-form">
         <label>
           Game ID:
-          <input type="text" id="leaderboard-gameId" placeholder="e.g., cavegrok" required 
-                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+          <input type="text" id="leaderboard-gameId" placeholder="e.g., cavegrok" required>
         </label>
         <label>
           Limit:
-          <input type="number" id="leaderboard-limit" value="10" min="1" max="100" 
-                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+          <input type="number" id="leaderboard-limit" value="10" min="1" max="100">
         </label>
-        <button type="submit" class="btn" style="width: fit-content; background: #28a745; color: white; border: none; cursor: pointer;">
+        <button type="submit" class="btn btn-success">
           Get Leaderboard
         </button>
       </form>
     </div>
 
-    <div style="margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
-      <h3 style="margin-top: 0;">View My Scores</h3>
-      <form id="my-scores-form" style="display: grid; gap: 0.5rem; max-width: 400px;">
+    <div class="demo-section">
+      <h3>View My Scores</h3>
+      <form id="my-scores-form" class="demo-form">
         <label>
           Game ID (optional):
-          <input type="text" id="my-scores-gameId" placeholder="Leave blank for all games" 
-                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+          <input type="text" id="my-scores-gameId" placeholder="Leave blank for all games">
         </label>
-        <button type="submit" class="btn" style="width: fit-content; background: #6f42c1; color: white; border: none; cursor: pointer;">
+        <button type="submit" class="btn btn-purple">
           Get My Scores
         </button>
       </form>
     </div>
 
-    <div style="margin-top: 1rem;">
+    <div class="results-container">
       <h3>Results:</h3>
-      <pre id="out" style="background: #2d2d2d; color: #f8f8f8; padding: 1rem; border-radius: 6px; overflow-x: auto; max-height: 400px;">No results yet. Use the forms above to test the API.</pre>
+      <pre id="out">No results yet. Use the forms above to test the API.</pre>
     </div>
   </section>
 
