@@ -19,8 +19,8 @@
   <header>
     <h1 id="greeting">Welcome to the Game Hub</h1>
     <nav class="links">
-      <a id="signin" class="btn" href="/.auth/login/google">Sign in with Google</a>
-      <a id="signout" class="btn" href="/.auth/logout" style="display:none;">Sign out</a>
+      <a id="signin" class="btn" href="/.auth/login/google?post_login_redirect_uri=/members">Sign in with Google</a>
+      <a id="signout" class="btn" href="/.auth/logout?post_logout_redirect_uri=/" style="display:none;">Sign out</a>
       <a class="btn" href="/members/">Members Area</a>
     </nav>
   </header>
@@ -38,13 +38,12 @@
   <script>
     async function initAuthUI() {
       try {
-        const res = await fetch('/.auth/me', { cache: 'no-store' });
+        const res = await fetch('/.auth/me', { cache: 'no-store', credentials: 'include' });
         const data = await res.json();
         const cp = data && data.clientPrincipal;
         const signedIn = !!(cp && cp.userRoles && cp.userRoles.includes('authenticated'));
 
         if (signedIn) {
-          // Prefer a friendly name or email
           const display = cp.userDetails || (cp.claims?.find(c => c.typ === 'name')?.val) || 'Player';
           document.getElementById('greeting').textContent = `Welcome, ${display}!`;
           document.getElementById('signin').style.display = 'none';
@@ -55,7 +54,6 @@
           document.getElementById('signout').style.display = 'none';
         }
 
-        // Show raw data for debugging
         document.getElementById('debug').textContent = JSON.stringify(data, null, 2);
       } catch (e) {
         document.getElementById('debug').textContent = 'Not signed in (or unable to load /.auth/me).';
