@@ -1,18 +1,67 @@
 <!doctype html>
-<html>
-  <head><meta charset="utf-8"><title>Game Hub</title></head>
-  <body>
-    <h1>Welcome to the Game Hub</h1>
-    <p><a href="/.auth/login/google">Sign in with Google</a></p>
-    <p><a href="/.auth/logout">Sign out</a></p>
-    <p><a href="/members/">Go to Members Area</a></p>
-    <hr>
-    <h3>Auth debug</h3>
-    <pre id="me">Loading...</pre>
-    <script>
-      fetch('/.auth/me').then(r => r.json()).then(j => {
-        document.getElementById('me').textContent = JSON.stringify(j, null, 2);
-      }).catch(()=>{ document.getElementById('me').textContent = 'Not signed in'; });
-    </script>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Hub</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; line-height: 1.5; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .btn { display:inline-block; padding:0.5rem 0.8rem; border:1px solid #ccc; border-radius:6px; text-decoration:none; }
+    .btn:hover { background:#f5f5f5; }
+    .links a { margin-right:1rem; }
+    .card { border:1px solid #e5e5e5; border-radius:8px; padding:1rem; margin-top:1rem; }
+    details { margin-top:1rem; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="greeting">Welcome to the Game Hub</h1>
+    <nav class="links">
+      <a id="signin" class="btn" href="/.auth/login/google">Sign in with Google</a>
+      <a id="signout" class="btn" href="/.auth/logout" style="display:none;">Sign out</a>
+      <a class="btn" href="/members/">Members Area</a>
+    </nav>
+  </header>
+
+  <section class="card">
+    <h2>Your Games</h2>
+    <p>Add game links here as you publish them (e.g., <code>/games/flip-dice/</code>, <code>/games/space-rocks/</code>).</p>
+  </section>
+
+  <details class="card">
+    <summary>Auth debug (/.auth/me)</summary>
+    <pre id="debug">Loading…</pre>
+  </details>
+
+  <script>
+    async function initAuthUI() {
+      try {
+        const res = await fetch('/.auth/me', { cache: 'no-store' });
+        const data = await res.json();
+        const cp = data && data.clientPrincipal;
+        const signedIn = !!(cp && cp.userRoles && cp.userRoles.includes('authenticated'));
+
+        if (signedIn) {
+          // Prefer a friendly name or email
+          const display = cp.userDetails || (cp.claims?.find(c => c.typ === 'name')?.val) || 'Player';
+          document.getElementById('greeting').textContent = `Welcome, ${display}!`;
+          document.getElementById('signin').style.display = 'none';
+          document.getElementById('signout').style.display = '';
+        } else {
+          document.getElementById('greeting').textContent = 'Welcome to the Game Hub';
+          document.getElementById('signin').style.display = '';
+          document.getElementById('signout').style.display = 'none';
+        }
+
+        // Show raw data for debugging
+        document.getElementById('debug').textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        document.getElementById('debug').textContent = 'Not signed in (or unable to load /.auth/me).';
+      }
+    }
+    initAuthUI();
+  </script>
+</body>
 </html>
