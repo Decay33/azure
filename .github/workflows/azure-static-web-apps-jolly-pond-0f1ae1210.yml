@@ -34,6 +34,7 @@ jobs:
           app_location: "/"      # index.html at repo root
           api_location: "api"    # Functions in /api
           output_location: ""    # no build step; serve from app_location
+          skip_app_build: true   # Skip Oryx build - we have static files
 
   close_pr:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
