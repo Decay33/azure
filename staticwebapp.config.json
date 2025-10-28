@@ -16,9 +16,7 @@
         "google": {
           "registration": {
             "clientIdSettingName": "GOOGLE_CLIENT_ID",
-            "clientCredential": {
-              "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
-            },
+            "clientCredential": { "clientSecretSettingName": "GOOGLE_CLIENT_SECRET" },
             "openIdConnectConfiguration": {
               "wellKnownOpenIdConfiguration": "https://accounts.google.com/.well-known/openid-configuration"
             }
