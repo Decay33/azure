@@ -2,48 +2,46 @@ name: Azure Static Web Apps CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
+    types: [ opened, synchronize, reopened, closed ]
+    branches: [ main ]
+
+concurrency:
+  group: swa-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build_and_deploy_job:
+  build_and_deploy:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    name: Build and Deploy
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
 
-      - name: Build And Deploy
-        id: builddeploy
+      - name: Deploy to Azure Static Web Apps
+        id: deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          # Use your SWA deployment token secret (keep this line exactly as your portal created it)
+          # Use the exact secret Azure created for this SWA
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_POND_0F1AE1210 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
+          action: upload
+          app_location: "/"      # index.html at repo root
+          api_location: "api"    # Functions in /api
+          output_location: ""    # no build step; serve from app_location
 
-          # --- Tell SWA where things live in your repo ---
-          app_location: "/"          # your index.html is at repo root
-          api_location: "api"        # your Functions are in /api
-          output_location: ""        # no build step; serve from app_location
-          # ------------------------------------------------
-
-  close_pull_request_job:
+  close_pr:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
-    name: Close Pull Request Job
+    name: Close Static Web Apps Preview
     steps:
-      - name: Close Pull Request
-        id: closepullrequest
+      - name: Close PR environment
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_POND_0F1AE1210 }}
-          action: "close"
+          action: close
