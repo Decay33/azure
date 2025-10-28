@@ -11,7 +11,6 @@ function getClientPrincipal(req) {
 
 module.exports = async function (context, req) {
   const cp = getClientPrincipal(req);
-
   context.res = {
     status: 200,
     headers: { "Content-Type": "application/json" },
