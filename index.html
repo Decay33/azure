@@ -61,5 +61,38 @@
     }
     initAuthUI();
   </script>
+  <script>
+async function postJSON(url, data) {
+  const res = await fetch(url, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data || {})
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+(async () => {
+  try {
+    const me = await fetch('/.auth/me', { credentials: 'include', cache: 'no-store' }).then(r => r.json());
+    if (me?.clientPrincipal?.userRoles?.includes('authenticated')) {
+      await postJSON('/api/user-init', {});   // ensures profile exists
+      await postJSON('/api/track', { type: 'page_view', payload: { path: location.pathname } });
+    }
+  } catch (e) {
+    console.warn('Init/track skipped:', e.message);
+  }
+})();
+
+document.addEventListener('click', async (e) => {
+  const a = e.target.closest('a');
+  if (!a) return;
+  try {
+    await postJSON('/api/track', { type: 'click', payload: { href: a.getAttribute('href') } });
+  } catch {}
+});
+</script>
+
 </body>
 </html>
