@@ -1,0 +1,23 @@
+Options +ExecCGI +FollowSymLinks
+AddHandler cgi-script .py
+Action python-script /usr/bin/python3
+ScriptAlias /cgi-bin/ /home4/gamesmar/public_html/theaidemocracy/
+
+<Files *.py>
+    Options +ExecCGI
+    SetHandler cgi-script
+    AddHandler cgi-script .py
+</Files>
+
+DirectoryIndex index.html index.py
+
+# Set Python path
+SetEnv PYTHONPATH /home4/gamesmar/public_html/theaidemocracy
+SetEnv PATH /usr/bin:/bin
+SetEnv PYTHONHOME /usr
+
+# Enable error reporting
+php_flag display_errors on
+php_value error_reporting E_ALL
+php_flag log_errors on
+php_value error_log /home4/gamesmar/public_html/theaidemocracy/php_error.log

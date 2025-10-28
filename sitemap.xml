@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage -->
+  <url>
+    <loc>https://theaidemocracy.com/</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.00</priority>
+  </url>
+  
+  <!-- Contact Page -->
+  <url>
+    <loc>https://theaidemocracy.com/contact.php</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Privacy Policy Page -->
+  <url>
+    <loc>https://theaidemocracy.com/privacy.php</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  
+  <!-- Official Game Pages -->
+  <url>
+    <loc>https://theaidemocracy.com/cavegrok/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://theaidemocracy.com/buildaship/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://theaidemocracy.com/celestialguardian/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://theaidemocracy.com/roguelikeasteroids/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://theaidemocracy.com/chromaticrunner/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://theaidemocracy.com/pixelpanic/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://theaidemocracy.com/jumphigh/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://theaidemocracy.com/clickerclicker/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://theaidemocracy.com/towerbuilder/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Community Game Pages -->
+  <url>
+    <loc>https://theaidemocracy.com/communitygames/cubedodger/index.html</loc>
+    <lastmod>2025-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+</urlset>

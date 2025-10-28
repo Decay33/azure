@@ -28,6 +28,72 @@
   <section class="card">
     <h2>Your Games</h2>
     <p>Add game links here as you publish them (e.g., <code>/games/flip-dice/</code>, <code>/games/space-rocks/</code>).</p>
+    <ul>
+      <li><a href="/cavegrok/">Cave Grok</a> - Navigate the depths</li>
+      <li><a href="/chromaticrunner/">Chromatic Runner</a> - Color-matching challenge</li>
+    </ul>
+  </section>
+
+  <section class="card" id="scoring-demo" style="display:none;">
+    <h2>📊 Scoring System Demo</h2>
+    <p>Test the scoring API endpoints:</p>
+    
+    <div style="margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+      <h3 style="margin-top: 0;">Submit a Score</h3>
+      <form id="submit-score-form" style="display: grid; gap: 0.5rem; max-width: 400px;">
+        <label>
+          Game ID:
+          <input type="text" id="score-gameId" placeholder="e.g., cavegrok" required 
+                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+        </label>
+        <label>
+          Score:
+          <input type="number" id="score-value" placeholder="e.g., 1000" required 
+                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+        </label>
+        <button type="submit" class="btn" style="width: fit-content; background: #0066cc; color: white; border: none; cursor: pointer;">
+          Submit Score
+        </button>
+      </form>
+    </div>
+
+    <div style="margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+      <h3 style="margin-top: 0;">View Leaderboard</h3>
+      <form id="leaderboard-form" style="display: grid; gap: 0.5rem; max-width: 400px;">
+        <label>
+          Game ID:
+          <input type="text" id="leaderboard-gameId" placeholder="e.g., cavegrok" required 
+                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+        </label>
+        <label>
+          Limit:
+          <input type="number" id="leaderboard-limit" value="10" min="1" max="100" 
+                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+        </label>
+        <button type="submit" class="btn" style="width: fit-content; background: #28a745; color: white; border: none; cursor: pointer;">
+          Get Leaderboard
+        </button>
+      </form>
+    </div>
+
+    <div style="margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+      <h3 style="margin-top: 0;">View My Scores</h3>
+      <form id="my-scores-form" style="display: grid; gap: 0.5rem; max-width: 400px;">
+        <label>
+          Game ID (optional):
+          <input type="text" id="my-scores-gameId" placeholder="Leave blank for all games" 
+                 style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+        </label>
+        <button type="submit" class="btn" style="width: fit-content; background: #6f42c1; color: white; border: none; cursor: pointer;">
+          Get My Scores
+        </button>
+      </form>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <h3>Results:</h3>
+      <pre id="out" style="background: #2d2d2d; color: #f8f8f8; padding: 1rem; border-radius: 6px; overflow-x: auto; max-height: 400px;">No results yet. Use the forms above to test the API.</pre>
+    </div>
   </section>
 
   <details class="card">
@@ -91,6 +157,89 @@ document.addEventListener('click', async (e) => {
   try {
     await postJSON('/api/track', { type: 'click', payload: { href: a.getAttribute('href') } });
   } catch {}
+});
+</script>
+
+<script>
+// Show scoring demo only when authenticated
+(async () => {
+  try {
+    const me = await fetch('/.auth/me', { credentials: 'include', cache: 'no-store' }).then(r => r.json());
+    if (me?.clientPrincipal?.userRoles?.includes('authenticated')) {
+      document.getElementById('scoring-demo').style.display = 'block';
+    }
+  } catch (e) {
+    console.warn('Scoring demo hidden:', e.message);
+  }
+})();
+
+// Helper to display results
+function displayResult(data) {
+  document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+}
+
+// Submit Score Form
+document.getElementById('submit-score-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const gameId = document.getElementById('score-gameId').value.trim();
+  const score = parseInt(document.getElementById('score-value').value, 10);
+  
+  if (!gameId || isNaN(score)) {
+    displayResult({ error: 'Please provide valid gameId and score' });
+    return;
+  }
+
+  try {
+    const result = await postJSON('/api/submit-score', { gameId, score });
+    displayResult({ success: true, message: 'Score submitted!', ...result });
+    // Clear form
+    document.getElementById('score-value').value = '';
+  } catch (err) {
+    displayResult({ error: 'Failed to submit score', message: err.message });
+  }
+});
+
+// Leaderboard Form
+document.getElementById('leaderboard-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const gameId = document.getElementById('leaderboard-gameId').value.trim();
+  const limit = parseInt(document.getElementById('leaderboard-limit').value, 10) || 10;
+  
+  if (!gameId) {
+    displayResult({ error: 'Please provide a gameId' });
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/leaderboard?gameId=${encodeURIComponent(gameId)}&limit=${limit}`, {
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const result = await res.json();
+    displayResult(result);
+  } catch (err) {
+    displayResult({ error: 'Failed to fetch leaderboard', message: err.message });
+  }
+});
+
+// My Scores Form
+document.getElementById('my-scores-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const gameId = document.getElementById('my-scores-gameId').value.trim();
+  
+  try {
+    let url = '/api/my-scores';
+    if (gameId) {
+      url += `?gameId=${encodeURIComponent(gameId)}`;
+    }
+    
+    const res = await fetch(url, { credentials: 'include' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const result = await res.json();
+    displayResult(result);
+  } catch (err) {
+    displayResult({ error: 'Failed to fetch my scores', message: err.message });
+  }
 });
 </script>
 
