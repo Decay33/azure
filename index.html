@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Game Hub</title></head>
+  <body>
+    <h1>Welcome to the Game Hub</h1>
+    <p><a href="/.auth/login/google">Sign in with Google</a></p>
+    <p><a href="/.auth/logout">Sign out</a></p>
+    <p><a href="/members/">Go to Members Area</a></p>
+    <hr>
+    <h3>Auth debug</h3>
+    <pre id="me">Loading...</pre>
+    <script>
+      fetch('/.auth/me').then(r => r.json()).then(j => {
+        document.getElementById('me').textContent = JSON.stringify(j, null, 2);
+      }).catch(()=>{ document.getElementById('me').textContent = 'Not signed in'; });
+    </script>
+  </body>
+</html>
