@@ -4,7 +4,10 @@
     "exclude": ["/images/*", "/css/*", "/js/*"]
   },
   "routes": [
-    { "route": "/members/*", "allowedRoles": ["authenticated"] }
+    { "route": "/api/deployments/*", "allowedRoles": ["anonymous"] },
+    { "route": "/api/health/*",      "allowedRoles": ["anonymous"] },
+    { "route": "/api/*",             "allowedRoles": ["authenticated"] },
+    { "route": "/members/*",         "allowedRoles": ["authenticated"] }
   ],
   "auth": {
     "identityProviders": {
