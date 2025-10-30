@@ -89,6 +89,7 @@ const powerUpSound = { play: () => {} };
 // DOM elements
 const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('highScore');
+const scoreMessage = document.getElementById('scoreMessage');
 const restartButton = document.getElementById('restartButton');
 const resetHighScoreButton = document.getElementById('resetHighScore');
 const leaderboardList = document.getElementById('leaderboard-list');
@@ -106,7 +107,7 @@ let usingRemoteScores = false;
 let leaderboardLoaded = false;
 let localHighScore = parseInt(localStorage.getItem(LOCAL_HS_KEY) || '0', 10) || 0;
 
-function updateHighScoreDisplay() {
+function showScoreMessage(text) {\n  if (!scoreMessage) {\n    return;\n  }\n\n  if (text) {\n    scoreMessage.textContent = text;\n    scoreMessage.classList.remove('hidden');\n  } else {\n    scoreMessage.classList.add('hidden');\n  }\n}\n\nfunction updateHighScoreDisplay() {
   highScoreDisplay.textContent = highScore;
 }
 
@@ -237,6 +238,7 @@ async function submitRemoteScore(value) {
 async function bootstrapAuth() {
   currentUser = await getMe();
   updateAuthUi(currentUser);
+  showScoreMessage("");
 
   if (currentUser) {
     usingRemoteScores = true;
@@ -906,7 +908,7 @@ function initGame() {
   keys['ArrowLeft'] = false;
   keys['ArrowRight'] = false;
   restartButton.style.display = 'none';
-  scoreDisplay.textContent = score;
+  scoreDisplay.textContent = score;\n  showScoreMessage('');
   initVisualEffects();
 }
 
@@ -929,7 +931,7 @@ function initGame() {
   keys['ArrowLeft'] = false;
   keys['ArrowRight'] = false;
   restartButton.style.display = 'none';
-  scoreDisplay.textContent = score;
+  scoreDisplay.textContent = score;\n  showScoreMessage('');
 }
 
 function gameLoop() {
@@ -1015,7 +1017,7 @@ function updateGame() {
     powerUpTimer = 0;
   }
 
-  scoreDisplay.textContent = score;
+  scoreDisplay.textContent = score;\n  showScoreMessage('');
 }
 
 function drawGame() {
@@ -1081,6 +1083,9 @@ function endGame() {
     if (score > highScore) {
       highScore = score;
       updateHighScoreDisplay();
+      showScoreMessage('New high score!');
+    } else {
+      showScoreMessage('');
     }
     submitRemoteScore(score)
       .then(function (payload) {
@@ -1095,10 +1100,13 @@ function endGame() {
         }
       })
       .catch(function (error) {
-        console.warn('Score submission failed', error);
+        console.warn('Score submission failed', error);\n        showScoreMessage('');
       });
   } else if (score > localHighScore) {
     setLocalHighScore(score);
+    showScoreMessage('New high score!');
+  } else {
+    showScoreMessage('');
   }
   gameOverSound.play();
   restartButton.style.display = 'inline-block';
@@ -1145,6 +1153,17 @@ resetHighScoreButton.addEventListener('click', function() {
 bootstrapAuth();
 // Start the game loop
 gameLoop();
+
+
+
+
+
+
+
+
+
+
+
 
 
 
