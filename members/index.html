@@ -105,7 +105,71 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    
+    async function loadRunnerScores() {
+      const list = document.getElementById('runner-score-list');
+      const status = document.getElementById('runner-score-status');
+      if (!list || !status) {
+        return;
+      }
+
+      list.innerHTML = '';
+      status.textContent = 'Loading leaderboard...';
+
+      try {
+        const response = await fetch('/api/scores?gameId=chromaticrunner', { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error('Failed to load scores');
+        }
+
+        const data = await response.json();
+        const entries = (data && data.entries) || [];
+        const highlightId = data && data.myScore ? data.myScore.userId : null;
+
+        if (!entries.length) {
+          status.textContent = 'No scores yet. Finish a run to claim the top spot.';
+          return;
+        }
+
+        status.textContent = '';
+        entries.forEach((entry, index) => {
+          const li = document.createElement('li');
+          li.className = 'member-score-row';
+          if (highlightId && entry.userId === highlightId) {
+            li.classList.add('member-score-me');
+          }
+
+          const rank = document.createElement('span');
+          rank.className = 'rank';
+          rank.textContent = index + 1;
+
+          const name = document.createElement('span');
+          name.className = 'player';
+          name.textContent = entry.displayName || 'Player';
+
+          const score = document.createElement('span');
+          score.className = 'score';
+          score.textContent = Number(entry.bestScore || 0).toLocaleString();
+
+          li.appendChild(rank);
+          li.appendChild(name);
+          li.appendChild(score);
+
+          if (entry.updatedAt) {
+            const meta = document.createElement('small');
+            const date = new Date(entry.updatedAt);
+            meta.textContent = 'Updated ' + date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            li.appendChild(meta);
+          }
+
+          list.appendChild(li);
+        });
+      } catch (error) {
+        console.warn('Failed to load member leaderboard', error);
+        status.textContent = 'Leaderboard unavailable right now.';
+      }
+    }
+document.addEventListener('DOMContentLoaded', async () => {
       const principal = await getMe();
       const authStatus = document.getElementById('auth-status');
       const nameEl = document.getElementById('member-name');
@@ -118,6 +182,14 @@
         authStatus.textContent = 'Your session expired. Please sign in again.';
         nameEl.textContent = emailEl.textContent = providerEl.textContent = rolesEl.textContent = '—';
         payloadEl.textContent = 'No principal payload available.';
+        const status = document.getElementById('runner-score-status');
+        const list = document.getElementById('runner-score-list');
+        if (status) {
+          status.textContent = 'Sign in to view the leaderboard.';
+        }
+        if (list) {
+          list.innerHTML = '';
+        }
         return;
       }
 
@@ -128,7 +200,12 @@
       providerEl.textContent = principal.identityProvider || 'Google';
       rolesEl.textContent = (principal.userRoles || []).join(', ');
       payloadEl.textContent = JSON.stringify(principal, null, 2);
+      await loadRunnerScores();
     });
   </script>
 </body>
 </html>
+
+
+
+

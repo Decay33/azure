@@ -1325,3 +1325,41 @@ footer a.footer-link:hover::after {
   margin-right: 0.5rem;
   color: var(--accent-secondary);
 }
+.member-score-list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.member-score-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.member-score-row .rank {
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.member-score-row .score {
+  font-weight: 700;
+}
+
+.member-score-row small {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.member-score-me {
+  border-color: var(--accent-secondary);
+  box-shadow: 0 10px 25px rgba(181, 55, 255, 0.2);
+}

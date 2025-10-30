@@ -1,0 +1,86 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chromatic Runner | The AI Democracy</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="scanline"></div>
+    <div class="circuit-lines">
+      <div class="circuit-line horizontal-line" style="top: 15%; left: 5%; width: 150px;"></div>
+      <div class="circuit-line vertical-line" style="top: 30%; left: 10%; height: 120px;"></div>
+      <div class="circuit-dot" style="top: 30%; left: 10%;"></div>
+      <div class="circuit-line horizontal-line" style="top: 75%; right: 5%; width: 200px;"></div>
+      <div class="circuit-line vertical-line" style="top: 60%; right: 20%; height: 150px;"></div>
+      <div class="circuit-dot" style="top: 60%; right: 20%;"></div>
+    </div>
+
+    <nav class="nav-bar">
+      <a href="/" class="nav-logo"><span class="nav-logo-the">THE</span>AI<span>Democracy</span></a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/#game-list" class="nav-link">Games</a>
+        <a href="/#tools" class="nav-link">Tools</a>
+        <a href="/#contact" class="nav-link">Contact</a>
+        <a href="/privacy.html" class="nav-link">Privacy</a>
+        <a href="/members/" class="nav-link">Members</a>
+      </div>
+      <div class="nav-links nav-auth">
+        <a id="sign-in-link" class="nav-link" href="/.auth/login/google?post_login_redirect_uri=/chromaticrunner/index.html">Sign In</a>
+        <a id="sign-out-link" class="nav-link hidden" href="/.auth/logout?post_logout_redirect_uri=/chromaticrunner/index.html">Sign Out</a>
+      </div>
+    </nav>
+
+    <div class="auth-banner" id="auth-banner">
+      <span id="auth-status">You&apos;re browsing as a guest. <a href="/.auth/login/google?post_login_redirect_uri=/chromaticrunner/index.html">Sign in with Google</a> to record your high scores.</span>
+    </div>
+
+    <main class="runner-main">
+      <header class="runner-header">
+        <h1 data-text="Chromatic Runner">Chromatic Runner</h1>
+        <p class="muted">Match colors, dodge hazards, and climb the neon leaderboard. Every run counts toward your global rank.</p>
+      </header>
+
+      <section class="runner-grid">
+        <div class="runner-play">
+          <canvas id="gameCanvas" width="400" height="600" aria-label="Chromatic Runner playfield"></canvas>
+
+          <div id="scoreBoard" class="runner-scoreboard">
+            <p>Score: <span id="score">0</span></p>
+            <p>Personal Best: <span id="highScore">0</span></p>
+            <button id="resetHighScore" class="hidden">Reset Local High Score</button>
+          </div>
+
+          <button id="restartButton" class="runner-button" style="display: none;">Restart Run</button>
+
+          <div id="instructions" class="runner-instructions">
+            <p>Use the left / right arrows to move. Press <strong>Space</strong> to cycle colors. Match your ship with barriers and bullets to survive. Collect gold power-ups to go invincible and earn bonus points.</p>
+          </div>
+
+          <p id="runner-signin-message" class="runner-callout hidden">Sign in to save your high scores to the global leaderboard.</p>
+        </div>
+
+        <aside class="runner-leaderboard">
+          <h2>Chromatic Runner Leaderboard</h2>
+          <p class="muted" id="leaderboard-empty">Sign in to see the top pilots.</p>
+          <ol id="leaderboard-list" class="score-list"></ol>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      <p>Powered by Advanced AI Technology - High scores are secured via Azure Static Web Apps and Cosmos DB.</p>
+      <div class="footer-links">
+        <a href="/privacy.html" class="footer-link">Privacy Policy</a>
+        <a href="/#contact" class="footer-link">Contact Us</a>
+        <a href="/.auth/logout?post_logout_redirect_uri=/chromaticrunner/index.html" class="footer-link">Sign Out</a>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

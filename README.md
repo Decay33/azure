@@ -7,7 +7,7 @@ This repo hosts the static front-end and Azure Functions backend that replaced t
 ```
 /
   index.html                # Main landing page (games, tools, contact)
-  members/index.html        # Auth-only members hub
+  members/index.html        # Auth-only members hub\n  chromaticrunner/\n    index.html              # Standalone game page with SWA nav/auth\n    script.js               # Game logic + score submission\n    styles.css              # Page-specific styling
   privacy.html              # Public privacy policy
   style.css                 # Shared styling from the legacy site
   sitemap.xml               # Updated sitemap URLs
@@ -41,6 +41,7 @@ Azure Static Web Apps EasyAuth (custom Google OIDC) protects everything under `/
 | **GetMe**    | Returns `{ userId, userDetails, identityProvider, userRoles }` from the EasyAuth principal. Useful for debugging the auth context.
 | **contact**  | Accepts `POST` JSON `{ name, email, subject, message }`. Validates input, logs every submission, and (optionally) relays through SendGrid if the email env vars are set.
 | **likes**    | `GET /api/likes?slug=<id>` reads the current like count. `POST /api/likes` with `{ slug }` increments it. Stores data in Cosmos DB when configured, otherwise falls back to an in-memory map (for local dev/demo).
+| **scores**   | `GET /api/scores?gameId=<id>` returns the leaderboard (top 10 by default). `POST /api/scores` with `{ gameId, score }` upserts the caller's personal best. Uses Cosmos DB when configured (same container as likes) and falls back to in-memory storage for local dev.
 
 ### Environment Variables
 
@@ -51,10 +52,11 @@ Configure these under **Static Web App → Configuration** (or a local `local.se
 | `GOOGLE_CLIENT_ID` | Client ID for the custom Google OIDC provider.
 | `COSMOS_CONN_STRING` | Cosmos DB connection string (AccountEndpoint + Key).
 | `COSMOS_DB_NAME` | Cosmos DB database that contains the likes container (e.g. `site`).
-| `COSMOS_CONTAINER_NAME` | Cosmos container for like documents (partition key `/slug`).
+| `COSMOS_CONTAINER_NAME` | Cosmos container for like and score documents (partition key `/slug`).
 | `SENDGRID_API_KEY` | *(Optional)* API key for SendGrid email delivery.
 | `CONTACT_TO` | *(Optional)* Destination email for contact messages (required if SendGrid is used).
 | `CONTACT_FROM` | *(Optional)* Verified sender address. Defaults to `CONTACT_TO` if omitted.
+> Likes and score documents share the same container. Each item carries a docType field ("likes" or "score") and uses the slug/game id as the partition key.
 
 ## GitHub Actions Deployment
 
@@ -84,3 +86,9 @@ Add the deployment token from the SWA resource as the repository secret `AZURE_S
 
 - Original design/content from the PHP site preserved in `index.html`, `style.css`, and `privacy.html`.
 - Azure Static Web Apps for auth and hosting, Cosmos DB for persistent likes, and SendGrid for email relay (optional).
+
+
+
+
+
+
