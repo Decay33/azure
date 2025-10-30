@@ -105,9 +105,23 @@ const LOCAL_HS_KEY = 'chromatic-runner-local-best';
 let currentUser = null;
 let usingRemoteScores = false;
 let leaderboardLoaded = false;
+let authRetryCount = 0;
 let localHighScore = parseInt(localStorage.getItem(LOCAL_HS_KEY) || '0', 10) || 0;
 
-function showScoreMessage(text) {\n  if (!scoreMessage) {\n    return;\n  }\n\n  if (text) {\n    scoreMessage.textContent = text;\n    scoreMessage.classList.remove('hidden');\n  } else {\n    scoreMessage.classList.add('hidden');\n  }\n}\n\nfunction updateHighScoreDisplay() {
+function showScoreMessage(text) {
+  if (!scoreMessage) {
+    return;
+  }
+
+  if (text) {
+    scoreMessage.textContent = text;
+    scoreMessage.classList.remove('hidden');
+  } else {
+    scoreMessage.classList.add('hidden');
+  }
+}
+
+function updateHighScoreDisplay() {
   highScoreDisplay.textContent = highScore;
 }
 
@@ -177,15 +191,30 @@ function renderLeaderboard(entries) {
   leaderboardEmpty.classList.add('hidden');
   entries.forEach(function(entry, index) {
     const li = document.createElement('li');
-    const label = (index + 1) + '. ' + (entry.displayName || 'Player');
-    li.innerHTML = '<span>' + label + '</span><span>' + Number(entry.bestScore || 0).toLocaleString() + '</span>';
+
+    const rank = document.createElement('span');
+    rank.className = 'rank';
+    rank.textContent = index + 1;
+
+    const name = document.createElement('span');
+    name.className = 'player';
+    name.textContent = entry.displayName || 'Player';
+
+    const scoreValue = document.createElement('span');
+    scoreValue.className = 'score';
+    scoreValue.textContent = Number(entry.bestScore || 0).toLocaleString();
+
+    li.appendChild(rank);
+    li.appendChild(name);
+    li.appendChild(scoreValue);
+
     if (currentUser && entry.userId === currentUser.userId) {
       li.classList.add('runner-me');
     }
     if (entry.updatedAt) {
       const meta = document.createElement('small');
       const date = new Date(entry.updatedAt);
-      meta.textContent = 'Set ' + date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      meta.textContent = 'Updated ' + date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
       li.appendChild(meta);
     }
     leaderboardList.appendChild(li);
@@ -196,6 +225,11 @@ async function loadLeaderboard() {
   if (!currentUser) {
     renderLeaderboard([]);
     return;
+  }
+
+  if (leaderboardEmpty) {
+    leaderboardEmpty.textContent = 'Loading leaderboard…';
+    leaderboardEmpty.classList.remove('hidden');
   }
 
   try {
@@ -241,13 +275,22 @@ async function bootstrapAuth() {
   showScoreMessage("");
 
   if (currentUser) {
+    authRetryCount = 0;
     usingRemoteScores = true;
-    resetHighScoreButton.classList.add('hidden');
+    if (resetHighScoreButton) {
+      resetHighScoreButton.classList.add('hidden');
+    }
     await loadLeaderboard();
   } else {
     usingRemoteScores = false;
-    resetHighScoreButton.classList.remove('hidden');
+    if (resetHighScoreButton) {
+      resetHighScoreButton.classList.remove('hidden');
+    }
     renderLeaderboard([]);
+    if (authRetryCount < 2) {
+      authRetryCount += 1;
+      setTimeout(bootstrapAuth, 1500);
+    }
   }
 }
 
@@ -908,7 +951,8 @@ function initGame() {
   keys['ArrowLeft'] = false;
   keys['ArrowRight'] = false;
   restartButton.style.display = 'none';
-  scoreDisplay.textContent = score;\n  showScoreMessage('');
+  scoreDisplay.textContent = score;
+  showScoreMessage('');
   initVisualEffects();
 }
 
@@ -931,7 +975,8 @@ function initGame() {
   keys['ArrowLeft'] = false;
   keys['ArrowRight'] = false;
   restartButton.style.display = 'none';
-  scoreDisplay.textContent = score;\n  showScoreMessage('');
+  scoreDisplay.textContent = score;
+  showScoreMessage('');
 }
 
 function gameLoop() {
@@ -1017,7 +1062,8 @@ function updateGame() {
     powerUpTimer = 0;
   }
 
-  scoreDisplay.textContent = score;\n  showScoreMessage('');
+  scoreDisplay.textContent = score;
+  showScoreMessage('');
 }
 
 function drawGame() {
@@ -1094,13 +1140,15 @@ function endGame() {
           updateHighScoreDisplay();
         }
         if (payload && payload.updated) {
-          loadLeaderboard();
-        } else if (!leaderboardLoaded) {
-          loadLeaderboard();
-        }
+      loadLeaderboard();
+      showScoreMessage('New high score!');
+    } else if (!leaderboardLoaded) {
+      loadLeaderboard();
+    }
       })
       .catch(function (error) {
-        console.warn('Score submission failed', error);\n        showScoreMessage('');
+        console.warn('Score submission failed', error);
+        showScoreMessage('');
       });
   } else if (score > localHighScore) {
     setLocalHighScore(score);
@@ -1116,23 +1164,36 @@ function endGame() {
 // Input Handlers
 // ------------------------
 document.addEventListener('keydown', function(event) {
+  if (event.code === 'Space' || event.key === ' ') {
+    event.preventDefault();
+  }
+
   if (gameState === 'start' && event.key === 'Enter') {
     initGame();
     gameState = 'playing';
-  } else if (gameState === 'game_over' && (event.key === 'r' || event.key === 'R')) {
+    return;
+  }
+
+  if (gameState === 'game_over' && (event.key === 'r' || event.key === 'R')) {
     initGame();
     gameState = 'playing';
-  } else if (gameState === 'playing') {
+    return;
+  }
+
+  if (gameState === 'playing') {
     if (event.key === ' ') {
       ship.changeColor();
     } else {
       keys[event.key] = true;
     }
-    event.preventDefault();
   }
 });
 
 document.addEventListener('keyup', function(event) {
+  if (event.code === 'Space' || event.key === ' ') {
+    event.preventDefault();
+  }
+
   if (gameState === 'playing') {
     keys[event.key] = false;
   }
@@ -1143,16 +1204,25 @@ restartButton.addEventListener('click', function() {
   gameState = 'playing';
 });
 
-resetHighScoreButton.addEventListener('click', function() {
-  if (usingRemoteScores) {
-    return;
-  }
-  setLocalHighScore(0);
-});
+if (resetHighScoreButton) {
+  resetHighScoreButton.addEventListener('click', function() {
+    if (usingRemoteScores) {
+      return;
+    }
+    setLocalHighScore(0);
+  });
+}
 
 bootstrapAuth();
 // Start the game loop
 gameLoop();
+
+window.addEventListener('focus', function() {
+  authRetryCount = 0;
+  bootstrapAuth();
+});
+
+
 
 
 

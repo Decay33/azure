@@ -50,9 +50,16 @@
           <canvas id="gameCanvas" width="400" height="600" aria-label="Chromatic Runner playfield"></canvas>
 
           <div id="scoreBoard" class="runner-scoreboard">
-            <p>Score: <span id="score">0</span></p>
-            <p>Personal Best: <span id="highScore">0</span></p>
-            <button id="resetHighScore" class="hidden">Reset Local High Score</button>
+            <div class="stat">
+              <span class="label">Score</span>
+              <span class="value" id="score">0</span>
+            </div>
+            <div class="stat">
+              <span class="label">Personal Best</span>
+              <span class="value" id="highScore">0</span>
+            </div>
+            <div id="scoreMessage" class="score-message hidden">New high score!</div>
+            <button id="resetHighScore" class="runner-button hidden">Reset Local High Score</button>
           </div>
 
           <button id="restartButton" class="runner-button" style="display: none;">Restart Run</button>
