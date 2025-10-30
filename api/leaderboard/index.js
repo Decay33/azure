@@ -1,91 +1,72 @@
-const { CosmosClient } = require("@azure/cosmos");
-
-function getClientPrincipal(req) {
-  const header = req.headers["x-ms-client-principal"];
-  if (!header) return null;
-  try {
-    const decoded = Buffer.from(header, "base64").toString("utf8");
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
-}
-
-const client = new CosmosClient({
-  endpoint: process.env.COSMOS_ENDPOINT,
-  key: process.env.COSMOS_KEY
-});
-
-const dbName = process.env.COSMOS_DB || "gamehub";
-const containerName = process.env.COSMOS_PLAYERDATA_CONTAINER || "playerdata";
+﻿const { getUser } = require("../_shared/auth");
+const { getContainer } = require("../_shared/cosmos");
 
 module.exports = async function (context, req) {
-  const cp = getClientPrincipal(req);
-  if (!cp) {
-    context.res = { status: 401, body: { error: "Unauthenticated" } };
-    return;
-  }
-
-  // Get query parameters
-  const gameId = req.query.gameId;
-  let limit = parseInt(req.query.limit || "10", 10);
-
-  if (!gameId || typeof gameId !== "string") {
-    context.res = { status: 400, body: { error: "Missing gameId parameter" } };
-    return;
-  }
-
-  // Enforce max limit of 100
-  if (isNaN(limit) || limit < 1) {
-    limit = 10;
-  }
-  if (limit > 100) {
-    limit = 100;
-  }
-
   try {
-    const container = client.database(dbName).container(containerName);
-    
-    // Cross-partition query to get top scores
-    const querySpec = {
-      query: `
-        SELECT TOP @limit 
-          c.playerId, 
-          c.displayName, 
-          c.email, 
-          c.score, 
-          c.ts,
-          c.id
-        FROM c
-        WHERE c.type = @type AND c.gameId = @gameId
-        ORDER BY c.score DESC
-      `,
-      parameters: [
-        { name: "@limit", value: limit },
-        { name: "@type", value: "score" },
-        { name: "@gameId", value: gameId }
-      ]
-    };
+    const user = getUser(req);
 
-    const { resources: scores } = await container.items
-      .query(querySpec, { 
-        enableCrossPartitionQuery: true,
-        maxItemCount: limit 
-      })
+    if (!user) {
+      context.res = {
+        status: 401,
+        body: { error: "Authentication required." }
+      };
+      return;
+    }
+
+    const gameId = (req.query?.gameId || req.query?.gameid || "").trim();
+    if (!gameId) {
+      context.res = {
+        status: 400,
+        body: { error: "gameId query parameter is required." }
+      };
+      return;
+    }
+
+    const rawLimit = req.query?.limit;
+    let limit = 10;
+    if (rawLimit !== undefined) {
+      const parsed = parseInt(rawLimit, 10);
+      if (Number.isNaN(parsed) || parsed <= 0) {
+        context.res = {
+          status: 400,
+          body: { error: "limit must be a positive integer." }
+        };
+        return;
+      }
+
+      limit = Math.min(parsed, 100);
+    }
+
+    const container = getContainer();
+    const query = `
+      SELECT TOP ${limit} c.playerId, c.displayName, c.email, c.score, c.ts
+      FROM c
+      WHERE c.type = @type AND c.gameId = @gameId
+      ORDER BY c.score DESC
+    `;
+
+    const { resources } = await container.items
+      .query(
+        {
+          query,
+          parameters: [
+            { name: "@type", value: "score" },
+            { name: "@gameId", value: gameId }
+          ]
+        },
+        { enableCrossPartitionQuery: true }
+      )
       .fetchAll();
 
-    context.res = { 
-      status: 200, 
-      body: { 
-        gameId, 
-        limit, 
-        count: scores.length,
-        scores 
-      } 
+    context.res = {
+      status: 200,
+      body: resources
     };
-  } catch (err) {
-    context.log.error("leaderboard error", err);
-    context.res = { status: 500, body: { error: "Failed to fetch leaderboard" } };
+  } catch (error) {
+    context.log.error("leaderboard failure", error);
+    context.res = {
+      status: 500,
+      body: { error: "Failed to fetch leaderboard." }
+    };
   }
 };
-

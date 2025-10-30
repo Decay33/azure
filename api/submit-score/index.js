@@ -1,80 +1,86 @@
-const { CosmosClient } = require("@azure/cosmos");
+﻿const { getUser } = require("../_shared/auth");
+const { getContainer } = require("../_shared/cosmos");
+const { createDocumentId } = require("../_shared/id");
 
-function getClientPrincipal(req) {
-  const header = req.headers["x-ms-client-principal"];
-  if (!header) return null;
+function parseBody(req) {
+  if (req.body === undefined || req.body === null) {
+    return null;
+  }
+
+  if (typeof req.body === "object") {
+    return req.body;
+  }
+
   try {
-    const decoded = Buffer.from(header, "base64").toString("utf8");
-    return JSON.parse(decoded);
-  } catch {
+    return JSON.parse(req.body);
+  } catch (_err) {
     return null;
   }
 }
 
-const client = new CosmosClient({
-  endpoint: process.env.COSMOS_ENDPOINT,
-  key: process.env.COSMOS_KEY
-});
-
-const dbName = process.env.COSMOS_DB || "gamehub";
-const containerName = process.env.COSMOS_PLAYERDATA_CONTAINER || "playerdata";
-
 module.exports = async function (context, req) {
-  const cp = getClientPrincipal(req);
-  if (!cp) {
-    context.res = { status: 401, body: { error: "Unauthenticated" } };
-    return;
-  }
-
-  const { userId, userDetails, identityProvider, claims = [] } = cp;
-  const displayName = (claims.find(c => c.typ === "name") || {}).val || userDetails;
-
-  // Validate request body
-  const { gameId, score } = req.body || {};
-  
-  if (!gameId || typeof gameId !== "string") {
-    context.res = { status: 400, body: { error: "Missing or invalid gameId" } };
-    return;
-  }
-
-  if (score === undefined || score === null) {
-    context.res = { status: 400, body: { error: "Missing score" } };
-    return;
-  }
-
-  // Coerce score to integer
-  const scoreInt = parseInt(score, 10);
-  if (isNaN(scoreInt)) {
-    context.res = { status: 400, body: { error: "Invalid score - must be a number" } };
-    return;
-  }
-
-  const ts = Date.now();
-  const randomSuffix = Math.random().toString(36).slice(2, 10);
-  const docId = `${userId}-${ts}-${randomSuffix}`;
-
-  const doc = {
-    id: docId,
-    playerId: userId,           // partition key
-    type: "score",
-    gameId,
-    score: scoreInt,
-    ts,
-    displayName,
-    email: userDetails,
-    provider: identityProvider
-  };
-
   try {
-    const container = client.database(dbName).container(containerName);
-    await container.items.create(doc, { partitionKey: doc.playerId });
-    context.res = { 
-      status: 200, 
-      body: { ok: true, id: doc.id, score: scoreInt } 
+    const user = getUser(req);
+
+    if (!user) {
+      context.res = {
+        status: 401,
+        body: { error: "Authentication required." }
+      };
+      return;
+    }
+
+    const body = parseBody(req);
+
+    if (!body || typeof body !== "object") {
+      context.res = {
+        status: 400,
+        body: { error: "Invalid JSON body." }
+      };
+      return;
+    }
+
+    if (typeof body.gameId !== "string" || !body.gameId.trim()) {
+      context.res = {
+        status: 400,
+        body: { error: "gameId is required (non-empty string)." }
+      };
+      return;
+    }
+
+    const rawScore = Number(body.score);
+    if (!Number.isFinite(rawScore)) {
+      context.res = {
+        status: 400,
+        body: { error: "score must be a finite number." }
+      };
+      return;
+    }
+
+    const score = Math.round(rawScore);
+    const container = getContainer();
+    const document = {
+      id: createDocumentId(user.userId),
+      playerId: user.playerId,
+      type: "score",
+      gameId: body.gameId.trim(),
+      score,
+      ts: new Date().toISOString(),
+      displayName: user.displayName,
+      email: user.email
     };
-  } catch (err) {
-    context.log.error("submit-score error", err);
-    context.res = { status: 500, body: { error: "Failed to submit score" } };
+
+    await container.items.create(document);
+
+    context.res = {
+      status: 201,
+      body: { ok: true, id: document.id }
+    };
+  } catch (error) {
+    context.log.error("submit-score failure", error);
+    context.res = {
+      status: 500,
+      body: { error: "Failed to submit score." }
+    };
   }
 };
-

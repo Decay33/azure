@@ -1,256 +1,306 @@
-<!doctype html>
+﻿<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Game Hub</title>
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; line-height: 1.5; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
-    .btn { display:inline-block; padding:0.5rem 0.8rem; border:1px solid #ccc; border-radius:6px; text-decoration:none; cursor: pointer; }
-    .btn:hover { background:#f5f5f5; }
-    .btn-primary { background: #0066cc; color: white; border: none; width: fit-content; }
-    .btn-success { background: #28a745; color: white; border: none; width: fit-content; }
-    .btn-purple { background: #6f42c1; color: white; border: none; width: fit-content; }
-    .links a { margin-right:1rem; }
-    .card { border:1px solid #e5e5e5; border-radius:8px; padding:1rem; margin-top:1rem; }
-    details { margin-top:1rem; }
-    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    
-    /* Scoring Demo Styles */
-    #signout { display: none; }
-    #scoring-demo { display: none; }
-    .demo-section { margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 6px; }
-    .demo-section h3 { margin-top: 0; }
-    .demo-form { display: grid; gap: 0.5rem; max-width: 400px; }
-    .demo-form label { display: block; }
-    .demo-form input { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    .results-container { margin-top: 1rem; }
-    #out { background: #2d2d2d; color: #f8f8f8; padding: 1rem; border-radius: 6px; overflow-x: auto; max-height: 400px; }
-  </style>
-</head>
-<body>
-  <header>
-    <h1 id="greeting">Welcome to the Game Hub</h1>
-    <nav class="links">
-      <a id="signin" class="btn" href="/.auth/login/google?post_login_redirect_uri=/members">Sign in with Google</a>
-      <a id="signout" class="btn" href="/.auth/logout?post_logout_redirect_uri=/">Sign out</a>
-      <a class="btn" href="/members/">Members Area</a>
-    </nav>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GameHub</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background: #f6f7fb;
+        color: #222;
+      }
 
-  <section class="card">
-    <h2>Your Games</h2>
-    <p>Add game links here as you publish them (e.g., <code>/games/flip-dice/</code>, <code>/games/space-rocks/</code>).</p>
-    <ul>
-      <li><a href="/cavegrok/">Cave Grok</a> - Navigate the depths</li>
-      <li><a href="/chromaticrunner/">Chromatic Runner</a> - Color-matching challenge</li>
-    </ul>
-  </section>
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
 
-  <section class="card" id="scoring-demo">
-    <h2>📊 Scoring System Demo</h2>
-    <p>Test the scoring API endpoints:</p>
-    
-    <div class="demo-section">
-      <h3>Submit a Score</h3>
-      <form id="submit-score-form" class="demo-form">
-        <label>
-          Game ID:
-          <input type="text" id="score-gameId" placeholder="e.g., cavegrok" required>
-        </label>
-        <label>
-          Score:
-          <input type="number" id="score-value" placeholder="e.g., 1000" required>
-        </label>
-        <button type="submit" class="btn btn-primary">
-          Submit Score
-        </button>
+      main {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(15, 33, 55, 0.08);
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      form,
+      .card {
+        border: 1px solid #e0e4ef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        background: #fdfdff;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #c5cade;
+        margin-bottom: 1rem;
+      }
+
+      button {
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        border: none;
+        background: #2d6cdf;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      pre {
+        background: #0b1437;
+        color: #f3f6ff;
+        padding: 1.5rem;
+        border-radius: 10px;
+        overflow-x: auto;
+      }
+
+      .notice {
+        font-size: 0.95rem;
+        color: #4a5470;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>GameHub</h1>
+      <div id="auth-actions">
+        <a href="/.auth/login/google">Sign in with Google</a>
+      </div>
+    </header>
+    <main>
+      <p class="notice">
+        Authenticated players can submit their best scores, track gameplay, and explore leaderboards.
+      </p>
+
+      <div class="card" id="profile-card" hidden>
+        <h2>Player Profile</h2>
+        <p><strong>Name:</strong> <span id="profile-name">-</span></p>
+        <p><strong>Email:</strong> <span id="profile-email">-</span></p>
+        <p><strong>Provider:</strong> <span id="profile-provider">-</span></p>
+        <p><strong>Last refreshed:</strong> <span id="profile-last-seen">-</span></p>
+      </div>
+
+      <form id="score-form" hidden>
+        <h2>Submit a Score</h2>
+        <label for="game-id-input">Game ID</label>
+        <input type="text" id="game-id-input" name="gameId" placeholder="e.g. space-shooter" required />
+
+        <label for="score-input">Score</label>
+        <input type="number" id="score-input" name="score" min="0" required />
+
+        <button type="submit">Submit Score</button>
       </form>
-    </div>
 
-    <div class="demo-section">
-      <h3>View Leaderboard</h3>
-      <form id="leaderboard-form" class="demo-form">
-        <label>
-          Game ID:
-          <input type="text" id="leaderboard-gameId" placeholder="e.g., cavegrok" required>
-        </label>
-        <label>
-          Limit:
-          <input type="number" id="leaderboard-limit" value="10" min="1" max="100">
-        </label>
-        <button type="submit" class="btn btn-success">
-          Get Leaderboard
-        </button>
-      </form>
-    </div>
+      <div class="card" id="leaderboard-card" hidden>
+        <h2>Leaderboard</h2>
+        <label for="leaderboard-game-id">Game ID</label>
+        <input type="text" id="leaderboard-game-id" placeholder="e.g. space-shooter" />
 
-    <div class="demo-section">
-      <h3>View My Scores</h3>
-      <form id="my-scores-form" class="demo-form">
-        <label>
-          Game ID (optional):
-          <input type="text" id="my-scores-gameId" placeholder="Leave blank for all games">
-        </label>
-        <button type="submit" class="btn btn-purple">
-          Get My Scores
-        </button>
-      </form>
-    </div>
+        <label for="leaderboard-limit">Limit (1-100, default 10)</label>
+        <input type="number" id="leaderboard-limit" min="1" max="100" placeholder="10" />
 
-    <div class="results-container">
-      <h3>Results:</h3>
-      <pre id="out">No results yet. Use the forms above to test the API.</pre>
-    </div>
-  </section>
+        <button id="leaderboard-button" type="button">Fetch Leaderboard</button>
+      </div>
 
-  <details class="card">
-    <summary>Auth debug (/.auth/me)</summary>
-    <pre id="debug">Loading…</pre>
-  </details>
+      <pre id="out" hidden></pre>
+    </main>
 
-  <script>
-    async function initAuthUI() {
-      try {
-        const res = await fetch('/.auth/me', { cache: 'no-store', credentials: 'include' });
-        const data = await res.json();
-        const cp = data && data.clientPrincipal;
-        const signedIn = !!(cp && cp.userRoles && cp.userRoles.includes('authenticated'));
+    <script>
+      const output = document.getElementById("out");
+      const profileCard = document.getElementById("profile-card");
+      const scoreForm = document.getElementById("score-form");
+      const leaderboardCard = document.getElementById("leaderboard-card");
 
-        if (signedIn) {
-          const display = cp.userDetails || (cp.claims?.find(c => c.typ === 'name')?.val) || 'Player';
-          document.getElementById('greeting').textContent = `Welcome, ${display}!`;
-          document.getElementById('signin').style.display = 'none';
-          document.getElementById('signout').style.display = '';
-        } else {
-          document.getElementById('greeting').textContent = 'Welcome to the Game Hub';
-          document.getElementById('signin').style.display = '';
-          document.getElementById('signout').style.display = 'none';
+      function setOutput(value, title) {
+        if (!value) {
+          output.hidden = true;
+          output.textContent = "";
+          return;
         }
 
-        document.getElementById('debug').textContent = JSON.stringify(data, null, 2);
-      } catch (e) {
-        document.getElementById('debug').textContent = 'Not signed in (or unable to load /.auth/me).';
+        const heading = title ? `${title}\n` : "";
+        output.textContent = `${heading}${JSON.stringify(value, null, 2)}`;
+        output.hidden = false;
       }
-    }
-    initAuthUI();
-  </script>
-  <script>
-async function postJSON(url, data) {
-  const res = await fetch(url, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data || {})
-  });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
-}
 
-(async () => {
-  try {
-    const me = await fetch('/.auth/me', { credentials: 'include', cache: 'no-store' }).then(r => r.json());
-    if (me?.clientPrincipal?.userRoles?.includes('authenticated')) {
-      await postJSON('/api/user-init', {});   // ensures profile exists
-      await postJSON('/api/track', { type: 'page_view', payload: { path: location.pathname } });
-    }
-  } catch (e) {
-    console.warn('Init/track skipped:', e.message);
-  }
-})();
+      async function callApi(path, options) {
+        const response = await fetch(path, options);
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          const error = payload.error || response.statusText || "Request failed";
+          throw new Error(error);
+        }
 
-document.addEventListener('click', async (e) => {
-  const a = e.target.closest('a');
-  if (!a) return;
-  try {
-    await postJSON('/api/track', { type: 'click', payload: { href: a.getAttribute('href') } });
-  } catch {}
-});
-</script>
+        if (response.status === 204) {
+          return null;
+        }
 
-<script>
-// Show scoring demo only when authenticated
-(async () => {
-  try {
-    const me = await fetch('/.auth/me', { credentials: 'include', cache: 'no-store' }).then(r => r.json());
-    if (me?.clientPrincipal?.userRoles?.includes('authenticated')) {
-      document.getElementById('scoring-demo').style.display = 'block';
-    }
-  } catch (e) {
-    console.warn('Scoring demo hidden:', e.message);
-  }
-})();
+        return response.json().catch(() => ({}));
+      }
 
-// Helper to display results
-function displayResult(data) {
-  document.getElementById('out').textContent = JSON.stringify(data, null, 2);
-}
+      async function trackEvent(type, payload) {
+        try {
+          await callApi("/api/track", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ type, payload })
+          });
+        } catch (err) {
+          console.warn("track event failed", err);
+        }
+      }
 
-// Submit Score Form
-document.getElementById('submit-score-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const gameId = document.getElementById('score-gameId').value.trim();
-  const score = parseInt(document.getElementById('score-value').value, 10);
-  
-  if (!gameId || isNaN(score)) {
-    displayResult({ error: 'Please provide valid gameId and score' });
-    return;
-  }
+      async function initializeForUser(clientPrincipal) {
+        const { userId, userDetails, identityProvider, claims = [] } = clientPrincipal;
 
-  try {
-    const result = await postJSON('/api/submit-score', { gameId, score });
-    displayResult({ success: true, message: 'Score submitted!', ...result });
-    // Clear form
-    document.getElementById('score-value').value = '';
-  } catch (err) {
-    displayResult({ error: 'Failed to submit score', message: err.message });
-  }
-});
+        try {
+          const { profile } = await callApi("/api/user-init", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: "{}"
+          });
 
-// Leaderboard Form
-document.getElementById('leaderboard-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const gameId = document.getElementById('leaderboard-gameId').value.trim();
-  const limit = parseInt(document.getElementById('leaderboard-limit').value, 10) || 10;
-  
-  if (!gameId) {
-    displayResult({ error: 'Please provide a gameId' });
-    return;
-  }
+          const emailClaim =
+            claims.find((c) =>
+              [
+                "email",
+                "emails",
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+              ].includes(c.typ)
+            ) || {};
 
-  try {
-    const res = await fetch(`/api/leaderboard?gameId=${encodeURIComponent(gameId)}&limit=${limit}`, {
-      credentials: 'include'
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const result = await res.json();
-    displayResult(result);
-  } catch (err) {
-    displayResult({ error: 'Failed to fetch leaderboard', message: err.message });
-  }
-});
+          profileCard.hidden = false;
+          document.getElementById("profile-name").textContent = profile.displayName;
+          document.getElementById("profile-email").textContent = profile.email || emailClaim.val || userDetails || "n/a";
+          document.getElementById("profile-provider").textContent = profile.provider || identityProvider || "unknown";
+          document.getElementById("profile-last-seen").textContent = new Date(profile.lastSeenAt).toLocaleString();
+        } catch (error) {
+          console.error("Failed to initialize profile", error);
+          setOutput({ error: error.message }, "user-init error");
+          return;
+        }
 
-// My Scores Form
-document.getElementById('my-scores-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const gameId = document.getElementById('my-scores-gameId').value.trim();
-  
-  try {
-    let url = '/api/my-scores';
-    if (gameId) {
-      url += `?gameId=${encodeURIComponent(gameId)}`;
-    }
-    
-    const res = await fetch(url, { credentials: 'include' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const result = await res.json();
-    displayResult(result);
-  } catch (err) {
-    displayResult({ error: 'Failed to fetch my scores', message: err.message });
-  }
-});
-</script>
+        await trackEvent("page_view", { path: window.location.pathname });
 
-</body>
+        scoreForm.hidden = false;
+        leaderboardCard.hidden = false;
+
+        if (!scoreForm.dataset.bound) {
+          scoreForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const gameId = document.getElementById("game-id-input").value.trim();
+            const scoreValue = document.getElementById("score-input").value;
+
+            if (!gameId) {
+              setOutput({ error: "Enter a gameId." }, "submit-score");
+              return;
+            }
+
+            try {
+              const result = await callApi("/api/submit-score", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  gameId,
+                  score: Number(scoreValue)
+                })
+              });
+
+              setOutput(result, "submit-score");
+              await trackEvent("score_submitted", { gameId, score: Number(scoreValue) });
+              scoreForm.reset();
+            } catch (error) {
+              setOutput({ error: error.message }, "submit-score error");
+            }
+          });
+          scoreForm.dataset.bound = "true";
+        }
+
+        const leaderboardButton = document.getElementById("leaderboard-button");
+        if (!leaderboardButton.dataset.bound) {
+          leaderboardButton.addEventListener("click", async () => {
+            const gameIdInput = document.getElementById("leaderboard-game-id").value.trim();
+            const limitInput = document.getElementById("leaderboard-limit").value.trim();
+
+            if (!gameIdInput) {
+              setOutput({ error: "Enter a gameId." }, "leaderboard");
+              return;
+            }
+
+            const params = new URLSearchParams({ gameId: gameIdInput });
+            if (limitInput) {
+              params.set("limit", limitInput);
+            }
+
+            try {
+              const leaderboard = await callApi(`/api/leaderboard?${params.toString()}`);
+              setOutput(leaderboard, "leaderboard");
+              await trackEvent("leaderboard_viewed", { gameId: gameIdInput, limit: limitInput || 10 });
+            } catch (error) {
+              setOutput({ error: error.message }, "leaderboard error");
+            }
+          });
+          leaderboardButton.dataset.bound = "true";
+        }
+      }
+
+      async function bootstrap() {
+        try {
+          const response = await fetch("/.auth/me");
+          const data = await response.json();
+          const clientPrincipal = data?.clientPrincipal;
+
+          if (!clientPrincipal) {
+            document.getElementById("auth-actions").innerHTML =
+              '<a href="/.auth/login/google">Sign in with Google</a>';
+            setOutput({ message: "Sign in to access members features." });
+            return;
+          }
+
+          document.getElementById("auth-actions").innerHTML =
+            '<a href="/.auth/logout">Sign out</a>';
+
+          await initializeForUser(clientPrincipal);
+        } catch (error) {
+          console.error("bootstrap failure", error);
+          setOutput({ error: "Could not determine authentication state." });
+        }
+      }
+
+      bootstrap();
+    </script>
+  </body>
 </html>

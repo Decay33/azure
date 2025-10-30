@@ -1,52 +1,88 @@
-const { CosmosClient } = require("@azure/cosmos");
+﻿const { getUser } = require("../_shared/auth");
+const { getContainer } = require("../_shared/cosmos");
+const { createDocumentId } = require("../_shared/id");
 
-function getClientPrincipal(req) {
-  const header = req.headers["x-ms-client-principal"];
-  if (!header) return null;
+function parseBody(req) {
+  if (req.body === undefined || req.body === null) {
+    return {};
+  }
+
+  if (typeof req.body === "object") {
+    return req.body;
+  }
+
   try {
-    const decoded = Buffer.from(header, "base64").toString("utf8");
-    return JSON.parse(decoded);
-  } catch {
+    return JSON.parse(req.body);
+  } catch (_err) {
     return null;
   }
 }
 
-const client = new CosmosClient({
-  endpoint: process.env.COSMOS_ENDPOINT,
-  key: process.env.COSMOS_KEY
-});
-
-const dbName = process.env.COSMOS_DB || "gamehub";
-const containerName = process.env.COSMOS_PLAYERDATA_CONTAINER || "playerdata";
-
 module.exports = async function (context, req) {
-  const cp = getClientPrincipal(req);
-  if (!cp) {
-    context.res = { status: 401, body: { error: "Unauthenticated" } };
-    return;
-  }
-
-  const { userId, userDetails, identityProvider } = cp;
-  const { type = "event", payload = {}, ts = Date.now() } = req.body || {};
-
-  const doc = {
-    id: `${userId}-${ts}-${Math.random().toString(36).slice(2)}`,
-    playerId: userId,           // partition key property for /playerId
-    type,                       // e.g., "page_view", "click"
-    payload,                    // anything you want to store
-    ts,
-    meta: {
-      email: userDetails,
-      provider: identityProvider
-    }
-  };
-
   try {
-    const container = client.database(dbName).container(containerName);
-    await container.items.create(doc, { partitionKey: doc.playerId });
-    context.res = { status: 200, body: { ok: true, id: doc.id } };
-  } catch (err) {
-    context.log.error("track error", err);
-    context.res = { status: 500, body: { error: "Failed to store event" } };
+    const user = getUser(req);
+
+    if (!user) {
+      context.res = {
+        status: 401,
+        body: { error: "Authentication required." }
+      };
+      return;
+    }
+
+    const body = parseBody(req);
+    if (!body || typeof body !== "object") {
+      context.res = {
+        status: 400,
+        body: { error: "Invalid JSON body." }
+      };
+      return;
+    }
+
+    const type =
+      typeof body.type === "string" && body.type.trim() ? body.type.trim() : "event";
+
+    const payload = body.payload === undefined ? null : body.payload;
+
+    let timestamp = body.ts;
+    if (timestamp) {
+      const parsedTimestamp = new Date(timestamp);
+      if (Number.isNaN(parsedTimestamp.getTime())) {
+        context.res = {
+          status: 400,
+          body: { error: "Invalid ts value. Use a valid date or timestamp." }
+        };
+        return;
+      }
+      timestamp = parsedTimestamp.toISOString();
+    } else {
+      timestamp = new Date().toISOString();
+    }
+
+    const container = getContainer();
+    const document = {
+      id: createDocumentId(user.userId),
+      playerId: user.playerId,
+      type,
+      payload,
+      ts: timestamp,
+      meta: {
+        email: user.email,
+        provider: user.provider
+      }
+    };
+
+    await container.items.create(document);
+
+    context.res = {
+      status: 202,
+      body: { ok: true, id: document.id }
+    };
+  } catch (error) {
+    context.log.error("track failure", error);
+    context.res = {
+      status: 500,
+      body: { error: "Failed to record event." }
+    };
   }
 };

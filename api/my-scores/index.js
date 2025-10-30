@@ -1,90 +1,59 @@
-const { CosmosClient } = require("@azure/cosmos");
-
-function getClientPrincipal(req) {
-  const header = req.headers["x-ms-client-principal"];
-  if (!header) return null;
-  try {
-    const decoded = Buffer.from(header, "base64").toString("utf8");
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
-}
-
-const client = new CosmosClient({
-  endpoint: process.env.COSMOS_ENDPOINT,
-  key: process.env.COSMOS_KEY
-});
-
-const dbName = process.env.COSMOS_DB || "gamehub";
-const containerName = process.env.COSMOS_PLAYERDATA_CONTAINER || "playerdata";
+﻿const { getUser } = require("../_shared/auth");
+const { getContainer } = require("../_shared/cosmos");
 
 module.exports = async function (context, req) {
-  const cp = getClientPrincipal(req);
-  if (!cp) {
-    context.res = { status: 401, body: { error: "Unauthenticated" } };
-    return;
-  }
-
-  const { userId } = cp;
-  const gameId = req.query.gameId; // Optional filter
-
   try {
-    const container = client.database(dbName).container(containerName);
-    
-    let querySpec;
-    
-    if (gameId) {
-      // Filter by specific game
-      querySpec = {
-        query: `
-          SELECT c.gameId, c.score, c.ts, c.id
-          FROM c
-          WHERE c.type = @type 
-            AND c.playerId = @userId 
-            AND c.gameId = @gameId
-          ORDER BY c.ts DESC
-        `,
-        parameters: [
-          { name: "@type", value: "score" },
-          { name: "@userId", value: userId },
-          { name: "@gameId", value: gameId }
-        ]
+    const user = getUser(req);
+
+    if (!user) {
+      context.res = {
+        status: 401,
+        body: { error: "Authentication required." }
       };
-    } else {
-      // Get all scores for user
-      querySpec = {
-        query: `
-          SELECT c.gameId, c.score, c.ts, c.id
-          FROM c
-          WHERE c.type = @type AND c.playerId = @userId
-          ORDER BY c.ts DESC
-        `,
-        parameters: [
-          { name: "@type", value: "score" },
-          { name: "@userId", value: userId }
-        ]
-      };
+      return;
     }
 
-    const { resources: scores } = await container.items
-      .query(querySpec, { 
-        partitionKey: userId  // Can use partition key since we're querying only this user
-      })
+    const gameIdRaw = req.query?.gameId || req.query?.gameid;
+    const gameId = typeof gameIdRaw === "string" ? gameIdRaw.trim() : "";
+
+    const queryParts = [
+      "SELECT c.gameId, c.score, c.ts",
+      "FROM c",
+      "WHERE c.type = @type AND c.playerId = @playerId"
+    ];
+
+    const parameters = [
+      { name: "@type", value: "score" },
+      { name: "@playerId", value: user.playerId }
+    ];
+
+    if (gameId) {
+      queryParts.push("AND c.gameId = @gameId");
+      parameters.push({ name: "@gameId", value: gameId });
+    }
+
+    queryParts.push("ORDER BY c.ts DESC");
+
+    const container = getContainer();
+    const { resources } = await container.items
+      .query(
+        {
+          query: queryParts.join(" "),
+          parameters
+        },
+        { enableCrossPartitionQuery: true }
+      )
       .fetchAll();
 
-    context.res = { 
-      status: 200, 
-      body: { 
-        userId,
-        gameId: gameId || "all",
-        count: scores.length,
-        scores 
-      } 
+    context.res = {
+      status: 200,
+      body: resources
     };
-  } catch (err) {
-    context.log.error("my-scores error", err);
-    context.res = { status: 500, body: { error: "Failed to fetch scores" } };
+  } catch (error) {
+    context.log.error("my-scores failure", error);
+    context.res = {
+      status: 500,
+      body: { error: "Failed to fetch scores." }
+    };
   }
 };
-
