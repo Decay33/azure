@@ -1,27 +1,25 @@
 {
   "routes": [
-    {
-      "route": "/members/*",
-      "allowedRoles": [
-        "authenticated"
-      ]
-    },
-    {
-      "route": "/api/*",
-      "allowedRoles": [
-        "authenticated"
-      ]
-    }
+    { "route": "/.auth/*", "allowedRoles": ["anonymous"] },
+
+    { "route": "/members/*", "allowedRoles": ["authenticated"] },
+    { "route": "/api/*",     "allowedRoles": ["authenticated"] },
+
+    { "route": "/*", "allowedRoles": ["anonymous"] }
   ],
+
   "responseOverrides": {
     "401": {
-      "redirect": "/.auth/login/google",
-      "statusCode": 302
+      "statusCode": 302,
+      "redirect": "/.auth/login/google?post_login_redirect_uri=/"
     }
   },
+
   "navigationFallback": {
-    "rewrite": "/index.html"
+    "rewrite": "/index.html",
+    "exclude": ["/api/*", "/.auth/*"]
   },
+
   "auth": {
     "identityProviders": {
       "customOpenIdConnectProviders": {
@@ -32,9 +30,7 @@
           "login": {
             "authority": "https://accounts.google.com",
             "scope": "openid profile email",
-            "loginParameters": [
-              "prompt=consent"
-            ]
+            "loginParameters": ["prompt=consent"]
           },
           "userDetails": {
             "uri": "https://openidconnect.googleapis.com/v1/userinfo"
