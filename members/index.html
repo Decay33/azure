@@ -68,11 +68,6 @@
     </section>
 
     <section class="members-card">
-      <h2>Raw Principal Payload</h2>
-      <pre id="principal-json">Fetching principal...</pre>
-    </section>
-
-    <section class="members-card">
       <h2>Next Steps</h2>
       <ul class="members-actions">
         <li>Test drive upcoming game builds before they hit the public hub.</li>
@@ -164,6 +159,80 @@
       return GAME_CONFIG[slug] || { name: slug, path: null };
     }
 
+    function sanitizeNameValue(raw) {
+      if (!raw && raw !== 0) {
+        return null;
+      }
+      let value = String(raw).trim();
+      if (!value) {
+        return null;
+      }
+      const atIndex = value.indexOf('@');
+      if (atIndex > 0) {
+        value = value.slice(0, atIndex);
+      }
+      value = value.split(/\s+/)[0];
+      value = value.replace(/[^A-Za-z0-9_-]/g, '');
+      if (!value) {
+        return null;
+      }
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function deriveFirstName(...candidates) {
+      for (const candidate of candidates) {
+        const sanitized = sanitizeNameValue(candidate);
+        if (sanitized) {
+          return sanitized;
+        }
+      }
+      return 'Player';
+    }
+
+    function getClaim(principal, ...types) {
+      if (!principal?.claims) {
+        return null;
+      }
+      const wanted = types.map((type) => String(type).toLowerCase());
+      for (const claim of principal.claims) {
+        const claimType = String(claim?.typ || '').toLowerCase();
+        if (wanted.includes(claimType)) {
+          return claim.val;
+        }
+      }
+      return null;
+    }
+
+    function firstNameFromPrincipal(principal) {
+      if (!principal) {
+        return 'Player';
+      }
+      const nameClaim = getClaim(
+        principal,
+        'name',
+        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+      );
+      return deriveFirstName(nameClaim, principal.userDetails, principal.userId);
+    }
+
+    function emailFromPrincipal(principal) {
+      if (!principal) {
+        return null;
+      }
+      return (
+        getClaim(principal, 'emails', 'email', 'preferred_username') ||
+        principal.userDetails ||
+        null
+      );
+    }
+
+    function playerNameFromEntry(entry) {
+      if (!entry) {
+        return 'Player';
+      }
+      return deriveFirstName(entry.displayName, entry.userId);
+    }
+
     let normalizedUserId = null;
     let currentLeaderboardSlug = null;
     let cachedPrincipal = null;
@@ -235,7 +304,7 @@
 
           const name = document.createElement('span');
           name.className = 'player';
-          name.textContent = entry.displayName || 'Player';
+          name.textContent = playerNameFromEntry(entry);
 
           const score = document.createElement('span');
           score.className = 'score';
@@ -352,17 +421,22 @@
       const emailEl = document.getElementById('member-email');
       const providerEl = document.getElementById('member-provider');
       const rolesEl = document.getElementById('member-roles');
-      const payloadEl = document.getElementById('principal-json');
 
       if (!cachedPrincipal) {
         if (authStatus) {
           authStatus.textContent = 'Your session expired. Please sign in again.';
         }
-        if (nameEl && emailEl && providerEl && rolesEl) {
-          nameEl.textContent = emailEl.textContent = providerEl.textContent = rolesEl.textContent = '-';
+        if (nameEl) {
+          nameEl.textContent = '-';
         }
-        if (payloadEl) {
-          payloadEl.textContent = 'No principal payload available.';
+        if (emailEl) {
+          emailEl.textContent = '-';
+        }
+        if (providerEl) {
+          providerEl.textContent = '-';
+        }
+        if (rolesEl) {
+          rolesEl.textContent = '-';
         }
         const personalStatus = document.getElementById('personal-score-status');
         if (personalStatus) {
@@ -375,25 +449,23 @@
         return;
       }
 
-      const display = cachedPrincipal.userDetails || cachedPrincipal.userId || 'Player';
+      const firstName = firstNameFromPrincipal(cachedPrincipal);
+      const emailAddress = emailFromPrincipal(cachedPrincipal);
+
       if (authStatus) {
-        authStatus.innerHTML = `Welcome back, <strong>${display}</strong>.`;
+        authStatus.innerHTML = `Welcome back, <strong>${firstName}</strong>.`;
       }
       if (nameEl) {
-        nameEl.textContent = display;
+        nameEl.textContent = firstName;
       }
       if (emailEl) {
-        const emailClaim = (cachedPrincipal.claims || []).find((c) => c.typ === 'email' || c.typ === 'emails');
-        emailEl.textContent = emailClaim?.val || cachedPrincipal.userDetails || '-';
+        emailEl.textContent = emailAddress || '-';
       }
       if (providerEl) {
         providerEl.textContent = cachedPrincipal.identityProvider || 'Google';
       }
       if (rolesEl) {
         rolesEl.textContent = (cachedPrincipal.userRoles || []).join(', ');
-      }
-      if (payloadEl) {
-        payloadEl.textContent = JSON.stringify(cachedPrincipal, null, 2);
       }
 
       normalizedUserId = normalizePrincipalId(cachedPrincipal);

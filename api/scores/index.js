@@ -4,6 +4,31 @@ const { durableIdFromPrincipal } = require("../_shared/id");
 
 const memoryStore = new Map();
 
+function normalizeDisplayName(value) {
+  if (value === null || value === undefined) {
+    return "Player";
+  }
+
+  let name = String(value).trim();
+  if (!name) {
+    return "Player";
+  }
+
+  const atIndex = name.indexOf("@");
+  if (atIndex > 0) {
+    name = name.slice(0, atIndex);
+  }
+
+  name = name.split(/\s+/)[0];
+  name = name.replace(/[^A-Za-z0-9_-]/g, "");
+
+  if (!name) {
+    return "Player";
+  }
+
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
 function sanitizeGameId(value) {
   if (!value) {
     return null;
@@ -118,13 +143,13 @@ module.exports = async function (context, req) {
             .query(personalQuery, { enableCrossPartitionQuery: true })
             .fetchAll();
 
-          personal = (resources || []).map((item) => ({
-            slug: item.slug,
-            bestScore: item.bestScore,
-            updatedAt: item.updatedAt,
-            displayName: item.displayName,
-            userId: item.userId
-          }));
+        personal = (resources || []).map((item) => ({
+          slug: item.slug,
+          bestScore: item.bestScore,
+          updatedAt: item.updatedAt,
+          displayName: normalizeDisplayName(item.displayName || item.firstName || item.userId),
+          userId: item.userId
+        }));
         } else {
           const allEntries = [];
           for (const [slug, map] of memoryStore.entries()) {
@@ -134,7 +159,7 @@ module.exports = async function (context, req) {
                 slug,
                 bestScore: record.bestScore,
                 updatedAt: record.updatedAt,
-                displayName: record.displayName,
+                displayName: normalizeDisplayName(record.displayName || record.firstName || durableUserId),
                 userId: durableUserId
               });
             }
@@ -185,7 +210,7 @@ module.exports = async function (context, req) {
         const results = await queryScores(container, gameId, limit);
         entries = results.map((item) => ({
           userId: item.userId,
-          displayName: item.displayName,
+          displayName: normalizeDisplayName(item.displayName || item.firstName || item.userId),
           bestScore: item.bestScore,
           updatedAt: item.updatedAt
         }));
@@ -201,9 +226,15 @@ module.exports = async function (context, req) {
     } else {
       const gameMap = getMemoryGame(gameId);
       entries = Array.from(gameMap.values())
+        .map((record) => ({
+          userId: record.userId,
+          displayName: normalizeDisplayName(record.displayName || record.userId),
+          bestScore: record.bestScore,
+          updatedAt: record.updatedAt
+        }))
         .sort((a, b) => b.bestScore - a.bestScore)
         .slice(0, limit);
-      myEntry = gameMap.get(durableUserId) || null;
+      myEntry = entries.find((entry) => entry.userId === durableUserId) || null;
     }
 
     context.res = {
@@ -234,6 +265,9 @@ module.exports = async function (context, req) {
 
     let bestScore = score;
     let updated = false;
+    const friendlyName = normalizeDisplayName(
+      (user && (user.firstName || user.displayName || user.email)) || userId
+    );
 
     if (container) {
       const docId = `${gameId}:${userId}`;
@@ -248,7 +282,7 @@ module.exports = async function (context, req) {
             slug: gameId,
             gameId,
             userId,
-            displayName: user.displayName || user.id,
+            displayName: friendlyName,
             bestScore: score,
             updatedAt: now
           };
@@ -273,7 +307,7 @@ module.exports = async function (context, req) {
       if (score > currentBest) {
         gameMap.set(userId, {
           userId,
-          displayName: user.displayName || user.id,
+          displayName: friendlyName,
           bestScore: score,
           updatedAt: now
         });

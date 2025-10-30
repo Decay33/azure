@@ -108,6 +108,64 @@ let leaderboardLoaded = false;
 let authRetryCount = 0;
 let localHighScore = parseInt(localStorage.getItem(LOCAL_HS_KEY) || '0', 10) || 0;
 
+function sanitizeNameValue(raw) {
+  if (!raw && raw !== 0) {
+    return null;
+  }
+
+  let value = String(raw).trim();
+  if (!value) {
+    return null;
+  }
+
+  const atIndex = value.indexOf('@');
+  if (atIndex > 0) {
+    value = value.slice(0, atIndex);
+  }
+
+  value = value.split(/\s+/)[0];
+  value = value.replace(/[^A-Za-z0-9_-]/g, '');
+
+  if (!value) {
+    return null;
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function deriveFirstName(...candidates) {
+  for (const candidate of candidates) {
+    const sanitized = sanitizeNameValue(candidate);
+    if (sanitized) {
+      return sanitized;
+    }
+  }
+  return 'Player';
+}
+
+function firstNameFromPrincipal(principal) {
+  if (!principal) {
+    return 'Player';
+  }
+
+  let nameClaim;
+  if (Array.isArray(principal.claims)) {
+    nameClaim = principal.claims.find((claim) => {
+      const type = String(claim?.typ || '').toLowerCase();
+      return type === 'name' || type === 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
+    });
+  }
+
+  return deriveFirstName(nameClaim?.val, principal.userDetails, principal.userId);
+}
+
+function firstNameFromEntry(entry) {
+  if (!entry) {
+    return 'Player';
+  }
+  return deriveFirstName(entry.displayName, entry.userId);
+}
+
 function showScoreMessage(text) {
   if (!scoreMessage) {
     return;
@@ -157,7 +215,7 @@ function updateAuthUi(user) {
   }
 
   if (user) {
-    const displayName = user.userDetails || user.userId || 'Player';
+    const displayName = firstNameFromPrincipal(user);
     signInLink.classList.add('hidden');
     signOutLink.classList.remove('hidden');
     authStatus.innerHTML = 'Signed in as <strong>' + displayName + '</strong>.';
@@ -198,7 +256,7 @@ function renderLeaderboard(entries) {
 
     const name = document.createElement('span');
     name.className = 'player';
-    name.textContent = entry.displayName || 'Player';
+    name.textContent = firstNameFromEntry(entry);
 
     const scoreValue = document.createElement('span');
     scoreValue.className = 'score';

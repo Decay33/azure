@@ -27,6 +27,41 @@ function getClaim(principal, ...claimTypes) {
   return undefined;
 }
 
+function sanitizeNameCandidate(raw) {
+  if (!raw) {
+    return null;
+  }
+
+  let value = String(raw).trim();
+  if (!value) {
+    return null;
+  }
+
+  const atIndex = value.indexOf("@");
+  if (atIndex > 0) {
+    value = value.slice(0, atIndex);
+  }
+
+  value = value.split(/\s+/)[0];
+  value = value.replace(/[^A-Za-z0-9_-]/g, "");
+
+  if (!value) {
+    return null;
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function deriveFirstName(...candidates) {
+  for (const candidate of candidates) {
+    const sanitized = sanitizeNameCandidate(candidate);
+    if (sanitized) {
+      return sanitized;
+    }
+  }
+  return "Player";
+}
+
 function extractUser(principal) {
   if (!principal?.userId) {
     return null;
@@ -41,7 +76,7 @@ function extractUser(principal) {
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
     ) || principal.userDetails;
 
-  const displayName =
+  const rawDisplayName =
     getClaim(
       principal,
       "name",
@@ -53,10 +88,14 @@ function extractUser(principal) {
     getClaim(principal, "iss", "http://schemas.microsoft.com/identity/claims/identityprovider") ||
     "unknown";
 
+  const displayName = rawDisplayName;
+  const firstName = deriveFirstName(rawDisplayName, email, principal.userDetails, principal.userId);
+
   return {
     id: principal.userId,
     playerId: principal.userId,
     displayName,
+    firstName,
     email: email || null,
     provider,
     roles: principal.userRoles || []
