@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- SEO Meta Tags -->
-  <meta name="description" content="Welcome to The AI Democracy â€“ Where AI Creates Gaming Innovation. Experience cutting-edge AI-generated games updated weekly. Join the future of gaming today.">
+  <meta name="description" content="Welcome to The AI Democracy – Where AI Creates Gaming Innovation. Experience cutting-edge AI-generated games updated weekly. Join the future of gaming today.">
   <meta name="keywords" content="AI games, artificial intelligence games, future of gaming, indie games, AI-generated games, procedural games, free online games, gaming innovation">
   <meta name="author" content="The AI Democracy">
   <link rel="canonical" href="https://theaidemocracy.com/">
@@ -269,32 +269,6 @@
           </div>
         </div>
       </div>
-      
-      <!-- Game Item: Cave Grok (NEW & HOT) -->
-      <div class="game-item new-game hot-game">
-        <div class="game-header">
-          <h2 data-text="Cave Grok">Cave Grok</h2>
-          <div class="game-labels">
-            <span class="new-label">NEW</span>
-            <span class="hot-label">HOT</span>
-          </div>
-        </div>
-        <div class="game-content">
-          <p>
-            Dive into Cave Grok â€“ a challenging cave exploration game with AI-generated levels and dynamic gameplay.
-          </p>
-          <div class="game-actions">
-            <!-- Open via window.open() to retain window.opener -->
-            <a href="cavegrok/index.html" class="play-button" onclick="window.open(this.href, '_blank'); return false;">Play Now</a>
-            <!-- Like Button Section -->
-            <div class="like-section">
-              <button class="like-button" data-game-id="cavegrok"><i class="fa fa-heart"></i> Like</button>
-              <span class="like-count" id="like-count-cavegrok">0</span> Likes
-            </div>
-          </div>
-        </div>
-      </div>
-      
       <!-- Game Item: Build A Ship (NEW only) -->
       <div class="game-item new-game">
         <div class="game-header">
@@ -305,7 +279,7 @@
         </div>
         <div class="game-content">
           <p>
-            Design, upgrade, and pilot your very own ship in this innovative Build A Ship game. Unlock special upgradesâ€”like the HOT Pink shipâ€”by making in-app purchases!
+            Design, upgrade, and pilot your very own ship in this innovative Build A Ship game. Unlock special upgrades—like the HOT Pink ship—by making in-app purchases!
           </p>
           <div class="game-actions">
             <a href="buildaship/index.html" class="play-button" onclick="window.open(this.href, '_blank'); return false;">Play Now</a>
@@ -376,6 +350,26 @@
             <div class="like-section">
               <button class="like-button" data-game-id="chromaticrunner"><i class="fa fa-heart"></i> Like</button>
               <span class="like-count" id="like-count-chromaticrunner">0</span> Likes
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Item: Cave Grok -->
+      <div class="game-item">
+        <div class="game-header">
+          <h2 data-text="Cave Grok">Cave Grok</h2>
+        </div>
+        <div class="game-content">
+          <p>
+            Descend through neon caverns, dodge reactive hazards, and earn persistent ship unlocks tied to your member
+            identity. Leaderboards and cosmetics sync automatically via Azure EasyAuth.
+          </p>
+          <div class="game-actions">
+            <a href="cavegrok/index.html" class="play-button" onclick="window.open(this.href, '_blank'); return false;">Play Now</a>
+            <div class="like-section">
+              <button class="like-button" data-game-id="cavegrok"><i class="fa fa-heart"></i> Like</button>
+              <span class="like-count" id="like-count-cavegrok">0</span> Likes
             </div>
           </div>
         </div>
@@ -718,7 +712,7 @@
           const slug = button.dataset.gameId;
           const countEl = document.getElementById(`like-count-${slug}`);
           if (countEl) {
-            countEl.textContent = "—";
+            countEl.textContent = "�";
           }
           button.disabled = true;
         });
@@ -731,7 +725,7 @@
         if (!countEl) {
           continue;
         }
-        countEl.textContent = "…";
+        countEl.textContent = "�";
         try {
           const response = await fetch(`/api/likes?slug=${encodeURIComponent(slug)}`, {
             method: "GET",
@@ -883,5 +877,6 @@
   </script>
 </body>
 </html>
+
 
 

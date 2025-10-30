@@ -117,10 +117,11 @@
     </div>
   </footer>
 
-  <script>    const GAME_CONFIG = {
-      chromaticrunner: { name: "Chromatic Runner", path: "/chromaticrunner/" }
+  <script>
+    const GAME_CONFIG = {
+      chromaticrunner: { name: "Chromatic Runner", path: "/chromaticrunner/" },
+      cavegrok: { name: "Cave Grok", path: "/cavegrok/" }
     };
-
     async function getMe() {
       try {
         const response = await fetch('/.auth/me', { credentials: 'include' });
@@ -351,7 +352,7 @@
         const scores = Array.isArray(data.personal) ? data.personal : [];
 
         if (!scores.length) {
-          status.textContent = 'No scores yet. Play Chromatic Runner to set your first record.';
+          status.textContent = 'No scores yet. Play a game to set your first record.';
           const leaderboardStatus = document.getElementById('members-leaderboard-status');
           if (leaderboardStatus) {
             leaderboardStatus.textContent = 'No game selected.';

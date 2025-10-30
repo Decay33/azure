@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cave Grok | The AI Democracy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://www.paypal.com/sdk/js?client-id=AWIS-jxfsiCJ0C5RpGJ91exuqeC_MJjSTwhnmPbPCSd3jDtGETC4RhrOon8Uo-s7N3j7z-Ml_Leleq-y&currency=USD"></script>
+  </head>
+  <body>
+    <div class="scanline"></div>
+    <div class="circuit-lines">
+      <div class="circuit-line horizontal-line" style="top: 15%; left: 5%; width: 150px;"></div>
+      <div class="circuit-line vertical-line" style="top: 30%; left: 10%; height: 120px;"></div>
+      <div class="circuit-dot" style="top: 30%; left: 10%;"></div>
+      <div class="circuit-line horizontal-line" style="top: 75%; right: 5%; width: 200px;"></div>
+      <div class="circuit-line vertical-line" style="top: 60%; right: 20%; height: 150px;"></div>
+      <div class="circuit-dot" style="top: 60%; right: 20%;"></div>
+      <div class="circuit-line horizontal-line" style="top: 40%; right: 30%; width: 100px;"></div>
+      <div class="circuit-dot" style="top: 40%; right: 30%;"></div>
+    </div>
+
+    <nav class="nav-bar">
+      <a href="/" class="nav-logo"><span class="nav-logo-the">THE</span>AI<span>Democracy</span></a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/#game-list" class="nav-link">Games</a>
+        <a href="/#tools" class="nav-link">Tools</a>
+        <a href="/#contact" class="nav-link">Contact</a>
+        <a href="/privacy.html" class="nav-link">Privacy</a>
+        <a href="/members/" class="nav-link">Members</a>
+      </div>
+      <div class="nav-links nav-auth">
+        <a id="sign-in-link" class="nav-link" href="/.auth/login/google?post_login_redirect_uri=/cavegrok/index.html">Sign In</a>
+        <a id="sign-out-link" class="nav-link hidden" href="/.auth/logout?post_logout_redirect_uri=/cavegrok/index.html">Sign Out</a>
+      </div>
+    </nav>
+
+    <div class="auth-banner" id="auth-banner">
+      <span id="auth-status">Sign in to sync your progress, purchases, and leaderboard standings.</span>
+    </div>
+
+    <main class="grok-main">
+      <header class="grok-header">
+        <h1 data-text="Cave Grok">Cave Grok</h1>
+        <p class="muted">
+          Pilot your dropship through procedurally generated caverns, collect artifacts, and upgrade your fleet. Every
+          unlock is bound to your EasyAuth identity and follows you wherever you play.
+        </p>
+      </header>
+
+      <section class="grok-grid">
+        <div class="grok-play">
+          <canvas id="gameCanvas" width="800" height="600" aria-label="Cave Grok playfield"></canvas>
+
+          <div class="grok-scoreboard">
+            <div class="stat">
+              <span class="label">Personal Best</span>
+              <span class="value" id="cave-personal-best">0</span>
+            </div>
+            <div class="stat">
+              <span class="label">Highest Level</span>
+              <span class="value" id="cave-highest-level">1</span>
+            </div>
+            <div class="stat">
+              <span class="label">Last Run</span>
+              <span class="value" id="cave-last-score">0</span>
+            </div>
+            <div class="stat">
+              <span class="label">Ships Unlocked</span>
+              <span class="value" id="cave-unlock-count">0 / 3</span>
+            </div>
+          </div>
+
+          <div class="grok-instructions">
+            <h2>How to Play</h2>
+            <ul>
+              <li>Use the arrow keys to nudge your ship. Tap <strong>Space</strong> to fire thrusters.</li>
+              <li>Land softly on glowing pads to progress. Quick landings grant time bonuses.</li>
+              <li>Beware stalactites, acid pools, patrol drones, and collapsing tunnels.</li>
+              <li>Collect gems to boost your score and unlock experimental ship skins.</li>
+              <li>Press <strong>S</strong> in-flight to cycle between ships you have unlocked.</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="grok-sidebar">
+          <section class="grok-panel">
+            <h2>Your Hangar</h2>
+            <p class="muted">Unlocks and cosmetics persist across sessions and devices.</p>
+            <ul class="unlock-list">
+              <li data-unlock="hotPink">
+                <div class="unlock-chip hotpink">HOT Pink Ship</div>
+                <span class="unlock-status" data-unlock-status>Locked</span>
+              </li>
+              <li data-unlock="purple">
+                <div class="unlock-chip purple">Nebula Runner</div>
+                <span class="unlock-status" data-unlock-status>Locked</span>
+              </li>
+              <li data-unlock="golden">
+                <div class="unlock-chip golden">Aurora Prime</div>
+                <span class="unlock-status" data-unlock-status>Locked</span>
+              </li>
+            </ul>
+
+            <div class="ship-previews">
+              <canvas id="shipPreview" width="160" height="160" aria-hidden="true"></canvas>
+              <div class="preview-notes muted">Preview cycles through unlocked ships in real time.</div>
+            </div>
+          </section>
+
+          <section class="grok-panel" id="purchasePanel">
+            <h2>Unlock HOT Pink Ship</h2>
+            <p class="muted">Support the mission with a one-time contribution and keep the exclusive ship forever.</p>
+            <div id="purchaseStatusMessage" class="purchase-message hidden"></div>
+            <div id="purchaseSignInMessage" class="purchase-message purchase-info hidden">Sign in to unlock ships.</div>
+            <div id="alreadyPurchased" class="purchase-message purchase-success hidden">HOT Pink ship unlocked for this account.</div>
+
+            <div id="paypalContainer" class="paypal-panel hidden">
+              <div class="payment-info">
+                <label class="muted" for="extraAmount">Tip in addition to the $10 unlock:</label>
+                <input type="number" id="extraAmount" min="0" value="0" step="1" />
+                <p class="muted">Total: $<span id="totalAmount">10.00</span> USD</p>
+              </div>
+              <div id="paypal-button-container"></div>
+            </div>
+
+            <button id="unlockButton" class="grok-button">Unlock for $10</button>
+          </section>
+
+          <section class="grok-panel">
+            <h2>Leaderboard</h2>
+            <p class="muted">Compete with fellow explorers descending the cavern.</p>
+            <p id="leaderboard-empty" class="members-score-status">Sign in to load the leaderboard.</p>
+            <ol id="leaderboard-list" class="score-list"></ol>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      <p>Powered by Azure Static Web Apps, Cosmos DB, and EasyAuth. Your unlocks stay protected.</p>
+      <div class="footer-links">
+        <a href="/privacy.html" class="footer-link">Privacy Policy</a>
+        <a href="/#contact" class="footer-link">Contact Us</a>
+        <a href="/.auth/logout?post_logout_redirect_uri=/cavegrok/index.html" class="footer-link">Sign Out</a>
+      </div>
+    </footer>
+
+    <script src="state.js"></script>
+    <script src="walls.js"></script>
+    <script src="levels.js"></script>
+    <script src="game.js"></script>
+    <script src="paypal.js"></script>
+  </body>
+</html>
+
