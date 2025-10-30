@@ -82,9 +82,14 @@ module.exports = async function (context, req) {
 
   const user = extractUser(principal);
   const durableUserId = durableIdFromPrincipal(user);
+  const query = req.query || {};
+  const personalOnly =
+    req.method === "GET" &&
+    ["true", "1"].includes(String(query.personal || query.userOnly || query.personalOnly || "").toLowerCase());
+
   const gameId = sanitizeGameId(req.query?.gameId || parseBody(req.body).gameId);
 
-  if (!gameId) {
+  if (!personalOnly && !gameId) {
     context.res = {
       status: 400,
       body: { error: "gameId is required." }
@@ -95,6 +100,69 @@ module.exports = async function (context, req) {
   const container = getContainer();
 
   if (req.method === "GET") {
+    if (personalOnly) {
+      try {
+        let personal = [];
+
+        if (container) {
+          const personalQuery = {
+            query:
+              "SELECT c.slug, c.bestScore, c.updatedAt, c.displayName, c.userId FROM c WHERE c.docType = @docType AND c.userId = @userId ORDER BY c.updatedAt DESC",
+            parameters: [
+              { name: "@docType", value: "score" },
+              { name: "@userId", value: durableUserId }
+            ]
+          };
+
+          const { resources } = await container.items
+            .query(personalQuery, { enableCrossPartitionQuery: true })
+            .fetchAll();
+
+          personal = (resources || []).map((item) => ({
+            slug: item.slug,
+            bestScore: item.bestScore,
+            updatedAt: item.updatedAt,
+            displayName: item.displayName,
+            userId: item.userId
+          }));
+        } else {
+          const allEntries = [];
+          for (const [slug, map] of memoryStore.entries()) {
+            const record = map.get(durableUserId);
+            if (record) {
+              allEntries.push({
+                slug,
+                bestScore: record.bestScore,
+                updatedAt: record.updatedAt,
+                displayName: record.displayName,
+                userId: durableUserId
+              });
+            }
+          }
+          allEntries.sort((a, b) => {
+            const scoreDiff = (b.bestScore || 0) - (a.bestScore || 0);
+            if (scoreDiff !== 0) {
+              return scoreDiff;
+            }
+            return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+          });
+          personal = allEntries;
+        }
+
+        context.res = {
+          status: 200,
+          body: { personal }
+        };
+      } catch (error) {
+        context.log.error("personal score query failed", error);
+        context.res = {
+          status: 500,
+          body: { error: "Failed to load personal scores." }
+        };
+      }
+      return;
+    }
+
     const rawLimit = req.query?.limit;
     let limit = 10;
     if (rawLimit !== undefined) {
@@ -121,7 +189,7 @@ module.exports = async function (context, req) {
           bestScore: item.bestScore,
           updatedAt: item.updatedAt
         }));
-        myEntry = entries.find((entry) => entry.userId === user.id);
+        myEntry = entries.find((entry) => entry.userId === durableUserId);
       } catch (error) {
         context.log.error("score query failed", error);
         context.res = {
@@ -135,7 +203,7 @@ module.exports = async function (context, req) {
       entries = Array.from(gameMap.values())
         .sort((a, b) => b.bestScore - a.bestScore)
         .slice(0, limit);
-      myEntry = gameMap.get(user.id) || null;
+      myEntry = gameMap.get(durableUserId) || null;
     }
 
     context.res = {

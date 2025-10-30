@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -50,19 +50,19 @@
       <dl class="member-meta">
         <div>
           <dt>Name</dt>
-          <dd id="member-name">—</dd>
+          <dd id="member-name">?</dd>
         </div>
         <div>
           <dt>Email</dt>
-          <dd id="member-email">—</dd>
+          <dd id="member-email">?</dd>
         </div>
         <div>
           <dt>Provider</dt>
-          <dd id="member-provider">—</dd>
+          <dd id="member-provider">?</dd>
         </div>
         <div>
           <dt>Roles</dt>
-          <dd id="member-roles">—</dd>
+          <dd id="member-roles">?</dd>
         </div>
       </dl>
     </section>
@@ -77,8 +77,39 @@
       <ul class="members-actions">
         <li>Test drive upcoming game builds before they hit the public hub.</li>
         <li>Track engagement stats powered by your secure EasyAuth identity.</li>
-        <li>Use the contact form on the home page to pitch tools or games—we prioritize member submissions.</li>
+        <li>Use the contact form on the home page to pitch tools or games - we prioritize member submissions.</li>
       </ul>
+    </section>
+
+    <section class="members-card members-score-section" id="members-highscores">
+      <div class="members-card-header">
+        <h2>Game High Scores</h2>
+        <p class="muted">
+          Track your personal records and tap a title to explore the live leaderboard. Scores sync automatically once
+          you finish a run while signed in.
+        </p>
+      </div>
+
+      <div class="members-score-columns">
+        <article class="members-score-panel" aria-labelledby="personal-highscores-title">
+          <header class="members-score-panel-header">
+            <h3 id="personal-highscores-title">Your Records</h3>
+            <p id="personal-score-status" class="members-score-status" aria-live="polite">Loading your scores...</p>
+          </header>
+          <ol id="personal-score-list" class="member-score-list" aria-live="polite"></ol>
+        </article>
+
+        <article class="members-score-panel" aria-labelledby="members-leaderboard-title">
+          <header class="members-score-panel-header">
+            <h3 id="members-leaderboard-title">Leaderboard</h3>
+            <p id="members-leaderboard-desc" class="members-score-hint">
+              Select a game to explore its global leaderboard.
+            </p>
+          </header>
+          <p id="members-leaderboard-status" class="members-score-status" aria-live="polite">No game selected.</p>
+          <ol id="members-leaderboard-list" class="member-score-list" aria-live="polite"></ol>
+        </article>
+      </div>
     </section>
   </main>
 
@@ -91,7 +122,10 @@
     </div>
   </footer>
 
-  <script>
+  <script>    const GAME_CONFIG = {
+      chromaticrunner: { name: "Chromatic Runner", path: "/chromaticrunner/" }
+    };
+
     async function getMe() {
       try {
         const response = await fetch('/.auth/me', { credentials: 'include' });
@@ -99,45 +133,101 @@
           return null;
         }
         const payload = await response.json();
-        return payload?.clientPrincipal || null;
+        return payload && payload.clientPrincipal || null;
       } catch (_error) {
         return null;
       }
     }
 
-    
-    async function loadRunnerScores() {
-      const list = document.getElementById('runner-score-list');
-      const status = document.getElementById('runner-score-status');
-      if (!list || !status) {
+    function normalizeIdentifier(value) {
+      if (!value) {
+        return null;
+      }
+      return value.toString().trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    }
+
+    function normalizePrincipalId(principal) {
+      if (!principal) {
+        return null;
+      }
+      const candidates = [principal.userId, principal.userDetails];
+      for (const candidate of candidates) {
+        const normalized = normalizeIdentifier(candidate);
+        if (normalized) {
+          return normalized;
+        }
+      }
+      return null;
+    }
+
+    function friendlyGame(slug) {
+      return GAME_CONFIG[slug] || { name: slug, path: null };
+    }
+
+    let normalizedUserId = null;
+    let currentLeaderboardSlug = null;
+    let cachedPrincipal = null;
+
+    function setActivePersonalRow(slug) {
+      const list = document.getElementById('personal-score-list');
+      if (!list) {
+        return;
+      }
+      Array.from(list.children).forEach((item) => {
+        if (item.dataset.slug === slug) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    async function loadLeaderboardForGame(slug) {
+      const titleEl = document.getElementById('members-leaderboard-title');
+      const descEl = document.getElementById('members-leaderboard-desc');
+      const statusEl = document.getElementById('members-leaderboard-status');
+      const listEl = document.getElementById('members-leaderboard-list');
+      if (!statusEl || !listEl) {
         return;
       }
 
-      list.innerHTML = '';
-      status.textContent = 'Loading leaderboard...';
+      currentLeaderboardSlug = slug;
+      setActivePersonalRow(slug);
+
+      const game = friendlyGame(slug);
+      if (titleEl) {
+        titleEl.textContent = `${game.name} Leaderboard`;
+      }
+      if (descEl) {
+        if (game.path) {
+          descEl.innerHTML = `Play <a href="${game.path}">${game.name}</a> to climb the rankings.`;
+        } else {
+          descEl.textContent = 'Select a game to explore its global leaderboard.';
+        }
+      }
+
+      statusEl.textContent = 'Loading leaderboard...';
+      listEl.innerHTML = '';
 
       try {
-        const response = await fetch('/api/scores?gameId=chromaticrunner', { credentials: 'include' });
+        const response = await fetch(`/api/scores?gameId=${encodeURIComponent(slug)}&limit=25`, {
+          credentials: 'include'
+        });
         if (!response.ok) {
-          throw new Error('Failed to load scores');
+          throw new Error('Failed to load leaderboard');
         }
-
         const data = await response.json();
-        const entries = (data && data.entries) || [];
-        const highlightId = data && data.myScore ? data.myScore.userId : null;
+        const entries = Array.isArray(data.entries) ? data.entries : [];
 
         if (!entries.length) {
-          status.textContent = 'No scores yet. Finish a run to claim the top spot.';
+          statusEl.textContent = 'No scores recorded yet. Be the first to set a record!';
           return;
         }
 
-        status.textContent = '';
+        statusEl.textContent = '';
         entries.forEach((entry, index) => {
           const li = document.createElement('li');
           li.className = 'member-score-row';
-          if (highlightId && entry.userId === highlightId) {
-            li.classList.add('member-score-me');
-          }
 
           const rank = document.createElement('span');
           rank.className = 'rank';
@@ -149,11 +239,9 @@
 
           const score = document.createElement('span');
           score.className = 'score';
-          score.textContent = Number(entry.bestScore || 0).toLocaleString();
+          score.textContent = Number(entry.bestScore || entry.score || 0).toLocaleString();
 
-          li.appendChild(rank);
-          li.appendChild(name);
-          li.appendChild(score);
+          li.append(rank, name, score);
 
           if (entry.updatedAt) {
             const meta = document.createElement('small');
@@ -162,15 +250,103 @@
             li.appendChild(meta);
           }
 
-          list.appendChild(li);
+          if (normalizedUserId && entry.userId === normalizedUserId) {
+            li.classList.add('member-score-me');
+          }
+
+          listEl.appendChild(li);
         });
       } catch (error) {
-        console.warn('Failed to load member leaderboard', error);
-        status.textContent = 'Leaderboard unavailable right now.';
+        console.warn('Failed to load leaderboard', error);
+        statusEl.textContent = 'Leaderboard unavailable right now.';
       }
     }
-document.addEventListener('DOMContentLoaded', async () => {
-      const principal = await getMe();
+
+    async function loadPersonalScores() {
+      const status = document.getElementById('personal-score-status');
+      const list = document.getElementById('personal-score-list');
+      if (!status || !list) {
+        return;
+      }
+
+      list.innerHTML = '';
+      status.textContent = 'Loading...';
+
+      try {
+        const response = await fetch('/api/scores?personal=true', { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error('Failed to load personal scores');
+        }
+
+        const data = await response.json();
+        const scores = Array.isArray(data.personal) ? data.personal : [];
+
+        if (!scores.length) {
+          status.textContent = 'No scores yet. Play Chromatic Runner to set your first record.';
+          const leaderboardStatus = document.getElementById('members-leaderboard-status');
+          if (leaderboardStatus) {
+            leaderboardStatus.textContent = 'No game selected.';
+          }
+          const leaderboardList = document.getElementById('members-leaderboard-list');
+          if (leaderboardList) {
+            leaderboardList.innerHTML = '';
+          }
+          return;
+        }
+
+        status.textContent = '';
+        list.innerHTML = '';
+
+        scores.forEach((entry) => {
+          const config = friendlyGame(entry.slug);
+          const li = document.createElement('li');
+          li.className = 'member-score-row selectable';
+          li.dataset.slug = entry.slug;
+          li.tabIndex = 0;
+
+          const icon = document.createElement('span');
+          icon.className = 'rank';
+          icon.textContent = '\u25B6';
+
+          const name = document.createElement('span');
+          name.className = 'player';
+          name.textContent = config.name;
+
+          const score = document.createElement('span');
+          score.className = 'score';
+          score.textContent = Number(entry.bestScore || 0).toLocaleString();
+
+          li.append(icon, name, score);
+
+          if (entry.updatedAt) {
+            const meta = document.createElement('small');
+            const date = new Date(entry.updatedAt);
+            meta.textContent = 'Updated ' + date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            li.appendChild(meta);
+          }
+
+          li.addEventListener('click', () => loadLeaderboardForGame(entry.slug));
+          li.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              loadLeaderboardForGame(entry.slug);
+            }
+          });
+
+          list.appendChild(li);
+        });
+
+        const defaultSlug = scores.find((entry) => entry.slug === currentLeaderboardSlug)?.slug || scores[0].slug;
+        loadLeaderboardForGame(defaultSlug);
+      } catch (error) {
+        console.warn('Failed to load personal scores', error);
+        status.textContent = 'Unable to load your scores right now.';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      cachedPrincipal = await getMe();
+
       const authStatus = document.getElementById('auth-status');
       const nameEl = document.getElementById('member-name');
       const emailEl = document.getElementById('member-email');
@@ -178,33 +354,94 @@ document.addEventListener('DOMContentLoaded', async () => {
       const rolesEl = document.getElementById('member-roles');
       const payloadEl = document.getElementById('principal-json');
 
-      if (!principal) {
-        authStatus.textContent = 'Your session expired. Please sign in again.';
-        nameEl.textContent = emailEl.textContent = providerEl.textContent = rolesEl.textContent = '—';
-        payloadEl.textContent = 'No principal payload available.';
-        const status = document.getElementById('runner-score-status');
-        const list = document.getElementById('runner-score-list');
-        if (status) {
-          status.textContent = 'Sign in to view the leaderboard.';
+      if (!cachedPrincipal) {
+        if (authStatus) {
+          authStatus.textContent = 'Your session expired. Please sign in again.';
         }
-        if (list) {
-          list.innerHTML = '';
+        if (nameEl && emailEl && providerEl && rolesEl) {
+          nameEl.textContent = emailEl.textContent = providerEl.textContent = rolesEl.textContent = '-';
+        }
+        if (payloadEl) {
+          payloadEl.textContent = 'No principal payload available.';
+        }
+        const personalStatus = document.getElementById('personal-score-status');
+        if (personalStatus) {
+          personalStatus.textContent = 'Sign in to view your high scores.';
+        }
+        const leaderboardStatus = document.getElementById('members-leaderboard-status');
+        if (leaderboardStatus) {
+          leaderboardStatus.textContent = 'Sign in to load leaderboards.';
         }
         return;
       }
 
-      const display = principal.userDetails || principal.userId || 'Player';
-      authStatus.innerHTML = `Welcome back, <strong>${display}</strong>.`;
-      nameEl.textContent = display;
-      emailEl.textContent = principal.claims?.find(c => c.typ === 'email' || c.typ === 'emails')?.val || principal.userDetails || '—';
-      providerEl.textContent = principal.identityProvider || 'Google';
-      rolesEl.textContent = (principal.userRoles || []).join(', ');
-      payloadEl.textContent = JSON.stringify(principal, null, 2);
-      await loadRunnerScores();
+      const display = cachedPrincipal.userDetails || cachedPrincipal.userId || 'Player';
+      if (authStatus) {
+        authStatus.innerHTML = `Welcome back, <strong>${display}</strong>.`;
+      }
+      if (nameEl) {
+        nameEl.textContent = display;
+      }
+      if (emailEl) {
+        const emailClaim = (cachedPrincipal.claims || []).find((c) => c.typ === 'email' || c.typ === 'emails');
+        emailEl.textContent = emailClaim?.val || cachedPrincipal.userDetails || '-';
+      }
+      if (providerEl) {
+        providerEl.textContent = cachedPrincipal.identityProvider || 'Google';
+      }
+      if (rolesEl) {
+        rolesEl.textContent = (cachedPrincipal.userRoles || []).join(', ');
+      }
+      if (payloadEl) {
+        payloadEl.textContent = JSON.stringify(cachedPrincipal, null, 2);
+      }
+
+      normalizedUserId = normalizePrincipalId(cachedPrincipal);
+      await loadPersonalScores();
+    });
+
+    window.addEventListener('focus', async () => {
+      if (!cachedPrincipal) {
+        return;
+      }
+
+      const refreshed = await getMe();
+      if (!refreshed) {
+        cachedPrincipal = null;
+        normalizedUserId = null;
+        const personalStatus = document.getElementById('personal-score-status');
+        if (personalStatus) {
+          personalStatus.textContent = 'Sign in to view your high scores.';
+        }
+        const list = document.getElementById('personal-score-list');
+        if (list) {
+          list.innerHTML = '';
+        }
+        const leaderboardStatus = document.getElementById('members-leaderboard-status');
+        if (leaderboardStatus) {
+          leaderboardStatus.textContent = 'Sign in to load leaderboards.';
+        }
+        const leaderboardList = document.getElementById('members-leaderboard-list');
+        if (leaderboardList) {
+          leaderboardList.innerHTML = '';
+        }
+        return;
+      }
+
+      cachedPrincipal = refreshed;
+      normalizedUserId = normalizePrincipalId(refreshed);
+      await loadPersonalScores();
     });
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
