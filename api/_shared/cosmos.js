@@ -8,16 +8,16 @@ function getContainer() {
     return cachedContainer;
   }
 
-  const connectionString = process.env.COSMOS_CONN_STRING;
+  const connectionString = process.env.COSMOS_CONNECTION_STRING;
   if (!connectionString) {
     return null;
   }
 
-  const databaseId = process.env.COSMOS_DB_NAME;
-  const containerId = process.env.COSMOS_CONTAINER_NAME;
+  const databaseId = process.env.COSMOS_DB;
+  const containerId = process.env.COSMOS_PLAYERDATA_CONTAINER;
 
   if (!databaseId || !containerId) {
-    throw new Error("Cosmos DB configuration missing: ensure COSMOS_DB_NAME and COSMOS_CONTAINER_NAME are set.");
+    throw new Error("Cosmos DB configuration missing: ensure COSMOS_DB and COSMOS_PLAYERDATA_CONTAINER are set.");
   }
 
   if (!cachedClient) {

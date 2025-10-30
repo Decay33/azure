@@ -50,9 +50,9 @@ Configure these under **Static Web App → Configuration** (or a local `local.se
 | Name | Purpose |
 |------|---------|
 | `GOOGLE_CLIENT_ID` | Client ID for the custom Google OIDC provider.
-| `COSMOS_CONN_STRING` | Cosmos DB connection string (AccountEndpoint + Key).
-| `COSMOS_DB_NAME` | Cosmos DB database that contains the likes container (e.g. `site`).
-| `COSMOS_CONTAINER_NAME` | Cosmos container for like and score documents (partition key `/slug`).
+| `COSMOS_CONNECTION_STRING` | Cosmos DB connection string (AccountEndpoint + Key).
+| `COSMOS_DB` | Cosmos DB database that contains the likes container (e.g. `site`).
+| `COSMOS_PLAYERDATA_CONTAINER` | Cosmos container for like and score documents (partition key `/slug`).
 | `SENDGRID_API_KEY` | *(Optional)* API key for SendGrid email delivery.
 | `CONTACT_TO` | *(Optional)* Destination email for contact messages (required if SendGrid is used).
 | `CONTACT_FROM` | *(Optional)* Verified sender address. Defaults to `CONTACT_TO` if omitted.
@@ -86,6 +86,7 @@ Add the deployment token from the SWA resource as the repository secret `AZURE_S
 
 - Original design/content from the PHP site preserved in `index.html`, `style.css`, and `privacy.html`.
 - Azure Static Web Apps for auth and hosting, Cosmos DB for persistent likes, and SendGrid for email relay (optional).
+
 
 
 
