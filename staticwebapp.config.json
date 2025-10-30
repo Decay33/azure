@@ -1,0 +1,46 @@
+{
+  "routes": [
+    {
+      "route": "/members/*",
+      "allowedRoles": [
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/*",
+      "allowedRoles": [
+        "authenticated"
+      ]
+    }
+  ],
+  "responseOverrides": {
+    "401": {
+      "redirect": "/.auth/login/google",
+      "statusCode": 302
+    }
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  },
+  "auth": {
+    "identityProviders": {
+      "customOpenIdConnectProviders": {
+        "google": {
+          "registration": {
+            "clientIdSettingName": "GOOGLE_CLIENT_ID"
+          },
+          "login": {
+            "authority": "https://accounts.google.com",
+            "scope": "openid profile email",
+            "loginParameters": [
+              "prompt=consent"
+            ]
+          },
+          "userDetails": {
+            "uri": "https://openidconnect.googleapis.com/v1/userinfo"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+﻿{
+  "name": "gamehub-api",
+  "version": "1.0.0",
+  "dependencies": {
+    "@azure/cosmos": "^4.1.1",
+    "@sendgrid/mail": "^8.1.0"
+  }
+}

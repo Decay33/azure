@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Homepage -->
   <url>
@@ -10,7 +10,7 @@
   
   <!-- Contact Page -->
   <url>
-    <loc>https://theaidemocracy.com/contact.php</loc>
+    <loc>https://theaidemocracy.com/#contact</loc>
     <lastmod>2025-02-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
@@ -18,7 +18,7 @@
 
   <!-- Privacy Policy Page -->
   <url>
-    <loc>https://theaidemocracy.com/privacy.php</loc>
+    <loc>https://theaidemocracy.com/privacy.html</loc>
     <lastmod>2025-02-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
@@ -88,3 +88,4 @@
     <priority>0.75</priority>
   </url>
 </urlset>
+

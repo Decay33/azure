@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- SEO Meta Tags -->
-  <meta name="description" content="Welcome to The AI Democracy – Where AI Creates Gaming Innovation. Experience cutting-edge AI-generated games updated weekly. Join the future of gaming today.">
+  <meta name="description" content="Welcome to The AI Democracy â€“ Where AI Creates Gaming Innovation. Experience cutting-edge AI-generated games updated weekly. Join the future of gaming today.">
   <meta name="keywords" content="AI games, artificial intelligence games, future of gaming, indie games, AI-generated games, procedural games, free online games, gaming innovation">
   <meta name="author" content="The AI Democracy">
   <link rel="canonical" href="https://theaidemocracy.com/">
@@ -83,14 +83,23 @@
   
   <!-- Navigation Bar -->
   <nav class="nav-bar">
-    <a href="index.php" class="nav-logo"><span class="nav-logo-the">THE</span>AI<span>Democracy</span></a>
+    <a href="/" class="nav-logo"><span class="nav-logo-the">THE</span>AI<span>Democracy</span></a>
     <div class="nav-links">
-      <a href="index.php" class="nav-link">Games</a>
-      <a href="tools.php" class="nav-link">Tools</a>
-      <a href="contact.php" class="nav-link">Contact</a>
-      <a href="privacy.php" class="nav-link">Privacy</a>
+      <a href="#game-list" class="nav-link">Games</a>
+      <a href="#tools" class="nav-link">Tools</a>
+      <a href="#contact" class="nav-link">Contact</a>
+      <a href="privacy.html" class="nav-link">Privacy</a>
+      <a href="/members/" class="nav-link">Members</a>
+    </div>
+    <div class="nav-links nav-auth">
+      <a id="sign-in-link" class="nav-link" href="/.auth/login/google?post_login_redirect_uri=/">Sign In</a>
+      <a id="sign-out-link" class="nav-link hidden" href="/.auth/logout?post_logout_redirect_uri=/">Sign Out</a>
     </div>
   </nav>
+
+  <div class="auth-banner" id="auth-banner">
+    <span id="auth-status">You're browsing as a guest. <a href="/.auth/login/google?post_login_redirect_uri=/">Sign in with Google</a> to save likes and contact us.</span>
+  </div>
 
   <!-- Donation Banner -->
   <div id="donate-banner">
@@ -110,7 +119,7 @@
         Join us on this journey into the future of interactive entertainment.
       </p>
       <div class="contact-promo">
-        <a href="contact.php" class="contact-button">
+        <a href="#contact" class="contact-button">
           <i class="fa fa-robot"></i> Submit Your AI Game
         </a>
       </div>
@@ -272,7 +281,7 @@
         </div>
         <div class="game-content">
           <p>
-            Dive into Cave Grok – a challenging cave exploration game with AI-generated levels and dynamic gameplay.
+            Dive into Cave Grok â€“ a challenging cave exploration game with AI-generated levels and dynamic gameplay.
           </p>
           <div class="game-actions">
             <!-- Open via window.open() to retain window.opener -->
@@ -296,7 +305,7 @@
         </div>
         <div class="game-content">
           <p>
-            Design, upgrade, and pilot your very own ship in this innovative Build A Ship game. Unlock special upgrades—like the HOT Pink ship—by making in-app purchases!
+            Design, upgrade, and pilot your very own ship in this innovative Build A Ship game. Unlock special upgradesâ€”like the HOT Pink shipâ€”by making in-app purchases!
           </p>
           <div class="game-actions">
             <a href="buildaship/index.html" class="play-button" onclick="window.open(this.href, '_blank'); return false;">Play Now</a>
@@ -452,6 +461,99 @@
       </div>
     </section>
 
+    <!-- Tools Section -->
+    <section id="tools">
+      <div class="game-item epic-game">
+        <div class="game-header">
+          <h2 data-text="ToolsHub Calculator Suite">ToolsHub Calculator Suite</h2>
+          <div class="game-labels">
+            <span class="epic-label">EPIC</span>
+          </div>
+        </div>
+        <div class="game-content">
+          <p>
+            Professional-grade calculators and tools for finance, business, education, and daily life. Features mortgage calculators, loan calculators,
+            budget planners, GPA calculators, and much more. Over 30+ tools in one comprehensive suite!
+          </p>
+          <div class="game-actions">
+            <a href="tools/index.html" class="play-button" onclick="window.open(this.href, '_blank'); return false;">
+              <i class="fa fa-calculator"></i> Launch Tools
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-item coming-soon">
+        <div class="game-header">
+          <h2 data-text="AI Text Generator">AI Text Generator</h2>
+          <div class="game-labels">
+            <span class="new-label">COMING SOON</span>
+          </div>
+        </div>
+        <div class="game-content">
+          <p>
+            Generate high-quality content with AI assistance. Perfect for blog posts, social media, emails, and more. Multiple writing styles and tones available.
+          </p>
+        </div>
+      </div>
+
+      <div class="game-item coming-soon">
+        <div class="game-header">
+          <h2 data-text="Image Optimizer">Image Optimizer</h2>
+          <div class="game-labels">
+            <span class="new-label">COMING SOON</span>
+          </div>
+        </div>
+        <div class="game-content">
+          <p>
+            Compress and optimize images without losing quality. Supports batch processing, multiple formats, and AI-powered enhancement features.
+          </p>
+        </div>
+      </div>
+
+      <div class="game-item coming-soon">
+        <div class="game-header">
+          <h2 data-text="Code Formatter">Code Formatter</h2>
+          <div class="game-labels">
+            <span class="new-label">COMING SOON</span>
+          </div>
+        </div>
+        <div class="game-content">
+          <p>
+            Format and beautify your code instantly. Supports multiple programming languages with customizable formatting rules and syntax highlighting.
+          </p>
+        </div>
+      </div>
+
+      <div class="game-item coming-soon">
+        <div class="game-header">
+          <h2 data-text="PDF Toolkit">PDF Toolkit</h2>
+          <div class="game-labels">
+            <span class="new-label">COMING SOON</span>
+          </div>
+        </div>
+        <div class="game-content">
+          <p>
+            Merge, split, compress, and convert PDFs with ease. All processing happens locally in your browser for maximum privacy and security.
+          </p>
+        </div>
+      </div>
+
+      <div class="game-item coming-soon">
+        <div class="game-header">
+          <h2 data-text="Unit Converter Pro">Unit Converter Pro</h2>
+          <div class="game-labels">
+            <span class="new-label">COMING SOON</span>
+          </div>
+        </div>
+        <div class="game-content">
+          <p>
+            Convert between hundreds of units across categories including length, weight, temperature, currency, and more. Lightning-fast calculations with a beautiful interface.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- Community Games Section -->
     <section id="community-game-list">
       <h2>Community Games</h2>
@@ -481,10 +583,45 @@
       
       <div class="community-submit-cta">
         <p>Have you created an AI-assisted game? Share it with our community!</p>
-        <a href="contact.php" class="community-submit-button">Submit Your Game</a>
+        <a href="#contact" class="community-submit-button">Submit Your Game</a>
       </div>
     </section>
   </div>
+
+  <!-- Contact Section -->
+  <section id="contact">
+    <div class="contact-container">
+      <h2>Connect With Us</h2>
+      <p class="ai-statement">
+        Have questions, feedback, or want to submit your AI-generated game? We'd love to hear from you.
+      </p>
+
+      <form id="contact-form" novalidate>
+        <div class="form-group">
+          <label for="contact-name">Your Name</label>
+          <input type="text" id="contact-name" name="name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="contact-email">Email Address</label>
+          <input type="email" id="contact-email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="contact-subject">Subject</label>
+          <input type="text" id="contact-subject" name="subject" required />
+        </div>
+
+        <div class="form-group">
+          <label for="contact-message">Message</label>
+          <textarea id="contact-message" name="message" rows="6" required></textarea>
+        </div>
+
+        <button type="submit" id="contact-submit">Send Message</button>
+        <p class="contact-feedback" id="contact-feedback" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
 
   <!-- Footer Section -->
   <footer>
@@ -492,9 +629,9 @@
       Powered by Advanced AI Technology - Your game progress and purchase states are securely stored using local browser storage.
     </p>
     <div class="footer-links">
-      <a href="privacy.php" class="footer-link">Privacy Policy</a>
+      <a href="privacy.html" class="footer-link">Privacy Policy</a>
       <a href="privacy.html" class="footer-link">Privacy Statement</a>
-      <a href="contact.php" class="footer-link">Contact Us</a>
+      <a href="#contact" class="footer-link">Contact Us</a>
     </div>
   </footer>
 
@@ -512,81 +649,238 @@
     }).render('#donate-button');
   </script>
 
-  <!-- JavaScript to Handle Like Buttons - Updated with visual feedback -->
   <script>
-    // Function to send a like via AJAX
-    function sendLike(gameId) {
-      // Visual feedback - show loading state
-      var btn = document.querySelector('.like-button[data-game-id="' + gameId + '"]');
-      btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-      btn.disabled = true;
-      
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "like.php", true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          var response = JSON.parse(xhr.responseText);
-          if (response.success) {
-            document.getElementById("like-count-" + gameId).innerText = response.like_count;
-            // Mark that this browser has liked this game
-            localStorage.setItem("liked-" + gameId, "true");
-            // Update button appearance
-            btn.innerHTML = '<i class="fa fa-heart"></i> Liked';
-            
-            // Add a small animation to the like count
-            var countElement = document.getElementById("like-count-" + gameId);
-            countElement.classList.add('like-count-updated');
-            setTimeout(function() {
-              countElement.classList.remove('like-count-updated');
-            }, 1000);
-          } else {
-            console.error("Error: " + response.error);
-            btn.innerHTML = '<i class="fa fa-heart"></i> Like';
-            btn.disabled = false;
-          }
+    async function getMe() {
+      try {
+        const response = await fetch("/.auth/me", { credentials: "include" });
+        if (!response.ok) {
+          return null;
         }
-      };
-      xhr.send("game_id=" + encodeURIComponent(gameId));
-    }
-
-    // Function to fetch the initial like count from the server
-    function fetchLikeCount(gameId) {
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", "get_likes.php?game_id=" + encodeURIComponent(gameId), true);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          var response = JSON.parse(xhr.responseText);
-          if (response.success) {
-            document.getElementById("like-count-" + gameId).innerText = response.like_count;
-          }
-        }
-      };
-      xhr.send();
-    }
-
-    // Attach event listeners once the DOM is loaded
-    document.addEventListener("DOMContentLoaded", function() {
-      var likeButtons = document.getElementsByClassName("like-button");
-      for (var i = 0; i < likeButtons.length; i++) {
-        (function(button) {
-          var gameId = button.getAttribute("data-game-id");
-          // Fetch initial like count for this game
-          fetchLikeCount(gameId);
-          // Check if this browser already liked the game
-          if (localStorage.getItem("liked-" + gameId)) {
-            button.disabled = true;
-            button.innerText = "Liked";
-          }
-          // Attach click event if not already liked
-          button.addEventListener("click", function() {
-            if (!localStorage.getItem("liked-" + gameId)) {
-              sendLike(gameId);
-            }
-          });
-        })(likeButtons[i]);
+        const payload = await response.json();
+        return payload?.clientPrincipal || null;
+      } catch (_error) {
+        return null;
       }
-    });
+    }
+
+    const localLikeKey = (slug) => `liked-${slug}`;
+    let currentUser = null;
+
+    function updateAuthUi(user) {
+      const signInLink = document.getElementById("sign-in-link");
+      const signOutLink = document.getElementById("sign-out-link");
+      const authStatus = document.getElementById("auth-status");
+      const contactFeedback = document.getElementById("contact-feedback");
+
+      if (user) {
+        const displayName = user.userDetails || user.userId || "player";
+        signInLink.classList.add("hidden");
+        signOutLink.classList.remove("hidden");
+        authStatus.innerHTML = `Signed in as <strong>${displayName}</strong>. Thanks for building the future of AI gaming with us.`;
+        if (contactFeedback) {
+          contactFeedback.textContent = "";
+          contactFeedback.classList.remove("error");
+          contactFeedback.classList.remove("success");
+        }
+      } else {
+        signInLink.classList.remove("hidden");
+        signOutLink.classList.add("hidden");
+        authStatus.innerHTML =
+          `You're browsing as a guest. <a href="/.auth/login/google?post_login_redirect_uri=/">Sign in with Google</a> to like games and contact us.`;
+        if (contactFeedback) {
+          contactFeedback.textContent = "Sign in to send us a message.";
+          contactFeedback.classList.remove("success");
+          contactFeedback.classList.add("error");
+        }
+      }
+    }
+
+    function prepareLikeButtons() {
+      document.querySelectorAll(".like-button").forEach((button) => {
+        const slug = button.dataset.gameId;
+        const liked = localStorage.getItem(localLikeKey(slug));
+        if (liked) {
+          button.classList.add("liked");
+          button.innerHTML = '<i class="fa fa-heart"></i> Liked';
+          button.disabled = true;
+        } else {
+          button.classList.remove("liked");
+          button.innerHTML = '<i class="fa fa-heart"></i> Like';
+          button.disabled = !!currentUser ? false : true;
+        }
+      });
+    }
+
+    async function loadLikes() {
+      const buttons = Array.from(document.querySelectorAll(".like-button"));
+      if (!currentUser) {
+        buttons.forEach((button) => {
+          const slug = button.dataset.gameId;
+          const countEl = document.getElementById(`like-count-${slug}`);
+          if (countEl) {
+            countEl.textContent = "—";
+          }
+          button.disabled = true;
+        });
+        return;
+      }
+
+      for (const button of buttons) {
+        const slug = button.dataset.gameId;
+        const countEl = document.getElementById(`like-count-${slug}`);
+        if (!countEl) {
+          continue;
+        }
+        countEl.textContent = "…";
+        try {
+          const response = await fetch(`/api/likes?slug=${encodeURIComponent(slug)}`, {
+            method: "GET",
+            credentials: "include"
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to load likes for ${slug}`);
+          }
+          const data = await response.json();
+          countEl.textContent = Number.isFinite(data.likes) ? data.likes : 0;
+          const liked = localStorage.getItem(localLikeKey(slug));
+          if (liked) {
+            button.classList.add("liked");
+            button.innerHTML = '<i class="fa fa-heart"></i> Liked';
+            button.disabled = true;
+          } else {
+            button.classList.remove("liked");
+            button.innerHTML = '<i class="fa fa-heart"></i> Like';
+            button.disabled = false;
+          }
+        } catch (_error) {
+          countEl.textContent = "0";
+        }
+      }
+    }
+
+    async function handleLikeClick(event) {
+      const button = event.currentTarget;
+      const slug = button.dataset.gameId;
+
+      if (!currentUser) {
+        alert("Please sign in to like this game.");
+        return;
+      }
+
+      if (localStorage.getItem(localLikeKey(slug))) {
+        return;
+      }
+
+      button.disabled = true;
+      button.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+      try {
+        const response = await fetch("/api/likes", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Like request failed (${response.status})`);
+        }
+
+        const data = await response.json();
+        const countEl = document.getElementById(`like-count-${slug}`);
+        if (countEl && Number.isFinite(data.likes)) {
+          countEl.textContent = data.likes;
+        }
+
+        localStorage.setItem(localLikeKey(slug), "true");
+        button.classList.add("liked");
+        button.innerHTML = '<i class="fa fa-heart"></i> Liked';
+      } catch (error) {
+        console.error(error);
+        button.disabled = false;
+        button.innerHTML = '<i class="fa fa-heart"></i> Like';
+        alert("Unable to register your like right now. Please try again shortly.");
+      }
+    }
+
+    function bindLikeEvents() {
+      document.querySelectorAll(".like-button").forEach((button) => {
+        button.addEventListener("click", handleLikeClick);
+      });
+    }
+
+    async function handleContactSubmit(event) {
+      event.preventDefault();
+      const feedback = document.getElementById("contact-feedback");
+      const submitBtn = document.getElementById("contact-submit");
+
+      if (!currentUser) {
+        feedback.textContent = "Please sign in before sending us a message.";
+        feedback.classList.remove("success");
+        feedback.classList.add("error");
+        return;
+      }
+
+      const formData = {
+        name: document.getElementById("contact-name").value.trim(),
+        email: document.getElementById("contact-email").value.trim(),
+        subject: document.getElementById("contact-subject").value.trim(),
+        message: document.getElementById("contact-message").value.trim()
+      };
+
+      if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+        feedback.textContent = "All fields are required.";
+        feedback.classList.remove("success");
+        feedback.classList.add("error");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
+      feedback.textContent = "";
+
+      try {
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error?.error || "Failed to send message.");
+        }
+
+        feedback.textContent = "Thanks! Your message is on its way.";
+        feedback.classList.remove("error");
+        feedback.classList.add("success");
+        document.getElementById("contact-form").reset();
+      } catch (error) {
+        feedback.textContent = error.message;
+        feedback.classList.remove("success");
+        feedback.classList.add("error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send Message";
+      }
+    }
+
+    async function bootstrap() {
+      currentUser = await getMe();
+      updateAuthUi(currentUser);
+      prepareLikeButtons();
+      bindLikeEvents();
+      await loadLikes();
+
+      const contactForm = document.getElementById("contact-form");
+      if (contactForm) {
+        contactForm.addEventListener("submit", handleContactSubmit);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", bootstrap);
   </script>
 </body>
 </html>
+
