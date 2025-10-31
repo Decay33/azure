@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tools Lab | The AI Democracy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8a1mw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/tools/styles.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="scanline"></div>
+  <div class="circuit-lines">
+    <div class="circuit-line horizontal-line" style="top: 12%; left: 6%; width: 160px;"></div>
+    <div class="circuit-line vertical-line" style="top: 28%; left: 12%; height: 140px;"></div>
+    <div class="circuit-dot" style="top: 28%; left: 12%;"></div>
+    <div class="circuit-line horizontal-line" style="top: 70%; right: 8%; width: 210px;"></div>
+    <div class="circuit-line vertical-line" style="top: 58%; right: 18%; height: 160px;"></div>
+    <div class="circuit-dot" style="top: 58%; right: 18%;"></div>
+    <div class="circuit-line horizontal-line" style="top: 42%; right: 30%; width: 110px;"></div>
+    <div class="circuit-dot" style="top: 42%; right: 30%;"></div>
+  </div>
+
+  <nav class="nav-bar">
+    <a href="/" class="nav-logo"><span class="nav-logo-the">THE</span>AI<span>Democracy</span></a>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/#game-list" class="nav-link">Games</a>
+      <a href="/tools/" class="nav-link active">Tools</a>
+      <a href="/members/" class="nav-link">Members</a>
+      <a href="/privacy.html" class="nav-link">Privacy</a>
+    </div>
+    <div class="nav-links nav-auth">
+      <a class="nav-link" href="/.auth/login/google?post_login_redirect_uri=/tools/">Sign In</a>
+      <a class="nav-link" href="/.auth/logout?post_logout_redirect_uri=/">Sign Out</a>
+    </div>
+  </nav>
+
+  <header class="tools-hero" id="main-content">
+    <div class="tools-hero-inner">
+      <h1>AI Democracy Tools Lab</h1>
+      <p>Discover a growing library of calculators, converters, and planning tools tuned for creators, founders, and curious minds. Everything runs in the browser—no signup, no tracking, just insights.</p>
+      <div class="search-container" role="search">
+        <label for="searchTools" class="sr-only">Search calculators and tools</label>
+        <input type="text" id="searchTools" class="search-input" placeholder="Search tools..." aria-label="Search calculators and tools" />
+        <i class="fas fa-search search-icon" aria-hidden="true"></i>
+      </div>
+      <nav class="tools-category-nav" role="navigation" aria-label="Tool categories">
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle tool categories" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#finance" data-category="finance"><i class="fas fa-coins"></i> Finance</a></li>
+          <li><a href="#realestate" data-category="realestate"><i class="fas fa-building"></i> Real Estate</a></li>
+          <li><a href="#business" data-category="business"><i class="fas fa-briefcase"></i> Business</a></li>
+          <li><a href="#education" data-category="education"><i class="fas fa-graduation-cap"></i> Education</a></li>
+          <li><a href="#dailylife" data-category="dailylife"><i class="fas fa-heartbeat"></i> Daily Life</a></li>
+          <li><a href="#tech" data-category="tech"><i class="fas fa-toolbox"></i> Tech & Utilities</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="tools-main">
+    <section class="disclaimer-section" aria-labelledby="disclaimer-title">
+      <div class="disclaimer-card">
+        <div class="disclaimer-header" onclick="toggleDisclaimer()" role="button" tabindex="0" aria-expanded="false" aria-controls="disclaimer-content" onkeydown="handleDisclaimerKeydown(event)">
+          <div class="disclaimer-header-left">
+            <div class="disclaimer-icon">
+              <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+            </div>
+            <h3 id="disclaimer-title">Legal Disclaimer</h3>
+          </div>
+          <div class="disclaimer-toggle">
+            <span class="disclaimer-status"><i class="fas fa-graduation-cap"></i> Educational use only</span>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="disclaimer-content" id="disclaimer-content" aria-hidden="true">
+          <p><strong>These tools are provided for educational and informational purposes only.</strong> They are not a substitute for professional financial, legal, medical, or business advice. Results are estimates and may not reflect actual outcomes.</p>
+          <p>Please consult qualified professionals (financial advisors, accountants, lawyers, healthcare providers, etc.) before making significant decisions. The AI Democracy is not responsible for actions taken based on these calculators.</p>
+          <div class="disclaimer-footer">
+            <a href="/tools/terms-of-service.html" class="terms-link">View full Terms of Service</a>
+            <span class="disclaimer-tag">Browser-based • No account required</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tools-grid" id="toolsGrid" aria-label="Calculator tools organized by category">
+      <div class="category-section" id="finance">
+        <h3 class="category-title">Finance Tools</h3>
+        <p class="category-lead">Plan budgets, model payoffs, and explore long-term wealth scenarios with quick, shareable outputs.</p>
+        <div class="tools-row">
+          <div class="tool-card" data-tool="mortgage">
+            <i class="fas fa-house"></i>
+            <h4>Mortgage Calculator</h4>
+            <p>Adjust rates, terms, and down payments to see amortization instantly.</p>
+          </div>
+          <div class="tool-card" data-tool="loan">
+            <i class="fas fa-money-check-dollar"></i>
+            <h4>Loan Payoff Planner</h4>
+            <p>Compare payment strategies and discover the fastest payoff schedule.</p>
+          </div>
+          <div class="tool-card" data-tool="debt-snowball">
+            <i class="fas fa-snowflake"></i>
+            <h4>Debt Snowball Coach</h4>
+            <p>Stack debts, prioritize payoffs, and visualize momentum over time.</p>
+          </div>
+          <div class="tool-card" data-tool="compound-interest">
+            <i class="fas fa-chart-line"></i>
+            <h4>Compound Interest Explorer</h4>
+            <p>Project savings and investments with monthly, quarterly, or annual compounding.</p>
+          </div>
+          <div class="tool-card" data-tool="budget">
+            <i class="fas fa-wallet"></i>
+            <h4>Monthly Budget Blueprint</h4>
+            <p>Allocate income across essentials, savings, and goals.</p>
+          </div>
+          <div class="tool-card" data-tool="retirement">
+            <i class="fas fa-person-cane"></i>
+            <h4>Retirement Gap Analyzer</h4>
+            <p>Estimate how contributions today translate into retirement income tomorrow.</p>
+          </div>
+          <div class="tool-card" data-tool="net-worth">
+            <i class="fas fa-scale-balanced"></i>
+            <h4>Net Worth Snapshot</h4>
+            <p>Compile assets & liabilities and monitor progress toward financial independence.</p>
+          </div>
+          <div class="tool-card" data-tool="credit-payoff">
+            <i class="fas fa-credit-card"></i>
+            <h4>Credit Payoff Forecaster</h4>
+            <p>Simulate balance transfers, promo APRs, and targeted extra payments.</p>
+          </div>
+          <div class="tool-card" data-tool="wage-converter">
+            <i class="fas fa-clock"></i>
+            <h4>Wage Converter</h4>
+            <p>Convert between hourly, salary, and freelance rates with taxes in mind.</p>
+          </div>
+          <div class="tool-card" data-tool="inflation">
+            <i class="fas fa-chart-area"></i>
+            <h4>Inflation Impact Visualizer</h4>
+            <p>Understand how purchasing power shifts across different inflation scenarios.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-section" id="realestate">
+        <h3 class="category-title">Real Estate Tools</h3>
+        <p class="category-lead">Evaluate properties, closing costs, and ownership trade-offs with investor-grade clarity.</p>
+        <div class="tools-row">
+          <div class="tool-card" data-tool="rent-vs-buy">
+            <i class="fas fa-handshake"></i>
+            <h4>Rent vs. Buy Advisor</h4>
+            <p>Balance monthly costs, equity growth, and opportunity cost before you commit.</p>
+          </div>
+          <div class="tool-card" data-tool="property-tax">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <h4>Property Tax Estimator</h4>
+            <p>Forecast annual taxes with exemptions and local millage adjustments.</p>
+          </div>
+          <div class="tool-card" data-tool="home-affordability">
+            <i class="fas fa-city"></i>
+            <h4>Home Affordability Guide</h4>
+            <p>Translate income, debt ratios, and interest rates into a comfortable purchase price.</p>
+          </div>
+          <div class="tool-card" data-tool="closing-costs">
+            <i class="fas fa-file-signature"></i>
+            <h4>Closing Costs Breakdown</h4>
+            <p>Itemize lender fees, escrows, and taxes to avoid day-of surprises.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-section" id="business">
+        <h3 class="category-title">Business & Productivity</h3>
+        <p class="category-lead">Support operators and builders with ROI models, invoicing helpers, and scheduling utilities.</p>
+        <div class="tools-row">
+          <div class="tool-card" data-tool="break-even">
+            <i class="fas fa-scale-unbalanced"></i>
+            <h4>Break-Even Analyzer</h4>
+            <p>Plot fixed vs. variable costs and pinpoint profitability thresholds.</p>
+          </div>
+          <div class="tool-card" data-tool="roi">
+            <i class="fas fa-bullseye"></i>
+            <h4>Project ROI Planner</h4>
+            <p>Compare investments by payback period, ROI %, and internal rate scenarios.</p>
+          </div>
+          <div class="tool-card" data-tool="invoice">
+            <i class="fas fa-file-invoice"></i>
+            <h4>Invoice Generator</h4>
+            <p>Create clean invoices with taxes, discounts, and due-date reminders.</p>
+          </div>
+          <div class="tool-card" data-tool="timecard">
+            <i class="fas fa-business-time"></i>
+            <h4>Timecard Summarizer</h4>
+            <p>Track billable hours, overtime, and approval-ready summaries.</p>
+          </div>
+          <div class="tool-card" data-tool="sales-tax">
+            <i class="fas fa-percentage"></i>
+            <h4>Sales Tax Calculator</h4>
+            <p>Compute state, county, and city sales tax for point-of-sale accuracy.</p>
+          </div>
+          <div class="tool-card" data-tool="currency">
+            <i class="fas fa-globe"></i>
+            <h4>Real-Time Currency Converter</h4>
+            <p>Pull live FX rates and quote conversions in seconds.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-section" id="education">
+        <h3 class="category-title">Education & Study</h3>
+        <p class="category-lead">Equip learners with smart calculators for planning study time, measuring performance, and keeping focus.</p>
+        <div class="tools-row">
+          <div class="tool-card" data-tool="gpa">
+            <i class="fas fa-graduation-cap"></i>
+            <h4>GPA Calculator</h4>
+            <p>Track semesters, weight honors courses, and set GPA goals.</p>
+          </div>
+          <div class="tool-card" data-tool="typing-test">
+            <i class="fas fa-keyboard"></i>
+            <h4>Typing Speed Trainer</h4>
+            <p>Warm up with timed drills and monitor accuracy improvements.</p>
+          </div>
+          <div class="tool-card" data-tool="flashcards">
+            <i class="fas fa-layer-group"></i>
+            <h4>Flashcard Builder</h4>
+            <p>Generate digital flashcards and track spaced-repetition streaks.</p>
+          </div>
+          <div class="tool-card" data-tool="reading-time">
+            <i class="fas fa-book-open"></i>
+            <h4>Reading Time Estimator</h4>
+            <p>Estimate study sessions by word count, difficulty, and note-taking pace.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-section" id="dailylife">
+        <h3 class="category-title">Daily Life & Wellness</h3>
+        <p class="category-lead">Balance routines, nutrition, and planning with calculators designed for busy creators.</p>
+        <div class="tools-row">
+          <div class="tool-card" data-tool="calorie">
+            <i class="fas fa-utensils"></i>
+            <h4>Calorie Planner</h4>
+            <p>Estimate daily energy needs by activity level and body composition goals.</p>
+          </div>
+          <div class="tool-card" data-tool="macro">
+            <i class="fas fa-chart-pie"></i>
+            <h4>Macro Split Designer</h4>
+            <p>Convert calorie targets into protein, carb, and fat macros instantly.</p>
+          </div>
+          <div class="tool-card" data-tool="water">
+            <i class="fas fa-droplet"></i>
+            <h4>Hydration Coach</h4>
+            <p>Set water-intake goals with adjustments for climate and training.</p>
+          </div>
+          <div class="tool-card" data-tool="pregnancy">
+            <i class="fas fa-person-pregnant"></i>
+            <h4>Pregnancy Timeline</h4>
+            <p>Track trimesters, due dates, and appointment milestones.</p>
+          </div>
+          <div class="tool-card" data-tool="ovulation">
+            <i class="fas fa-seedling"></i>
+            <h4>Ovulation & Fertility Tracker</h4>
+            <p>Map fertility windows with cycle history and symptom logging.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-section" id="tech">
+        <h3 class="category-title">Tech & Utilities</h3>
+        <p class="category-lead">A handy corner for makers—passwords, conversions, QR codes, and diagnostics at the ready.</p>
+        <div class="tools-row">
+          <div class="tool-card" data-tool="password">
+            <i class="fas fa-shield-alt"></i>
+            <h4>Password Generator</h4>
+            <p>Create secure, memorable passphrases with custom complexity rules.</p>
+          </div>
+          <div class="tool-card" data-tool="unit-converter">
+            <i class="fas fa-ruler-combined"></i>
+            <h4>Unit Converter</h4>
+            <p>Convert length, weight, temperature, and more in one place.</p>
+          </div>
+          <div class="tool-card" data-tool="ip-lookup">
+            <i class="fas fa-network-wired"></i>
+            <h4>IP Address Lookup</h4>
+            <p>Surface ISP, location, and ASN data for troubleshooting.</p>
+          </div>
+          <div class="tool-card" data-tool="qr-generator">
+            <i class="fas fa-qrcode"></i>
+            <h4>QR Code Generator</h4>
+            <p>Create QR codes for links, Wi-Fi credentials, or contact info.</p>
+          </div>
+          <div class="tool-card" data-tool="text-converter">
+            <i class="fas fa-font"></i>
+            <h4>Text Case Converter</h4>
+            <p>Swap between sentence, title, and upper case in a click.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="tools-footer">
+    <p>&copy; <span id="toolsYear"></span> The AI Democracy. Tools Lab is an experimental suite of browser-based calculators.</p>
+    <p>No logins. No data collection. Just fast utilities for creative problem solvers.</p>
+    <div class="footer-links">
+      <a href="/tools/terms-of-service.html">Terms of Service</a>
+      <a href="#disclaimer-title">Disclaimer</a>
+      <span class="footer-disclaimer">Not professional advice</span>
+    </div>
+  </footer>
+
+  <div class="modal" id="toolModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Tool</h3>
+        <button class="close-btn" id="closeModal" aria-label="Close calculator">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody" role="document"></div>
+    </div>
+  </div>
+
+  <script>
+    window.ToolsApp = {
+      formatCurrency(amount) {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+      },
+      formatNumber(number) {
+        return new Intl.NumberFormat('en-US').format(number);
+      },
+      formatPercent(decimal) {
+        return new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 2 }).format(decimal);
+      }
+    };
+
+    function toggleDisclaimer() {
+      const header = document.querySelector('.disclaimer-header');
+      const content = document.getElementById('disclaimer-content');
+      const chevron = document.querySelector('.disclaimer-toggle i');
+      const isExpanded = header.getAttribute('aria-expanded') === 'true';
+
+      if (isExpanded) {
+        content.style.maxHeight = '0';
+        content.setAttribute('aria-hidden', 'true');
+        header.setAttribute('aria-expanded', 'false');
+        chevron.classList.remove('fa-chevron-up');
+        chevron.classList.add('fa-chevron-down');
+        header.classList.remove('expanded');
+      } else {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        content.setAttribute('aria-hidden', 'false');
+        header.setAttribute('aria-expanded', 'true');
+        chevron.classList.remove('fa-chevron-down');
+        chevron.classList.add('fa-chevron-up');
+        header.classList.add('expanded');
+      }
+    }
+
+    function handleDisclaimerKeydown(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleDisclaimer();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const yearEl = document.getElementById('toolsYear');
+      if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
+      }
+    });
+  </script>
+  <script src="/tools/finance-tools.js?v=10"></script>
+  <script src="/tools/real-estate-tools.js?v=10"></script>
+  <script src="/tools/business-tools.js?v=10"></script>
+  <script src="/tools/education-tools.js?v=10"></script>
+  <script src="/tools/utility-tools.js?v=10"></script>
+  <script src="/tools/daily-life-tools.js?v=10"></script>
+  <script src="/tools/app.js?v=10"></script>
+</body>
+</html>

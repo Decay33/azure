@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
@@ -86,7 +86,7 @@
     <a href="/" class="nav-logo"><span class="nav-logo-the">THE</span>AI<span>Democracy</span></a>
     <div class="nav-links">
       <a href="#game-list" class="nav-link">Games</a>
-      <a href="#tools" class="nav-link">Tools</a>
+      <a href="/tools/" class="nav-link">Tools</a>
       <a href="#contact" class="nav-link">Contact</a>
       <a href="privacy.html" class="nav-link">Privacy</a>
       <a href="/members/" class="nav-link">Members</a>
@@ -712,7 +712,7 @@
           const slug = button.dataset.gameId;
           const countEl = document.getElementById(`like-count-${slug}`);
           if (countEl) {
-            countEl.textContent = "—";
+            countEl.textContent = "ï¿½";
           }
           button.disabled = true;
         });
@@ -725,7 +725,7 @@
         if (!countEl) {
           continue;
         }
-        countEl.textContent = "…";
+        countEl.textContent = "ï¿½";
         try {
           const response = await fetch(`/api/likes?slug=${encodeURIComponent(slug)}`, {
             method: "GET",
@@ -877,6 +877,7 @@
   </script>
 </body>
 </html>
+
 
 
 
