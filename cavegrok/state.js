@@ -311,6 +311,47 @@
       };
     },
 
+    
+    readLocalUnlock(key) {
+      if (!window.localStorage) {
+        return false;
+      }
+      try {
+        return localStorage.getItem(key) === 'true';
+      } catch (_error) {
+        return false;
+      }
+    },
+
+    ensureLocalUnlockConsistency() {
+      const unlocks = this.state.unlocks || {};
+      const purchases = this.state.purchases || {};
+      const localHotPink = this.readLocalUnlock('hotPinkShipUnlocked');
+      const localPurple = this.readLocalUnlock('purpleShipUnlocked');
+      const localGolden = this.readLocalUnlock('goldenShipUnlocked');
+
+      let needsPersist = false;
+      if ((localHotPink || purchases.hotPinkShip?.owned) && !unlocks.hotPink) {
+        unlocks.hotPink = true;
+        needsPersist = true;
+      }
+      if ((localPurple || purchases.purpleShip?.owned) && !unlocks.purple) {
+        unlocks.purple = true;
+        needsPersist = true;
+      }
+      if ((localGolden || purchases.goldenShip?.owned) && !unlocks.golden) {
+        unlocks.golden = true;
+        needsPersist = true;
+      }
+
+      if (needsPersist) {
+        this.notifyGameOfUnlocks();
+        if (this.principal) {
+          this.scheduleStateSave({ unlocks }, { delay: 0 });
+        }
+      }
+    },
+
     async fetchPrincipal() {
       try {
         const response = await fetch('/.auth/me', {
@@ -346,8 +387,8 @@
         console.warn('CaveGrok state load failed', error);
         this.state = defaultState();
       }
-
-      this.syncLocalStorage();
+          this.ensureLocalUnlockConsistency();
+          this.syncLocalStorage();
       this.refreshUnlockUi();
       this.updatePurchasePanel();
       this.notifyGameOfUnlocks();
@@ -469,6 +510,7 @@
         const result = await response.json();
         if (result && result.state) {
           this.state = normalizeState(result.state);
+          this.ensureLocalUnlockConsistency();
           this.syncLocalStorage();
           this.refreshUnlockUi();
           this.updateScoreSummary();
@@ -712,15 +754,46 @@
         return;
       }
       const unlocks = this.state.unlocks || {};
+      const previous = {
+        hotPink: this.readLocalUnlock('hotPinkShipUnlocked'),
+        purple: this.readLocalUnlock('purpleShipUnlocked'),
+        golden: this.readLocalUnlock('goldenShipUnlocked')
+      };
+
+      const final = {
+        hotPink: previous.hotPink || Boolean(unlocks.hotPink),
+        purple: previous.purple || Boolean(unlocks.purple),
+        golden: previous.golden || Boolean(unlocks.golden)
+      };
+
+      let corrected = false;
+      if (final.hotPink && !unlocks.hotPink) {
+        unlocks.hotPink = true;
+        corrected = true;
+      }
+      if (final.purple && !unlocks.purple) {
+        unlocks.purple = true;
+        corrected = true;
+      }
+      if (final.golden && !unlocks.golden) {
+        unlocks.golden = true;
+        corrected = true;
+      }
+
       this.syncingLocalStorage = true;
       try {
-        localStorage.setItem('hotPinkShipUnlocked', unlocks.hotPink ? 'true' : 'false');
-        localStorage.setItem('purpleShipUnlocked', unlocks.purple ? 'true' : 'false');
-        localStorage.setItem('goldenShipUnlocked', unlocks.golden ? 'true' : 'false');
+        localStorage.setItem('hotPinkShipUnlocked', final.hotPink ? 'true' : 'false');
+        localStorage.setItem('purpleShipUnlocked', final.purple ? 'true' : 'false');
+        localStorage.setItem('goldenShipUnlocked', final.golden ? 'true' : 'false');
       } catch (error) {
         console.warn('Failed to sync localStorage for CaveGrok', error);
       } finally {
         this.syncingLocalStorage = false;
+      }
+
+      if (corrected) {
+        this.refreshUnlockUi();
+        this.scheduleStateSave({ unlocks }, { delay: 0 });
       }
     },
 
@@ -734,6 +807,9 @@
       }
       const active = value === 'true' || value === true;
       if (this.state.unlocks[unlockKey] === active) {
+        return;
+      }
+      if (!active && this.state.unlocks && this.state.unlocks[unlockKey]) {
         return;
       }
       const patch = { unlocks: { [unlockKey]: active } };
@@ -878,6 +954,7 @@
         if (this.principal) {
           this.principal = null;
           this.state = defaultState();
+          this.ensureLocalUnlockConsistency();
           this.syncLocalStorage();
           this.refreshUnlockUi();
           this.renderLeaderboard(null);
@@ -933,6 +1010,22 @@
     caveGrok.init();
   });
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
