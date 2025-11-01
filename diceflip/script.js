@@ -829,14 +829,14 @@ class FlipDiceGame {
         
         // Clear existing content but preserve rotation
         const existingCube = diceElement.querySelector('.dice-cube');
-        let currentRotation = ';
+        let currentRotation = '';
         if (existingCube) {
             // Get current transform to preserve rotation
             const style = window.getComputedStyle(existingCube);
-            currentRotation = existingCube.style.transform || ';
+            currentRotation = existingCube.style.transform || '';
         }
         
-        diceElement.innerHTML = ';
+        diceElement.innerHTML = '';
         diceElement.className = 'dice';
         diceElement.dataset.row = row;
         diceElement.dataset.col = col;
