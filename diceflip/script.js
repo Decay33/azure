@@ -1070,8 +1070,8 @@ class FlipDiceGame {
                         cubeElement.style.transform = 'translateY(0)';
                         
                         setTimeout(() => {
-                            cubeElement.style.transition = ';
-                            cubeElement.style.transform = ';
+                            cubeElement.style.transition = '';
+                            cubeElement.style.transform = '';
                         }, 500);
                     }
                 }, 50);
@@ -1100,8 +1100,8 @@ class FlipDiceGame {
                         cubeElement.style.transform = 'translateY(0)';
                         
                         setTimeout(() => {
-                            cubeElement.style.transition = ';
-                            cubeElement.style.transform = ';
+                            cubeElement.style.transition = '';
+                            cubeElement.style.transform = '';
                         }, 500);
                     }
                 }, 50);
@@ -1230,7 +1230,7 @@ class FlipDiceGame {
         if (comboText) {
             comboText.textContent = `${this.comboCount}x Combo!`;
             setTimeout(() => {
-                comboText.textContent = ';
+                comboText.textContent = '';
             }, 2000);
         }
     }
@@ -1444,8 +1444,8 @@ class FlipDiceGame {
                         diceElement.style.boxShadow = '0 0 15px #ffeb3b';
                         
                         setTimeout(() => {
-                            diceElement.style.border = ';
-                            diceElement.style.boxShadow = ';
+                            diceElement.style.border = '';
+                            diceElement.style.boxShadow = '';
                         }, 2000);
                         
                         return;
@@ -1457,7 +1457,7 @@ class FlipDiceGame {
         // No hints found
         document.getElementById('combo-text').textContent = 'No obvious matches found!';
         setTimeout(() => {
-            document.getElementById('combo-text').textContent = ';
+            document.getElementById('combo-text').textContent = '';
         }, 2000);
     }
 
