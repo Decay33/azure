@@ -35,8 +35,8 @@
       <a href="/privacy.html" class="nav-link">Privacy</a>
     </div>
     <div class="nav-links nav-auth">
-      <a class="nav-link" href="/.auth/login/google?post_login_redirect_uri=/diceflip/">Sign In</a>
-      <a class="nav-link" href="/.auth/logout?post_logout_redirect_uri=/diceflip/">Sign Out</a>
+      <a id="sign-in-link" class="nav-link" href="/.auth/login/google?post_login_redirect_uri=/diceflip/">Sign In</a>
+      <a id="sign-out-link" class="nav-link hidden" href="/.auth/logout?post_logout_redirect_uri=/diceflip/">Sign Out</a>
     </div>
   </nav>
 
@@ -453,6 +453,49 @@
       if (yearEl) {
         yearEl.textContent = new Date().getFullYear();
       }
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var signInLink = document.getElementById('sign-in-link');
+      var signOutLink = document.getElementById('sign-out-link');
+
+      function setAuthLinks(user) {
+        if (!signInLink || !signOutLink) {
+          return;
+        }
+        if (user) {
+          signInLink.classList.add('hidden');
+          signOutLink.classList.remove('hidden');
+        } else {
+          signInLink.classList.remove('hidden');
+          signOutLink.classList.add('hidden');
+        }
+      }
+
+      async function fetchPrincipal() {
+        try {
+          var response = await fetch('/.auth/me', {
+            credentials: 'include',
+            cache: 'no-store'
+          });
+          if (!response.ok) {
+            return null;
+          }
+          var payload = await response.json();
+          return payload && payload.clientPrincipal ? payload.clientPrincipal : null;
+        } catch (_error) {
+          return null;
+        }
+      }
+
+      fetchPrincipal()
+        .then(function (user) {
+          setAuthLinks(user);
+        })
+        .catch(function () {
+          setAuthLinks(null);
+        });
     });
   </script>
   <script src="/diceflip/state.js"></script>

@@ -490,7 +490,7 @@ class FlipDiceGame {
     // Render the game board with 3D dice
     renderBoard() {
         const gameBoard = document.getElementById('game-board');
-        gameBoard.innerHTML = ';
+        gameBoard.innerHTML = '';
         
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
