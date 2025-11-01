@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DiceFlip | The AI Democracy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8a1mw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/diceflip/styles.css" />
+</head>
+<body>
+  <a href="#diceflip-main" class="skip-link">Skip to main content</a>
+  <div class="scanline"></div>
+  <div class="circuit-lines">
+    <div class="circuit-line horizontal-line" style="top: 16%; left: 6%; width: 150px;"></div>
+    <div class="circuit-line vertical-line" style="top: 30%; left: 12%; height: 120px;"></div>
+    <div class="circuit-dot" style="top: 30%; left: 12%;"></div>
+    <div class="circuit-line horizontal-line" style="top: 72%; right: 8%; width: 200px;"></div>
+    <div class="circuit-line vertical-line" style="top: 58%; right: 18%; height: 150px;"></div>
+    <div class="circuit-dot" style="top: 58%; right: 18%;"></div>
+    <div class="circuit-line horizontal-line" style="top: 44%; right: 29%; width: 110px;"></div>
+    <div class="circuit-dot" style="top: 44%; right: 29%;"></div>
+  </div>
+
+  <nav class="nav-bar">
+    <a href="/" class="nav-logo"><span class="nav-logo-the">THE</span>AI<span>Democracy</span></a>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/#game-list" class="nav-link">Games</a>
+      <a href="/tools/" class="nav-link">Tools</a>
+      <a href="/members/" class="nav-link">Members</a>
+      <a href="/privacy.html" class="nav-link">Privacy</a>
+    </div>
+    <div class="nav-links nav-auth">
+      <a class="nav-link" href="/.auth/login/google?post_login_redirect_uri=/diceflip/">Sign In</a>
+      <a class="nav-link" href="/.auth/logout?post_logout_redirect_uri=/diceflip/">Sign Out</a>
+    </div>
+  </nav>
+
+  <header class="diceflip-hero" id="diceflip-main">
+    <div class="diceflip-hero-inner">
+      <div class="diceflip-hero-text">
+        <h1>DiceFlip</h1>
+        <p>Chain explosive combos, unlock luminous dice skins, and chase global high scores in this cyber match-three challenge. Your progress, skins, and achievements follow you wherever you roll.</p>
+        <div class="diceflip-summary-grid">
+          <div class="summary-card">
+            <h2>Personal Records</h2>
+            <div class="summary-stats">
+              <div>
+                <span>Best Score</span>
+                <strong id="df-best-score">0</strong>
+              </div>
+              <div>
+                <span>Best Level</span>
+                <strong id="df-best-level">1</strong>
+              </div>
+              <div>
+                <span>Total Games</span>
+                <strong id="df-total-games">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="summary-card">
+            <h2>Achievements</h2>
+            <ul id="df-achievements" class="achievement-list">
+              <li>Sign in and set a record to unlock achievements.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="diceflip-hero-callout">
+        <h3>How to Play</h3>
+        <ul>
+          <li>Use the arrow keys to flip dice and align matching faces.</li>
+          <li>Chaining combos boosts your score — powerups help clear the grid.</li>
+          <li>Reach milestone levels to unlock premium dice skins.</li>
+          <li>Sign in with Google to sync scores, skins, and achievements.</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="diceflip-main">
+    <section class="diceflip-stage">
+      <!-- Start Screen -->
+      <div id="start-screen" class="screen-overlay">
+        <div class="start-screen-content">
+          <div class="game-title">
+            <h1>DiceFlip</h1>
+            <p class="game-subtitle">Match 3 Puzzle Adventure</p>
+          </div>
+
+          <div class="start-menu">
+            <button id="start-game-btn" class="menu-btn primary">
+              <span class="btn-icon"><i class="fas fa-play"></i></span>
+              <span class="btn-text">Start Game</span>
+            </button>
+
+            <button id="continue-game-btn" class="menu-btn primary hidden">
+              <span class="btn-icon"><i class="fas fa-sync-alt"></i></span>
+              <span class="btn-text">Continue Game</span>
+            </button>
+
+            <button id="dice-skins-btn" class="menu-btn secondary">
+              <span class="btn-icon"><i class="fas fa-dice-six"></i></span>
+              <span class="btn-text">Dice Skins</span>
+            </button>
+
+            <button id="view-stats-btn" class="menu-btn secondary">
+              <span class="btn-icon"><i class="fas fa-trophy"></i></span>
+              <span class="btn-text">High Scores</span>
+            </button>
+
+            <button id="how-to-play-btn" class="menu-btn secondary">
+              <span class="btn-icon"><i class="fas fa-book"></i></span>
+              <span class="btn-text">How to Play</span>
+            </button>
+          </div>
+
+          <div id="high-scores-panel" class="stats-panel hidden">
+            <h2>Lifetime Records</h2>
+            <div class="stats-grid">
+              <div class="stat-category">
+                <h3>Best Scores</h3>
+                <div class="stat-item">
+                  <span class="stat-label">Highest Score</span>
+                  <span id="best-total-score" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Best Level</span>
+                  <span id="best-level" class="stat-value">1</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Total Games</span>
+                  <span id="total-games" class="stat-value">0</span>
+                </div>
+              </div>
+              <div class="stat-category">
+                <h3>Match Combos</h3>
+                <div class="stat-item">
+                  <span class="stat-label">3 Matches</span>
+                  <span id="best-3-matches" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">4 Matches</span>
+                  <span id="best-4-matches" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">5 Matches</span>
+                  <span id="best-5-matches" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">6+ Matches</span>
+                  <span id="best-6-matches" class="stat-value">0</span>
+                </div>
+              </div>
+              <div class="stat-category">
+                <h3>Numbers Matched</h3>
+                <div class="stat-item">
+                  <span class="stat-label">Ones</span>
+                  <span id="best-ones-matched" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Twos</span>
+                  <span id="best-twos-matched" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Threes</span>
+                  <span id="best-threes-matched" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Fours</span>
+                  <span id="best-fours-matched" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Fives</span>
+                  <span id="best-fives-matched" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Sixes</span>
+                  <span id="best-sixes-matched" class="stat-value">0</span>
+                </div>
+              </div>
+            </div>
+            <button id="close-stats-btn" class="menu-btn tertiary">
+              <span class="btn-icon"><i class="fas fa-arrow-left"></i></span>
+              <span class="btn-text">Back</span>
+            </button>
+          </div>
+
+          <div id="how-to-play-panel" class="how-to-panel hidden">
+            <h2>How to Play</h2>
+            <ol>
+              <li>Use arrow keys to flip adjacent dice and align three or more matching faces.</li>
+              <li>Each move consumes a directional arrow — earn more every three levels.</li>
+              <li>Build combos to charge powerups like wild dice and 3x3 bombs.</li>
+              <li>Complete objectives before running out of moves to progress to the next level.</li>
+            </ol>
+            <button id="close-how-to-btn" class="menu-btn tertiary">
+              <span class="btn-icon"><i class="fas fa-arrow-left"></i></span>
+              <span class="btn-text">Back</span>
+            </button>
+          </div>
+
+          <div id="dice-skins-panel" class="skins-panel hidden">
+            <h2>Dice Skins</h2>
+            <p>Reach milestone levels to unlock new aesthetics. Skins sync with your EasyAuth identity.</p>
+            <div class="skins-grid">
+              <div class="skin-card" data-skin="classic">
+                <div class="skin-preview classic-skin"></div>
+                <div class="skin-info">
+                  <h3>Classic</h3>
+                  <p>Default skin with crisp pips.</p>
+                </div>
+                <span class="skin-status unlocked"><i class="fas fa-check-circle"></i> Equipped</span>
+                <button class="skin-select-btn selected">Equipped</button>
+              </div>
+              <div class="skin-card" data-skin="pastel">
+                <div class="skin-preview pastel-skin"></div>
+                <div class="skin-info">
+                  <h3>Pastel Dreams</h3>
+                  <p>Reach level 10 to unlock.</p>
+                </div>
+                <span class="skin-status locked">Reach Level 10</span>
+                <button class="skin-select-btn locked" disabled>Locked</button>
+              </div>
+              <div class="skin-card" data-skin="neon">
+                <div class="skin-preview neon-skin"></div>
+                <div class="skin-info">
+                  <h3>Neon Night</h3>
+                  <p>Reach level 25 to unlock.</p>
+                </div>
+                <span class="skin-status locked">Reach Level 25</span>
+                <button class="skin-select-btn locked" disabled>Locked</button>
+              </div>
+              <div class="skin-card" data-skin="galaxy">
+                <div class="skin-preview galaxy-skin"></div>
+                <div class="skin-info">
+                  <h3>Galaxy Forge</h3>
+                  <p>Reach level 50 to unlock.</p>
+                </div>
+                <span class="skin-status locked">Reach Level 50</span>
+                <button class="skin-select-btn locked" disabled>Locked</button>
+              </div>
+            </div>
+            <button id="close-skins-btn" class="menu-btn tertiary">
+              <span class="btn-icon"><i class="fas fa-arrow-left"></i></span>
+              <span class="btn-text">Back</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Container -->
+      <div class="game-container">
+        <div class="top-bar">
+          <div class="score-section">
+            <div>
+              <span class="label">Level</span>
+              <span id="current-level">1</span>
+            </div>
+            <div>
+              <span class="label">Level Score</span>
+              <span id="current-score">0</span>
+            </div>
+            <div>
+              <span class="label">Total Score</span>
+              <span id="running-score">0</span>
+            </div>
+            <div>
+              <span class="label">High Score</span>
+              <span id="high-score">0</span>
+            </div>
+            <div>
+              <span class="label">Level Goal</span>
+              <span id="level-goal">1000</span>
+            </div>
+          </div>
+          <div class="arrows-section">
+            <div class="arrows-header">
+              <div class="arrows-title">Directional Moves</div>
+              <div class="arrows-subtitle">Earn more every three levels</div>
+            </div>
+            <div class="arrow-counters">
+              <div class="arrow-counter">
+                <span class="arrow-icon">↑</span>
+                <span id="arrows-up">3</span>
+              </div>
+              <div class="arrow-counter">
+                <span class="arrow-icon">↓</span>
+                <span id="arrows-down">3</span>
+              </div>
+              <div class="arrow-counter">
+                <span class="arrow-icon">←</span>
+                <span id="arrows-left">3</span>
+              </div>
+              <div class="arrow-counter">
+                <span class="arrow-icon">→</span>
+                <span id="arrows-right">3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-board-container">
+          <div id="game-board" class="game-board classic-skin" aria-label="Dice game grid"></div>
+          <aside class="instructions-panel">
+            <h2>Moves & Powerups</h2>
+            <ul>
+              <li>Arrow keys flip adjacent dice toward the arrow direction.</li>
+              <li>Clear combos to charge wild dice, free moves, and area clears.</li>
+              <li>Progress resets your arrow supply and raises the score threshold.</li>
+            </ul>
+            <div class="powerup-panel">
+              <h3>Inventory</h3>
+              <div class="powerup-grid">
+                <div class="powerup-card">
+                  <span class="powerup-name">Free Move</span>
+                  <span id="free-move-count" class="powerup-count">0</span>
+                </div>
+                <div class="powerup-card">
+                  <span class="powerup-name">3x3 Bomb</span>
+                  <span id="bomb-count" class="powerup-count">0</span>
+                </div>
+                <div class="powerup-card">
+                  <span class="powerup-name">Wild Bomb</span>
+                  <span id="wild-bomb-count" class="powerup-count">0</span>
+                </div>
+              </div>
+              <div class="powerup-buttons">
+                <button id="free-move-btn" class="powerup-btn" aria-label="Use free move powerup">Free Move</button>
+                <button id="bomb-btn" class="powerup-btn" aria-label="Use 3x3 bomb powerup">3x3 Bomb</button>
+                <button id="wild-bomb-btn" class="powerup-btn" aria-label="Use wild bomb powerup">Wild Bomb</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="controls-bar">
+          <button id="save-game-btn" class="game-btn">
+            <i class="fas fa-save"></i> Save Game
+          </button>
+          <button id="reset-game-btn" class="game-btn danger">
+            <i class="fas fa-undo"></i> Reset Level
+          </button>
+        </div>
+
+        <div id="level-complete" class="message-overlay hidden" role="alert">
+          <div class="message-content">
+            <h2>Level Complete!</h2>
+            <p>Level Score: <span id="final-score">0</span></p>
+            <p>Bonus: <span id="bonus-points">0</span> points for unused arrows</p>
+            <p>Total Score: <span id="running-score-display">0</span></p>
+            <button id="next-level-btn" class="game-btn primary">Next Level</button>
+          </div>
+        </div>
+
+        <div id="game-over" class="message-overlay hidden" role="alert">
+          <div class="message-content">
+            <h2>Game Over</h2>
+            <p>No more moves available!</p>
+            <p>Level Score: <span id="game-over-score">0</span></p>
+            <p>Total Score: <span id="game-over-running-score">0</span></p>
+            <button id="restart-btn" class="game-btn primary">Play Again</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="enhanced-game-over" class="screen-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="game-over-heading">
+        <div class="game-over-content">
+          <div class="game-over-header">
+            <h1 id="game-over-heading">Game Over</h1>
+            <p class="final-score-display">Final Score: <span id="enhanced-final-score">0</span></p>
+            <p class="level-reached">Level Reached: <span id="enhanced-level-reached">1</span></p>
+          </div>
+          <div class="game-stats-grid">
+            <div class="stat-category-game">
+              <h3>Match Statistics</h3>
+              <div class="stat-item-game">
+                <span class="stat-label-game">3 Matches</span>
+                <span id="game-3-matches" class="stat-value-game">0</span>
+              </div>
+              <div class="stat-item-game">
+                <span class="stat-label-game">4 Matches</span>
+                <span id="game-4-matches" class="stat-value-game">0</span>
+              </div>
+              <div class="stat-item-game">
+                <span class="stat-label-game">5 Matches</span>
+                <span id="game-5-matches" class="stat-value-game">0</span>
+              </div>
+              <div class="stat-item-game">
+                <span class="stat-label-game">6+ Matches</span>
+                <span id="game-6-matches" class="stat-value-game">0</span>
+              </div>
+            </div>
+            <div class="stat-category-game">
+              <h3>Numbers Matched</h3>
+              <div class="stat-item-game"><span class="stat-label-game">Ones</span><span id="game-ones-matched" class="stat-value-game">0</span></div>
+              <div class="stat-item-game"><span class="stat-label-game">Twos</span><span id="game-twos-matched" class="stat-value-game">0</span></div>
+              <div class="stat-item-game"><span class="stat-label-game">Threes</span><span id="game-threes-matched" class="stat-value-game">0</span></div>
+              <div class="stat-item-game"><span class="stat-label-game">Fours</span><span id="game-fours-matched" class="stat-value-game">0</span></div>
+              <div class="stat-item-game"><span class="stat-label-game">Fives</span><span id="game-fives-matched" class="stat-value-game">0</span></div>
+              <div class="stat-item-game"><span class="stat-label-game">Sixes</span><span id="game-sixes-matched" class="stat-value-game">0</span></div>
+            </div>
+          </div>
+          <div class="game-over-actions">
+            <button id="play-again-btn" class="menu-btn primary">
+              <span class="btn-icon"><i class="fas fa-redo"></i></span>
+              <span class="btn-text">Play Again</span>
+            </button>
+            <button id="back-to-menu-btn" class="menu-btn secondary">
+              <span class="btn-icon"><i class="fas fa-home"></i></span>
+              <span class="btn-text">Main Menu</span>
+            </button>
+          </div>
+          <div id="new-record" class="new-record-banner hidden" role="status">
+            <span class="record-icon"><i class="fas fa-star"></i></span>
+            <span class="record-text">New High Score!</span>
+            <span class="record-icon"><i class="fas fa-star"></i></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="diceflip-sidebar">
+      <div class="leaderboard-card">
+        <h2>Global Leaderboard</h2>
+        <p id="diceflip-leaderboard-status" class="leaderboard-status">Sign in with Google to view live rankings.</p>
+        <ol id="diceflip-leaderboard" class="score-list"></ol>
+      </div>
+      <div class="sidebar-card">
+        <h3>Tips</h3>
+        <ul>
+          <li>Powerups recharge faster when you chain matches back-to-back.</li>
+          <li>Save directional moves by planning multi-match cascades.</li>
+          <li>Focus on special dice to trigger large clears when the board clogs.</li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="tools-footer diceflip-footer">
+    <p>&copy; <span id="diceflipYear"></span> The AI Democracy. DiceFlip is an experimental EasyAuth-powered puzzle.</p>
+    <p>Scores and skins sync through your member identity. No extra logins required.</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const yearEl = document.getElementById('diceflipYear');
+      if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
+      }
+    });
+  </script>
+  <script src="/diceflip/state.js"></script>
+  <script src="/diceflip/sound.js"></script>
+  <script src="/diceflip/script.js"></script>
+</body>
+</html>
