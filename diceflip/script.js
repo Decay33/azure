@@ -575,16 +575,22 @@ class FlipDiceGame {
             }
         });
 
-        // Game buttons
-        document.getElementById('hint-btn').addEventListener('click', () => {
-            this.soundSystem.playButtonClick();
-            this.showHint();
-        });
+        // Game buttons (optional elements)
+        const hintBtn = document.getElementById('hint-btn');
+        if (hintBtn) {
+            hintBtn.addEventListener('click', () => {
+                this.soundSystem.playButtonClick();
+                this.showHint();
+            });
+        }
 
-        document.getElementById('undo-btn').addEventListener('click', () => {
-            this.soundSystem.playButtonClick();
-            this.undoMove();
-        });
+        const undoBtn = document.getElementById('undo-btn');
+        if (undoBtn) {
+            undoBtn.addEventListener('click', () => {
+                this.soundSystem.playButtonClick();
+                this.undoMove();
+            });
+        }
 
         document.getElementById('save-game-btn').addEventListener('click', () => {
             this.soundSystem.playButtonClick();
@@ -601,30 +607,45 @@ class FlipDiceGame {
             this.restart();
         });
 
-        // Sound controls
-        document.getElementById('sound-toggle').addEventListener('click', () => {
-            const enabled = this.soundSystem.toggleSound();
-            document.getElementById('sound-toggle').textContent = enabled ? 'Sound On' : 'Sound Muted';
-            this.soundSystem.playButtonClick();
-        });
+        // Sound controls (optional elements)
+        const soundToggle = document.getElementById('sound-toggle');
+        if (soundToggle) {
+            soundToggle.addEventListener('click', () => {
+                const enabled = this.soundSystem.toggleSound();
+                soundToggle.textContent = enabled ? 'Sound On' : 'Sound Muted';
+                this.soundSystem.playButtonClick();
+            });
+        }
 
-        document.getElementById('volume-slider').addEventListener('input', (e) => {
-            const volume = e.target.value / 100;
-            this.soundSystem.setVolume(volume);
-        });
+        const volumeSlider = document.getElementById('volume-slider');
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', (e) => {
+                const volume = e.target.value / 100;
+                this.soundSystem.setVolume(volume);
+            });
+        }
 
         // Power-up selection handlers
-        document.getElementById('free-move-powerup').addEventListener('click', () => {
-            this.selectPowerup('free-move');
-        });
+        const freeMovePowerup = document.getElementById('free-move-powerup');
+        if (freeMovePowerup) {
+            freeMovePowerup.addEventListener('click', () => {
+                this.selectPowerup('free-move');
+            });
+        }
 
-        document.getElementById('bomb-3x3-powerup').addEventListener('click', () => {
-            this.selectPowerup('bomb-3x3');
-        });
+        const bomb3x3Powerup = document.getElementById('bomb-3x3-powerup');
+        if (bomb3x3Powerup) {
+            bomb3x3Powerup.addEventListener('click', () => {
+                this.selectPowerup('bomb-3x3');
+            });
+        }
 
-        document.getElementById('wild-bomb-powerup').addEventListener('click', () => {
-            this.selectPowerup('wild-bomb');
-        });
+        const wildBombPowerup = document.getElementById('wild-bomb-powerup');
+        if (wildBombPowerup) {
+            wildBombPowerup.addEventListener('click', () => {
+                this.selectPowerup('wild-bomb');
+            });
+        }
     }
 
     // Select a dice and show arrows around it
@@ -1257,8 +1278,11 @@ class FlipDiceGame {
         document.getElementById('arrows-left').textContent = this.arrows.left;
         document.getElementById('arrows-right').textContent = this.arrows.right;
         
-        // Update button states
-        document.getElementById('undo-btn').disabled = this.moves.length === 0;
+        // Update button states (optional elements)
+        const undoBtn = document.getElementById('undo-btn');
+        if (undoBtn) {
+            undoBtn.disabled = this.moves.length === 0;
+        }
         
         // Update power-up UI
         this.updatePowerupUI();
@@ -1504,15 +1528,28 @@ class FlipDiceGame {
 
     updatePowerupUI() {
         // Update power-up counts
-        document.getElementById('free-move-count').textContent = this.powerups.freeMove;
-        document.getElementById('bomb-3x3-count').textContent = this.powerups.bomb3x3;
-        document.getElementById('wild-bomb-count').textContent = this.powerups.wildBomb;
+        const freeMoveCount = document.getElementById('free-move-count');
+        if (freeMoveCount) {
+            freeMoveCount.textContent = this.powerups.freeMove;
+        }
+        
+        const bomb3x3Count = document.getElementById('bomb-3x3-count');
+        if (bomb3x3Count) {
+            bomb3x3Count.textContent = this.powerups.bomb3x3;
+        }
+        
+        const wildBombCount = document.getElementById('wild-bomb-count');
+        if (wildBombCount) {
+            wildBombCount.textContent = this.powerups.wildBomb;
+        }
         
         // Update power-up states
         const powerupTypes = ['free-move', 'bomb-3x3', 'wild-bomb'];
         
         powerupTypes.forEach(type => {
             const element = document.getElementById(`${type}-powerup`);
+            if (!element) return;
+            
             const powerupKey = this.getPowerupKey(type);
             
             // Remove all state classes

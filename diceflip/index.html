@@ -15,14 +15,14 @@
   <a href="#diceflip-main" class="skip-link">Skip to main content</a>
   <div class="scanline"></div>
   <div class="circuit-lines">
-    <div class="circuit-line horizontal-line" style="top: 16%; left: 6%; width: 150px;"></div>
-    <div class="circuit-line vertical-line" style="top: 30%; left: 12%; height: 120px;"></div>
-    <div class="circuit-dot" style="top: 30%; left: 12%;"></div>
-    <div class="circuit-line horizontal-line" style="top: 72%; right: 8%; width: 200px;"></div>
-    <div class="circuit-line vertical-line" style="top: 58%; right: 18%; height: 150px;"></div>
-    <div class="circuit-dot" style="top: 58%; right: 18%;"></div>
-    <div class="circuit-line horizontal-line" style="top: 44%; right: 29%; width: 110px;"></div>
-    <div class="circuit-dot" style="top: 44%; right: 29%;"></div>
+    <div class="circuit-line horizontal-line circuit-1"></div>
+    <div class="circuit-line vertical-line circuit-2"></div>
+    <div class="circuit-dot circuit-dot-1"></div>
+    <div class="circuit-line horizontal-line circuit-3"></div>
+    <div class="circuit-line vertical-line circuit-4"></div>
+    <div class="circuit-dot circuit-dot-2"></div>
+    <div class="circuit-line horizontal-line circuit-5"></div>
+    <div class="circuit-dot circuit-dot-3"></div>
   </div>
 
   <nav class="nav-bar">
@@ -199,7 +199,7 @@
               <li>Build combos to charge powerups like wild dice and 3x3 bombs.</li>
               <li>Complete objectives before running out of moves to progress to the next level.</li>
             </ol>
-            <button id="close-how-to-btn" class="menu-btn tertiary">
+            <button id="close-how-to-play-btn" class="menu-btn tertiary">
               <span class="btn-icon"><i class="fas fa-arrow-left"></i></span>
               <span class="btn-text">Back</span>
             </button>
@@ -317,15 +317,15 @@
             <div class="powerup-panel">
               <h3>Inventory</h3>
               <div class="powerup-grid">
-                <div class="powerup-card">
+                <div class="powerup-card" id="free-move-powerup">
                   <span class="powerup-name">Free Move</span>
                   <span id="free-move-count" class="powerup-count">0</span>
                 </div>
-                <div class="powerup-card">
+                <div class="powerup-card" id="bomb-3x3-powerup">
                   <span class="powerup-name">3x3 Bomb</span>
-                  <span id="bomb-count" class="powerup-count">0</span>
+                  <span id="bomb-3x3-count" class="powerup-count">0</span>
                 </div>
-                <div class="powerup-card">
+                <div class="powerup-card" id="wild-bomb-powerup">
                   <span class="powerup-name">Wild Bomb</span>
                   <span id="wild-bomb-count" class="powerup-count">0</span>
                 </div>
