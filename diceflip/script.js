@@ -678,38 +678,28 @@ class FlipDiceGame {
         const dice = this.board[row][col];
         const gameBoard = document.getElementById('game-board');
         
-        // Get dice and game board positions using getBoundingClientRect for accuracy
+        // Get dice position within grid
         const diceRect = diceElement.getBoundingClientRect();
         const gameBoardRect = gameBoard.getBoundingClientRect();
         
-        // Calculate dice position relative to game board
-        const diceLeft = diceRect.left - gameBoardRect.left;
-        const diceTop = diceRect.top - gameBoardRect.top;
-        const diceWidth = diceRect.width;
-        const diceHeight = diceRect.height;
-        
-        // Calculate dice edges
-        const diceEdges = {
-            top: diceTop,
-            bottom: diceTop + diceHeight,
-            left: diceLeft,
-            right: diceLeft + diceWidth,
-            centerX: diceLeft + diceWidth / 2,
-            centerY: diceTop + diceHeight / 2
-        };
+        // Calculate center of dice relative to game board
+        const diceCenterX = diceRect.left - gameBoardRect.left + diceRect.width / 2;
+        const diceCenterY = diceRect.top - gameBoardRect.top + diceRect.height / 2;
         
         // Create halo container
         const haloContainer = document.createElement('div');
         haloContainer.className = 'dice-halo';
         haloContainer.style.position = 'absolute';
+        haloContainer.style.left = '0';
+        haloContainer.style.top = '0';
         haloContainer.style.pointerEvents = 'none';
         haloContainer.style.zIndex = '200';
         
         const directions = [
-            { name: 'up', symbol: '?' },
-            { name: 'right', symbol: '?' },
-            { name: 'down', symbol: '?' },
-            { name: 'left', symbol: '?' }
+            { name: 'up', symbol: '↑' },
+            { name: 'right', symbol: '→' },
+            { name: 'down', symbol: '↓' },
+            { name: 'left', symbol: '←' }
         ];
         
         directions.forEach(direction => {
@@ -717,16 +707,16 @@ class FlipDiceGame {
             let previewValue;
             switch(direction.name) {
                 case 'up':
-                    previewValue = dice.front; // flipDice: newDice.top = dice.front
+                    previewValue = dice.front;
                     break;
                 case 'down':
-                    previewValue = dice.back; // flipDice: newDice.top = dice.back
+                    previewValue = dice.back;
                     break;
                 case 'left':
-                    previewValue = dice.right; // flipDice: newDice.top = dice.right
+                    previewValue = dice.right;
                     break;
                 case 'right':
-                    previewValue = dice.left; // flipDice: newDice.top = dice.left
+                    previewValue = dice.left;
                     break;
             }
             
@@ -734,28 +724,33 @@ class FlipDiceGame {
             arrowButton.className = `pie-section ${direction.name}`;
             arrowButton.dataset.direction = direction.name;
             
-            // Position arrows relative to dice edges with fine-tuning adjustments
-            const arrowSize = 45; // From CSS: .pie-section width/height = 45px
-            const spacing = 8; // Gap between dice and arrows
+            // Arrow size and spacing
+            const arrowSize = 50;
+            const spacing = diceRect.width / 2 + 10;
             
+            // Position arrows around dice center
+            let left, top;
             switch(direction.name) {
                 case 'up':
-                    arrowButton.style.left = (diceEdges.centerX - arrowSize/2 + 12) + 'px'; // Center horizontally + move right 12px
-                    arrowButton.style.top = (diceEdges.top - arrowSize - spacing - 4) + 'px'; // Above top edge + move up 4px
+                    left = diceCenterX - arrowSize / 2;
+                    top = diceCenterY - spacing - arrowSize;
                     break;
                 case 'down':
-                    arrowButton.style.left = (diceEdges.centerX - arrowSize/2 + 12) + 'px'; // Center horizontally + move right 12px
-                    arrowButton.style.top = (diceEdges.bottom + spacing - 16) + 'px'; // Below bottom edge + move up 16px (final edge)
+                    left = diceCenterX - arrowSize / 2;
+                    top = diceCenterY + spacing;
                     break;
                 case 'left':
-                    arrowButton.style.left = (diceEdges.left - arrowSize - spacing - 4) + 'px'; // Left of left edge + move left 4px
-                    arrowButton.style.top = (diceEdges.centerY - arrowSize/2 + 12) + 'px'; // Center vertically + move down 12px
+                    left = diceCenterX - spacing - arrowSize;
+                    top = diceCenterY - arrowSize / 2;
                     break;
                 case 'right':
-                    arrowButton.style.left = (diceEdges.right + spacing - 16) + 'px'; // Right of right edge + move left 16px (final edge)
-                    arrowButton.style.top = (diceEdges.centerY - arrowSize/2 + 12) + 'px'; // Center vertically + move down 12px
+                    left = diceCenterX + spacing;
+                    top = diceCenterY - arrowSize / 2;
                     break;
             }
+            
+            arrowButton.style.left = left + 'px';
+            arrowButton.style.top = top + 'px';
             
             const arrowContent = document.createElement('div');
             arrowContent.className = 'pie-content';

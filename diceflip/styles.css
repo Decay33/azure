@@ -654,10 +654,10 @@ body {
 }
 
 .game-board-container {
-  display: grid;
-  grid-template-columns: auto minmax(0, 260px);
+  display: flex;
   gap: 1.5rem;
-  align-items: start;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .game-board {
@@ -803,46 +803,78 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  padding: 8px;
-  gap: 2px;
+  padding: 10%;
+  gap: 0;
 }
 
 .dice-dot {
-  width: 8px;
-  height: 8px;
+  width: 18%;
+  height: 18%;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   visibility: hidden;
+  align-self: center;
+  justify-self: center;
 }
 
-/* Dice dot patterns */
-.dice-dots.dots-1 .dot-5 { visibility: visible; }
+/* Dice dot patterns - Standard dice layout */
+/* One dot - center */
+.dice-dots.dots-1 .dot-5 { 
+  visibility: visible;
+  width: 24%;
+  height: 24%;
+}
 
+/* Two dots - diagonal corners */
 .dice-dots.dots-2 .dot-1,
-.dice-dots.dots-2 .dot-9 { visibility: visible; }
+.dice-dots.dots-2 .dot-9 { 
+  visibility: visible;
+  width: 22%;
+  height: 22%;
+}
 
+/* Three dots - diagonal line */
 .dice-dots.dots-3 .dot-1,
 .dice-dots.dots-3 .dot-5,
-.dice-dots.dots-3 .dot-9 { visibility: visible; }
+.dice-dots.dots-3 .dot-9 { 
+  visibility: visible;
+  width: 20%;
+  height: 20%;
+}
 
+/* Four dots - corners */
 .dice-dots.dots-4 .dot-1,
 .dice-dots.dots-4 .dot-3,
 .dice-dots.dots-4 .dot-7,
-.dice-dots.dots-4 .dot-9 { visibility: visible; }
+.dice-dots.dots-4 .dot-9 { 
+  visibility: visible;
+  width: 20%;
+  height: 20%;
+}
 
+/* Five dots - corners plus center */
 .dice-dots.dots-5 .dot-1,
 .dice-dots.dots-5 .dot-3,
 .dice-dots.dots-5 .dot-5,
 .dice-dots.dots-5 .dot-7,
-.dice-dots.dots-5 .dot-9 { visibility: visible; }
+.dice-dots.dots-5 .dot-9 { 
+  visibility: visible;
+  width: 18%;
+  height: 18%;
+}
 
+/* Six dots - two columns */
 .dice-dots.dots-6 .dot-1,
-.dice-dots.dots-6 .dot-3,
 .dice-dots.dots-6 .dot-4,
-.dice-dots.dots-6 .dot-6,
 .dice-dots.dots-6 .dot-7,
-.dice-dots.dots-6 .dot-9 { visibility: visible; }
+.dice-dots.dots-6 .dot-3,
+.dice-dots.dots-6 .dot-6,
+.dice-dots.dots-6 .dot-9 { 
+  visibility: visible;
+  width: 18%;
+  height: 18%;
+}
 
 .classic-skin .dice-face.color-1 { background: #f44336; }
 .classic-skin .dice-face.color-2 { background: #3f51b5; }
@@ -879,7 +911,10 @@ body {
   color: var(--text-secondary);
   display: grid;
   gap: 1rem;
-  max-width: 260px;
+  flex: 1;
+  min-width: 260px;
+  max-width: 320px;
+  align-self: stretch;
 }
 
 .instructions-panel h2 {
@@ -1058,11 +1093,18 @@ body {
   }
 
   .game-board-container {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: center;
   }
 
   .instructions-panel {
-    max-width: none;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .game-board {
+    width: min(90vw, 600px);
+    height: min(90vw, 600px);
   }
 }
 
@@ -1201,11 +1243,11 @@ body {
 
 .pie-section {
   position: absolute;
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: rgba(0, 243, 255, 0.9);
-  border: 2px solid var(--accent-primary);
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.95), rgba(0, 200, 220, 0.95));
+  border: 3px solid var(--accent-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1213,19 +1255,21 @@ body {
   pointer-events: all;
   transition: all 0.2s ease;
   z-index: 150;
-  box-shadow: 0 4px 15px rgba(0, 243, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 243, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .pie-section:hover {
-  transform: scale(1.15);
-  background: var(--accent-primary);
-  box-shadow: 0 6px 20px rgba(0, 243, 255, 0.6);
+  transform: scale(1.2);
+  background: linear-gradient(135deg, var(--accent-primary), rgba(0, 220, 240, 1));
+  box-shadow: 0 6px 25px rgba(0, 243, 255, 0.8);
+  border-width: 4px;
 }
 
 .pie-section.disabled {
   opacity: 0.3;
   cursor: not-allowed;
-  background: rgba(100, 100, 100, 0.5);
+  background: linear-gradient(135deg, rgba(80, 80, 80, 0.6), rgba(60, 60, 60, 0.6));
+  border-color: rgba(100, 100, 100, 0.5);
 }
 
 .pie-section.disabled:hover {
@@ -1236,24 +1280,24 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 0;
 }
 
 .pie-arrow {
-  font-size: 14px;
+  font-size: 18px;
+  line-height: 1;
   color: #000;
-  font-weight: 700;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
-.pie-section.up .pie-arrow::before { content: "↑"; }
-.pie-section.down .pie-arrow::before { content: "↓"; }
-.pie-section.left .pie-arrow::before { content: "←"; }
-.pie-section.right .pie-arrow::before { content: "→"; }
-
 .pie-number {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 900;
   color: #000;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+  margin-top: 1px;
 }
 
 /* Score Popup */
