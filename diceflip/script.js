@@ -1706,7 +1706,7 @@ class FlipDiceGame {
                 <div class="number-buttons">
                     ${availableNumbersArray.map(num => 
                         `<button class="number-btn" data-number="${num}">${num}</button>`
-                    ).join(')}
+                    ).join('')}
                 </div>
                 <button class="cancel-btn">Cancel</button>
             </div>
