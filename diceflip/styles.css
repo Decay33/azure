@@ -879,3 +879,12 @@ body {
     justify-content: center;
   }
 }
+
+.save-confirmation .save-icon i {
+  font-size: 1rem;
+}
+
+.skin-unlock-notification .unlock-icon i {
+  font-size: 1rem;
+}
+

@@ -54,7 +54,7 @@
         return null;
       }
       const payload = await response.json();
-      return payload?.clientPrincipal || null;
+      return payload && payload.clientPrincipal ? payload.clientPrincipal : null;
     } catch (_error) {
       return null;
     }
@@ -97,7 +97,8 @@
           credentials: "include",
           cache: "no-store"
         });
-        this.state = clone(payload?.state) || defaultState();
+        const statePayload = payload && payload.state ? payload.state : null;
+        this.state = clone(statePayload) || defaultState();
       } catch (error) {
         console.warn("DiceFlipCloud: failed to load state, using defaults", error);
         this.state = defaultState();
@@ -109,11 +110,14 @@
         return;
       }
 
-      this.game.allTimeStats = clone(this.state.stats);
-      this.game.highScore = this.state.stats?.highestScore || 0;
+      const stats = this.state.stats || {};
+      this.game.allTimeStats = clone(stats);
+      const highestScore = typeof stats.highestScore === "number" ? stats.highestScore : 0;
+      this.game.highScore = highestScore;
 
       const unlocked = [];
-      const skins = this.state.unlocks?.skins || {};
+      const unlockConfig = this.state.unlocks || {};
+      const skins = unlockConfig.skins || {};
       Object.keys(skins).forEach((skin) => {
         if (skins[skin]) {
           unlocked.push(skin);
@@ -124,7 +128,7 @@
       }
       this.game.unlockedSkins = unlocked;
 
-      const selectedSkin = this.state.unlocks?.selectedSkin;
+      const selectedSkin = unlockConfig.selectedSkin;
       if (selectedSkin && unlocked.includes(selectedSkin)) {
         this.game.currentSkin = selectedSkin;
       } else {
@@ -159,7 +163,11 @@
     },
 
     getHighScore() {
-      return this.state?.stats?.highestScore ?? null;
+      if (!this.state || !this.state.stats) {
+        return null;
+      }
+      const score = this.state.stats.highestScore;
+      return typeof score === "number" ? score : null;
     },
 
     updateHighScore(score) {
@@ -177,7 +185,7 @@
     },
 
     getUnlockedSkins() {
-      if (!this.state?.unlocks?.skins) {
+      if (!this.state || !this.state.unlocks || !this.state.unlocks.skins) {
         return null;
       }
       const unlocked = [];
@@ -193,7 +201,10 @@
     },
 
     getSelectedSkin() {
-      return this.state?.unlocks?.selectedSkin || null;
+      if (!this.state || !this.state.unlocks) {
+        return null;
+      }
+      return this.state.unlocks.selectedSkin || null;
     },
 
     updateSkins(unlockedSkins, selectedSkin) {
@@ -267,8 +278,9 @@
             }
           })
         });
-        if (response?.bestScore !== undefined && this.state) {
-          this.state.stats.highestScore = Math.max(this.state.stats.highestScore || 0, response.bestScore);
+        if (response && Object.prototype.hasOwnProperty.call(response, "bestScore") && this.state) {
+          const bestScore = response.bestScore;
+          this.state.stats.highestScore = Math.max(this.state.stats.highestScore || 0, bestScore);
           this.renderSummary();
         }
         this.renderLeaderboard();
@@ -339,7 +351,8 @@
 
       const badgeListEl = document.getElementById("df-achievements");
       if (badgeListEl) {
-        const unlocked = this.state.achievements?.unlocked || [];
+        const achievements = this.state && this.state.achievements ? this.state.achievements : {};
+        const unlocked = Array.isArray(achievements.unlocked) ? achievements.unlocked : [];
         badgeListEl.innerHTML = "";
         if (!unlocked.length) {
           const li = document.createElement("li");
@@ -354,7 +367,7 @@
         }
       }
 
-      if (this.game?.updateStartScreenStats) {
+      if (this.game && typeof this.game.updateStartScreenStats === "function") {
         this.game.updateStartScreenStats();
       }
     },

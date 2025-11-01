@@ -1,4 +1,17 @@
 // Game State
+
+function getDiceFlipCloud() {
+    if (typeof window === 'undefined') {
+        return undefined;
+    }
+    return window.DiceFlipCloud;
+}
+
+function hasDiceFlipCloudMethod(name) {
+    const cloud = getDiceFlipCloud();
+    return !!cloud && typeof cloud[name] === 'function';
+}
+
 class FlipDiceGame {
     constructor() {
         this.board = [];
@@ -58,8 +71,9 @@ class FlipDiceGame {
 
     // Load all-time stats from localStorage
     loadAllTimeStats() {
-        if (window.DiceFlipCloud?.getStats) {
-            const cloudStats = window.DiceFlipCloud.getStats();
+        if (hasDiceFlipCloudMethod('getStats')) {
+            const cloud = getDiceFlipCloud();
+            const cloudStats = cloud.getStats();
             if (cloudStats) {
                 return cloudStats;
             }
@@ -85,8 +99,8 @@ class FlipDiceGame {
 
     // Save all-time stats
     saveAllTimeStats() {
-        if (window.DiceFlipCloud?.updateStats) {
-            window.DiceFlipCloud.updateStats(this.allTimeStats);
+        if (hasDiceFlipCloudMethod('updateStats')) {
+            getDiceFlipCloud().updateStats(this.allTimeStats);
         } else {
             localStorage.setItem('flipDiceAllTimeStats', JSON.stringify(this.allTimeStats));
         }
@@ -200,8 +214,8 @@ class FlipDiceGame {
         document.getElementById('enhanced-game-over').classList.remove('hidden');
         document.body.classList.add('screen-active');
         
-        if (window.DiceFlipCloud?.submitScore) {
-            window.DiceFlipCloud.submitScore(this.runningScore, {
+        if (hasDiceFlipCloudMethod('submitScore')) {
+            getDiceFlipCloud().submitScore(this.runningScore, {
                 level: this.level,
                 matches3: this.gameStats.matches3,
                 matches4: this.gameStats.matches4,
@@ -353,8 +367,8 @@ class FlipDiceGame {
 
     // Load high score
     loadHighScore() {
-        if (window.DiceFlipCloud?.getHighScore) {
-            const cloudScore = window.DiceFlipCloud.getHighScore();
+        if (hasDiceFlipCloudMethod('getHighScore')) {
+            const cloudScore = getDiceFlipCloud().getHighScore();
             if (typeof cloudScore === 'number') {
                 return cloudScore;
             }
@@ -367,8 +381,8 @@ class FlipDiceGame {
     saveHighScore() {
         if (this.runningScore > this.highScore) {
             this.highScore = this.runningScore;
-            if (window.DiceFlipCloud?.updateHighScore) {
-                window.DiceFlipCloud.updateHighScore(this.highScore);
+            if (hasDiceFlipCloudMethod('updateHighScore')) {
+                getDiceFlipCloud().updateHighScore(this.highScore);
             } else {
                 localStorage.setItem('flipDiceHighScore', this.highScore.toString());
             }
@@ -476,7 +490,7 @@ class FlipDiceGame {
     // Render the game board with 3D dice
     renderBoard() {
         const gameBoard = document.getElementById('game-board');
-        gameBoard.innerHTML = '';
+        gameBoard.innerHTML = ';
         
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
@@ -589,9 +603,8 @@ class FlipDiceGame {
 
         // Sound controls
         document.getElementById('sound-toggle').addEventListener('click', () => {
-            const isEnabled = this.soundSystem.toggleSound();
-            const button = document.getElementById('sound-toggle');
-            button.textContent = isEnabled ? '🔊 Sound' : '🔇 Muted';
+            const enabled = this.soundSystem.toggleSound();
+            document.getElementById('sound-toggle').textContent = enabled ? 'Sound On' : 'Sound Muted';
             this.soundSystem.playButtonClick();
         });
 
@@ -672,10 +685,10 @@ class FlipDiceGame {
         haloContainer.style.zIndex = '200';
         
         const directions = [
-            { name: 'up', symbol: '↑' },
-            { name: 'right', symbol: '→' },
-            { name: 'down', symbol: '↓' },
-            { name: 'left', symbol: '←' }
+            { name: 'up', symbol: '?' },
+            { name: 'right', symbol: '?' },
+            { name: 'down', symbol: '?' },
+            { name: 'left', symbol: '?' }
         ];
         
         directions.forEach(direction => {
@@ -816,14 +829,14 @@ class FlipDiceGame {
         
         // Clear existing content but preserve rotation
         const existingCube = diceElement.querySelector('.dice-cube');
-        let currentRotation = '';
+        let currentRotation = ';
         if (existingCube) {
             // Get current transform to preserve rotation
             const style = window.getComputedStyle(existingCube);
-            currentRotation = existingCube.style.transform || '';
+            currentRotation = existingCube.style.transform || ';
         }
         
-        diceElement.innerHTML = '';
+        diceElement.innerHTML = ';
         diceElement.className = 'dice';
         diceElement.dataset.row = row;
         diceElement.dataset.col = col;
@@ -1057,8 +1070,8 @@ class FlipDiceGame {
                         cubeElement.style.transform = 'translateY(0)';
                         
                         setTimeout(() => {
-                            cubeElement.style.transition = '';
-                            cubeElement.style.transform = '';
+                            cubeElement.style.transition = ';
+                            cubeElement.style.transform = ';
                         }, 500);
                     }
                 }, 50);
@@ -1087,8 +1100,8 @@ class FlipDiceGame {
                         cubeElement.style.transform = 'translateY(0)';
                         
                         setTimeout(() => {
-                            cubeElement.style.transition = '';
-                            cubeElement.style.transform = '';
+                            cubeElement.style.transition = ';
+                            cubeElement.style.transform = ';
                         }, 500);
                     }
                 }, 50);
@@ -1217,7 +1230,7 @@ class FlipDiceGame {
         if (comboText) {
             comboText.textContent = `${this.comboCount}x Combo!`;
             setTimeout(() => {
-                comboText.textContent = '';
+                comboText.textContent = ';
             }, 2000);
         }
     }
@@ -1431,8 +1444,8 @@ class FlipDiceGame {
                         diceElement.style.boxShadow = '0 0 15px #ffeb3b';
                         
                         setTimeout(() => {
-                            diceElement.style.border = '';
-                            diceElement.style.boxShadow = '';
+                            diceElement.style.border = ';
+                            diceElement.style.boxShadow = ';
                         }, 2000);
                         
                         return;
@@ -1444,7 +1457,7 @@ class FlipDiceGame {
         // No hints found
         document.getElementById('combo-text').textContent = 'No obvious matches found!';
         setTimeout(() => {
-            document.getElementById('combo-text').textContent = '';
+            document.getElementById('combo-text').textContent = ';
         }, 2000);
     }
 
@@ -1693,7 +1706,7 @@ class FlipDiceGame {
                 <div class="number-buttons">
                     ${availableNumbersArray.map(num => 
                         `<button class="number-btn" data-number="${num}">${num}</button>`
-                    ).join('')}
+                    ).join(')}
                 </div>
                 <button class="cancel-btn">Cancel</button>
             </div>
@@ -1867,8 +1880,8 @@ class FlipDiceGame {
         const confirmation = document.createElement('div');
         confirmation.className = 'save-confirmation';
         confirmation.innerHTML = `
-            <span class="save-icon">💾</span>
-            <span class="save-text">Game Saved!</span>
+            <span class="save-icon" aria-hidden="true"><i class="fas fa-save"></i></span>
+            <span class="save-text">Game saved</span>
         `;
         
         document.body.appendChild(confirmation);
@@ -1903,8 +1916,8 @@ class FlipDiceGame {
 
     // Dice Skins System
     loadUnlockedSkins() {
-        if (window.DiceFlipCloud?.getUnlockedSkins) {
-            const skins = window.DiceFlipCloud.getUnlockedSkins();
+        if (hasDiceFlipCloudMethod('getUnlockedSkins')) {
+            const skins = getDiceFlipCloud().getUnlockedSkins();
             if (skins && skins.length) {
                 return skins;
             }
@@ -1917,16 +1930,16 @@ class FlipDiceGame {
     }
 
     saveUnlockedSkins() {
-        if (window.DiceFlipCloud?.updateSkins) {
-            window.DiceFlipCloud.updateSkins(this.unlockedSkins, this.currentSkin);
+        if (hasDiceFlipCloudMethod('updateSkins')) {
+            getDiceFlipCloud().updateSkins(this.unlockedSkins, this.currentSkin);
         } else {
             localStorage.setItem('flipDiceUnlockedSkins', JSON.stringify(this.unlockedSkins));
         }
     }
 
     loadCurrentSkin() {
-        if (window.DiceFlipCloud?.getSelectedSkin) {
-            const selected = window.DiceFlipCloud.getSelectedSkin();
+        if (hasDiceFlipCloudMethod('getSelectedSkin')) {
+            const selected = getDiceFlipCloud().getSelectedSkin();
             if (selected) {
                 return selected;
             }
@@ -1936,8 +1949,8 @@ class FlipDiceGame {
     }
 
     saveCurrentSkin() {
-        if (window.DiceFlipCloud?.updateSkins) {
-            window.DiceFlipCloud.updateSkins(this.unlockedSkins, this.currentSkin);
+        if (hasDiceFlipCloudMethod('updateSkins')) {
+            getDiceFlipCloud().updateSkins(this.unlockedSkins, this.currentSkin);
         } else {
             localStorage.setItem('flipDiceCurrentSkin', this.currentSkin);
         }
@@ -1966,7 +1979,7 @@ class FlipDiceGame {
     }
 
     syncAchievements() {
-        if (!window.DiceFlipCloud?.updateAchievements) {
+        if (!hasDiceFlipCloudMethod('updateAchievements')) {
             return;
         }
 
@@ -1984,7 +1997,21 @@ class FlipDiceGame {
         if (this.allTimeStats.highestScore >= 5000) {
             unlocked.push("score-5k");
         }
-        if (this.allTimeStats.highestScore >= 12000) {\n            unlocked.push("score-12k");\n        }\n        if (this.allTimeStats.bestMatches6Plus >= 5) {\n            unlocked.push("combo-master");\n        }\n        if (this.unlockedSkins.includes("pastel")) {\n            unlocked.push("skin-pastel");\n        }\n        if (this.unlockedSkins.includes("neon")) {\n            unlocked.push("skin-neon");\n        }\n        if (this.unlockedSkins.includes("galaxy")) {\n            unlocked.push("skin-galaxy");\n        }
+        if (this.allTimeStats.highestScore >= 12000) {
+            unlocked.push("score-12k");
+        }
+        if (this.allTimeStats.bestMatches6Plus >= 5) {
+            unlocked.push("combo-master");
+        }
+        if (this.unlockedSkins.includes("pastel")) {
+            unlocked.push("skin-pastel");
+        }
+        if (this.unlockedSkins.includes("neon")) {
+            unlocked.push("skin-neon");
+        }
+        if (this.unlockedSkins.includes("galaxy")) {
+            unlocked.push("skin-galaxy");
+        }
 
         const milestones = {
             totalGames: this.allTimeStats.totalGames,
@@ -1996,7 +2023,7 @@ class FlipDiceGame {
             matches6Plus: this.allTimeStats.bestMatches6Plus
         };
 
-        window.DiceFlipCloud.updateAchievements({
+        getDiceFlipCloud().updateAchievements({
             unlocked,
             milestones
         });
@@ -2014,8 +2041,8 @@ class FlipDiceGame {
                 const notification = document.createElement('div');
                 notification.className = 'skin-unlock-notification';
                 notification.innerHTML = `
-                    <span class="unlock-icon">🎨</span>
-                    <span class="unlock-text">New Skin Unlocked: ${skinNames[skin]}!</span>
+                    <span class="unlock-icon" aria-hidden="true"><i class="fas fa-dice"></i></span>
+                    <span class="unlock-text">New skin unlocked: ${skinNames[skin]}!</span>
                 `;
                 
                 document.body.appendChild(notification);
@@ -2044,13 +2071,13 @@ class FlipDiceGame {
             const isSelected = this.currentSkin === skin;
             
             if (isUnlocked) {
-                statusElement.textContent = '✓ Unlocked';
+                statusElement.textContent = "Unlocked";
                 statusElement.className = 'skin-status unlocked';
                 buttonElement.disabled = false;
                 buttonElement.className = isSelected ? 'skin-select-btn selected' : 'skin-select-btn';
                 buttonElement.textContent = isSelected ? 'Equipped' : 'Select';
             } else {
-                statusElement.textContent = `🔒 Reach Level ${skinUnlocks[skin]}`;
+                statusElement.textContent = `Reach Level ${skinUnlocks[skin]}`;
                 statusElement.className = 'skin-status locked';
                 buttonElement.disabled = true;
                 buttonElement.className = 'skin-select-btn locked';
@@ -2086,9 +2113,19 @@ class FlipDiceGame {
 document.addEventListener('DOMContentLoaded', () => {
     const game = new FlipDiceGame();
     window.diceFlipGame = game;
-    if (window.DiceFlipCloud?.init) {
-        window.DiceFlipCloud.init(game);
+    if (hasDiceFlipCloudMethod('init')) {
+        getDiceFlipCloud().init(game);
     }
-}); 
+});
+
+
+
+
+
+
+
+
+
+
 
 
