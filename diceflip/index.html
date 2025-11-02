@@ -272,32 +272,69 @@
     </div>
 
     <div class="game-container">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="score-section">
-                <div class="current-score">
-                    <span class="label">Level Score:</span>
-                    <span id="current-score">0</span>
+        <div class="game-top-row">
+            <div class="score-card">
+                <div class="score-grid">
+                    <div class="metric">
+                        <span class="label">Level Score</span>
+                        <span id="current-score" class="metric-value">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Total Score</span>
+                        <span id="running-score" class="metric-value">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">High Score</span>
+                        <span id="high-score" class="metric-value">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Goal</span>
+                        <span id="level-goal" class="metric-value">1000</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Level</span>
+                        <span id="current-level" class="metric-value">1</span>
+                    </div>
                 </div>
-                <div class="running-score">
-                    <span class="label">Total Score:</span>
-                    <span id="running-score">0</span>
-                </div>
-                <div class="high-score">
-                    <span class="label">High Score:</span>
-                    <span id="high-score">0</span>
-                </div>
-                <div class="level-goal">
-                    <span class="label">Goal:</span>
-                    <span id="level-goal">1000</span>
-                </div>
-                <div class="current-level">
-                    <span class="label">Level:</span>
-                    <span id="current-level">1</span>
+                <div class="limits-card">
+                    <div class="limits-header">
+                        <span class="limits-title">Flip Limits</span>
+                        <span class="limits-subtitle">+1 random every 3 levels</span>
+                    </div>
+                    <div class="arrow-counters">
+                        <div class="arrow-counter">
+                            <span class="arrow-icon">&uarr;</span>
+                            <span id="arrows-up">3</span>
+                        </div>
+                        <div class="arrow-counter">
+                            <span class="arrow-icon">&darr;</span>
+                            <span id="arrows-down">3</span>
+                        </div>
+                        <div class="arrow-counter">
+                            <span class="arrow-icon">&larr;</span>
+                            <span id="arrows-left">3</span>
+                        </div>
+                        <div class="arrow-counter">
+                            <span class="arrow-icon">&rarr;</span>
+                            <span id="arrows-right">3</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-                                    <div class="arrows-section">                <div class="arrows-header">                    <div class="arrows-title">⚡ Flip Limits</div>                    <div class="arrows-subtitle">+1 random every 3 levels</div>                </div>                <div class="arrow-counters">                    <div class="arrow-counter">                        <span class="arrow-icon">↑</span>                        <span id="arrows-up">3</span>                    </div>                    <div class="arrow-counter">                        <span class="arrow-icon">↓</span>                        <span id="arrows-down">3</span>                    </div>                    <div class="arrow-counter">                        <span class="arrow-icon">←</span>                        <span id="arrows-left">3</span>                    </div>                    <div class="arrow-counter">                        <span class="arrow-icon">→</span>                        <span id="arrows-right">3</span>                    </div>                </div>            </div>
+            <div class="leaderboard-card">
+                <h2>Flip Dice Leaderboard</h2>
+                <p class="muted" id="leaderboard-empty">Sign in to see the top rollers.</p>
+                <ol id="leaderboard-list" class="score-list"></ol>
+                <div id="leaderboard-self" class="score-self hidden">
+                    <span class="rank" id="self-rank">--</span>
+                    <div class="player-details">
+                        <span class="player-name" id="self-name">You</span>
+                        <span class="player-updated muted" id="self-updated"></span>
+                    </div>
+                    <span class="score-value" id="self-score">0</span>
+                </div>
+                <p id="diceflip-signin-message" class="muted hidden">Sign in with Google to save your scores and appear here.</p>
+            </div>
         </div>
 
         <!-- Game Board with Instructions and Power-ups -->
@@ -408,7 +445,6 @@
                 </div>
             </div>
         </div>
-    </div>
         <p id="diceflip-signin-callout" class="flip-callout hidden">Sign in to save your high scores to the global leaderboard.</p>
     </div>
 
@@ -491,22 +527,6 @@
     </div>
 
             </div>
-            <aside class="flip-leaderboard">
-                <div class="leaderboard-card">
-                    <h2>Flip Dice Leaderboard</h2>
-                    <p class="muted" id="leaderboard-empty">Sign in to see the top rollers.</p>
-                    <ol id="leaderboard-list" class="score-list"></ol>
-                    <div id="leaderboard-self" class="score-self hidden">
-                        <span class="rank" id="self-rank">--</span>
-                        <div class="player-details">
-                            <span class="player-name" id="self-name">You</span>
-                            <span class="player-updated muted" id="self-updated"></span>
-                        </div>
-                        <span class="score-value" id="self-score">0</span>
-                    </div>
-                    <p id="diceflip-signin-message" class="muted hidden">Sign in with Google to save your scores and appear here.</p>
-                </div>
-            </aside>
         </section>
     </main>
 
