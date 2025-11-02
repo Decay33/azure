@@ -1,17 +1,377 @@
-// Game State
+const GAME_ID = 'diceflip';
+const LOCAL_HS_KEY = 'flipDiceHighScore';
 
-function getDiceFlipCloud() {
-    if (typeof window === 'undefined') {
-        return undefined;
+const signInLink = document.getElementById('sign-in-link');
+const signOutLink = document.getElementById('sign-out-link');
+const authStatus = document.getElementById('auth-status');
+const leaderboardList = document.getElementById('leaderboard-list');
+const leaderboardEmpty = document.getElementById('leaderboard-empty');
+const leaderboardSelf = document.getElementById('leaderboard-self');
+const selfRank = document.getElementById('self-rank');
+const selfName = document.getElementById('self-name');
+const selfScore = document.getElementById('self-score');
+const selfUpdated = document.getElementById('self-updated');
+const scoreboardMessage = document.getElementById('diceflip-signin-message');
+const scoreboardCallout = document.getElementById('diceflip-signin-callout');
+
+let currentUser = null;
+let usingRemoteScores = false;
+let leaderboardLoaded = false;
+let authRetryCount = 0;
+let remoteBestScore = 0;
+let gameInstance = null;
+
+let localHighScore = parseInt(localStorage.getItem(LOCAL_HS_KEY) || '0', 10);
+if (!Number.isFinite(localHighScore)) {
+    localHighScore = 0;
+}
+
+function sanitizeNameValue(raw) {
+    if (!raw && raw !== 0) {
+        return null;
     }
-    return window.DiceFlipCloud;
+    let value = String(raw).trim();
+    if (!value) {
+        return null;
+    }
+    const atIndex = value.indexOf('@');
+    if (atIndex > 0) {
+        value = value.slice(0, atIndex);
+    }
+    value = value.split(/\s+/)[0];
+    value = value.replace(/[^A-Za-z0-9_-]/g, '');
+    if (!value) {
+        return null;
+    }
+    return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function hasDiceFlipCloudMethod(name) {
-    const cloud = getDiceFlipCloud();
-    return !!cloud && typeof cloud[name] === 'function';
+function deriveFirstName(...candidates) {
+    for (const candidate of candidates) {
+        const sanitized = sanitizeNameValue(candidate);
+        if (sanitized) {
+            return sanitized;
+        }
+    }
+    return 'Player';
 }
 
+function firstNameFromPrincipal(principal) {
+    if (!principal) {
+        return 'Player';
+    }
+    let nameClaim;
+    if (Array.isArray(principal.claims)) {
+        nameClaim = principal.claims.find((claim) => {
+            const type = String(claim?.typ || '').toLowerCase();
+            return type === 'name' || type === 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
+        });
+    }
+    return deriveFirstName(nameClaim?.val, principal.userDetails, principal.userId);
+}
+
+function firstNameFromEntry(entry) {
+    if (!entry) {
+        return 'Player';
+    }
+    return deriveFirstName(entry.displayName, entry.userId);
+}
+
+function formatUpdatedAt(isoString) {
+    if (!isoString) {
+        return '';
+    }
+    const date = new Date(isoString);
+    if (Number.isNaN(date.getTime())) {
+        return '';
+    }
+    const dateText = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const timeText = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    return 'Updated ' + dateText + ' · ' + timeText;
+}
+
+function updateScoreboardMessage(text) {
+    if (!scoreboardMessage) {
+        return;
+    }
+    if (text) {
+        scoreboardMessage.textContent = text;
+        scoreboardMessage.classList.remove('hidden');
+    } else {
+        scoreboardMessage.classList.add('hidden');
+    }
+}
+
+function setCalloutMessage(text) {
+    if (!scoreboardCallout) {
+        return;
+    }
+    if (text) {
+        scoreboardCallout.textContent = text;
+        scoreboardCallout.classList.remove('hidden');
+    } else {
+        scoreboardCallout.classList.add('hidden');
+    }
+}
+
+function renderSelfEntry(entry, rank) {
+    if (!leaderboardSelf || !selfRank || !selfName || !selfScore) {
+        return;
+    }
+    if (currentUser && entry && Number.isFinite(entry.bestScore)) {
+        leaderboardSelf.classList.remove('hidden');
+        if (rank && Number.isFinite(rank)) {
+            selfRank.textContent = '#' + rank;
+        } else {
+            selfRank.textContent = '—';
+        }
+        selfName.textContent = firstNameFromEntry(entry);
+        selfScore.textContent = Number(entry.bestScore || 0).toLocaleString();
+        if (selfUpdated) {
+            const stamp = formatUpdatedAt(entry.updatedAt);
+            if (stamp) {
+                selfUpdated.textContent = stamp;
+                selfUpdated.classList.remove('hidden');
+            } else {
+                selfUpdated.textContent = '';
+                selfUpdated.classList.add('hidden');
+            }
+        }
+    } else {
+        leaderboardSelf.classList.add('hidden');
+        if (selfUpdated) {
+            selfUpdated.textContent = '';
+        }
+    }
+}
+
+function renderLeaderboard(entries, myEntry) {
+    if (!leaderboardList || !leaderboardEmpty) {
+        return;
+    }
+    leaderboardList.innerHTML = '';
+    const emptyMessage = currentUser
+        ? 'No scores yet. Finish a run to claim the top spot.'
+        : 'Sign in to see the top rollers.';
+    if (!entries || entries.length === 0) {
+        leaderboardEmpty.textContent = emptyMessage;
+        leaderboardEmpty.classList.remove('hidden');
+        renderSelfEntry(myEntry, null);
+        return;
+    }
+    leaderboardEmpty.classList.add('hidden');
+    let detectedRank = null;
+    entries.forEach(function (entry, index) {
+        const li = document.createElement('li');
+
+        const rank = document.createElement('span');
+        rank.className = 'rank';
+        rank.textContent = index + 1;
+
+        const name = document.createElement('span');
+        name.className = 'player-name';
+        name.textContent = firstNameFromEntry(entry);
+
+        const scoreValue = document.createElement('span');
+        scoreValue.className = 'score';
+        scoreValue.textContent = Number(entry.bestScore || 0).toLocaleString();
+
+        li.appendChild(rank);
+        li.appendChild(name);
+        li.appendChild(scoreValue);
+
+        if (entry.updatedAt) {
+            const meta = document.createElement('small');
+            meta.textContent = formatUpdatedAt(entry.updatedAt);
+            li.appendChild(meta);
+        }
+
+        if (currentUser && entry.userId === currentUser.userId) {
+            li.classList.add('diceflip-me');
+            detectedRank = index + 1;
+        }
+
+        leaderboardList.appendChild(li);
+    });
+    renderSelfEntry(myEntry, detectedRank);
+}
+
+function setLocalHighScore(value) {
+    const numeric = Math.max(0, Math.round(Number(value) || 0));
+    localHighScore = numeric;
+    localStorage.setItem(LOCAL_HS_KEY, numeric.toString());
+    if (gameInstance && typeof gameInstance.syncHighScore === 'function') {
+        gameInstance.syncHighScore(numeric);
+    }
+}
+
+function setRemoteHighScore(value) {
+    const numeric = Math.max(0, Math.round(Number(value) || 0));
+    remoteBestScore = numeric;
+    if (numeric > localHighScore) {
+        localHighScore = numeric;
+        localStorage.setItem(LOCAL_HS_KEY, numeric.toString());
+    }
+    if (gameInstance && typeof gameInstance.syncHighScore === 'function') {
+        gameInstance.syncHighScore(Math.max(localHighScore, numeric));
+    }
+}
+
+async function getMe() {
+    try {
+        const response = await fetch('/.auth/me', { credentials: 'include', cache: 'no-store' });
+        if (!response.ok) {
+            return null;
+        }
+        const payload = await response.json();
+        return (payload && payload.clientPrincipal) || null;
+    } catch (_error) {
+        return null;
+    }
+}
+
+function updateAuthUi(user) {
+    if (user) {
+        const displayName = firstNameFromPrincipal(user);
+        if (signInLink) {
+            signInLink.classList.add('hidden');
+        }
+        if (signOutLink) {
+            signOutLink.classList.remove('hidden');
+        }
+        if (authStatus) {
+            authStatus.innerHTML = 'Signed in as <strong>' + displayName + '</strong>.';
+        }
+        updateScoreboardMessage('Scores sync automatically after each game.');
+        setCalloutMessage('');
+    } else {
+        if (signInLink) {
+            signInLink.classList.remove('hidden');
+        }
+        if (signOutLink) {
+            signOutLink.classList.add('hidden');
+        }
+        if (authStatus) {
+            authStatus.innerHTML =
+                'You&#39;re browsing as a guest. <a href="/.auth/login/google?post_login_redirect_uri=/diceflip/index.html">Sign in with Google</a> to record your high scores.';
+        }
+        updateScoreboardMessage('Sign in with Google to view the global leaderboard.');
+        setCalloutMessage('Sign in to save your high scores to the global leaderboard.');
+        renderSelfEntry(null, null);
+    }
+}
+
+async function loadLeaderboard() {
+    if (!currentUser) {
+        renderLeaderboard([], null);
+        return;
+    }
+    if (leaderboardEmpty) {
+        leaderboardEmpty.textContent = 'Loading leaderboard...';
+        leaderboardEmpty.classList.remove('hidden');
+    }
+    try {
+        const response = await fetch('/api/scores?gameId=' + GAME_ID, { credentials: 'include', cache: 'no-store' });
+        if (!response.ok) {
+            throw new Error('Failed to load scores');
+        }
+        const data = await response.json();
+        const entries = (data && data.entries) || [];
+        const myScore = data && data.myScore ? data.myScore : null;
+        if (myScore && Number.isFinite(myScore.bestScore)) {
+            setRemoteHighScore(myScore.bestScore);
+        }
+        renderLeaderboard(entries, myScore);
+        leaderboardLoaded = true;
+    } catch (error) {
+        console.warn('Unable to load leaderboard', error);
+        leaderboardLoaded = false;
+        if (leaderboardEmpty) {
+            leaderboardEmpty.textContent = 'Leaderboard unavailable right now.';
+            leaderboardEmpty.classList.remove('hidden');
+        }
+    }
+}
+
+async function submitRemoteScore(score) {
+    const response = await fetch('/api/scores', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameId: GAME_ID, score })
+    });
+    if (!response.ok) {
+        throw new Error('Score submission failed');
+    }
+    const payload = await response.json();
+    if (payload && Number.isFinite(payload.bestScore)) {
+        setRemoteHighScore(payload.bestScore);
+    }
+    return payload;
+}
+
+async function bootstrapAuth() {
+    currentUser = await getMe();
+    updateAuthUi(currentUser);
+
+    if (currentUser) {
+        usingRemoteScores = true;
+        authRetryCount = 0;
+        if (!leaderboardLoaded) {
+            await loadLeaderboard();
+        } else {
+            loadLeaderboard();
+        }
+        if (localHighScore > remoteBestScore) {
+            try {
+                await submitRemoteScore(localHighScore);
+            } catch (error) {
+                console.warn('Unable to sync local high score', error);
+            }
+        }
+    } else {
+        usingRemoteScores = false;
+        renderLeaderboard([], null);
+        leaderboardLoaded = false;
+        if (authRetryCount < 2) {
+            authRetryCount += 1;
+            setTimeout(bootstrapAuth, 1500);
+        }
+    }
+}
+
+function processFinalScore(score) {
+    if (!Number.isFinite(score) || score <= 0) {
+        if (!usingRemoteScores) {
+            setCalloutMessage('');
+        }
+        return;
+    }
+    if (usingRemoteScores && currentUser) {
+        submitRemoteScore(score)
+            .then(function (payload) {
+                if (payload && payload.updated) {
+                    setCalloutMessage('New high score saved to the cloud!');
+                } else {
+                    setCalloutMessage('');
+                }
+                loadLeaderboard();
+            })
+            .catch(function (error) {
+                console.warn('Score submission failed', error);
+                setCalloutMessage('Could not sync your score. We\'ll try again next time.');
+            });
+    } else {
+        if (score > localHighScore) {
+            setLocalHighScore(score);
+            setCalloutMessage('New high score saved locally. Sign in to back it up.');
+        } else {
+            setCalloutMessage('');
+        }
+    }
+}
+
+// Game State
 class FlipDiceGame {
     constructor() {
         this.board = [];
@@ -71,20 +431,12 @@ class FlipDiceGame {
 
     // Load all-time stats from localStorage
     loadAllTimeStats() {
-        if (hasDiceFlipCloudMethod('getStats')) {
-            const cloud = getDiceFlipCloud();
-            const cloudStats = cloud.getStats();
-            if (cloudStats) {
-                return cloudStats;
-            }
-        }
         const saved = localStorage.getItem('flipDiceAllTimeStats');
         if (saved) {
             return JSON.parse(saved);
         }
         return {
             highestScore: 0,
-            lastScore: 0,
             bestLevel: 1,
             totalGames: 0,
             bestMatches3: 0,
@@ -97,13 +449,9 @@ class FlipDiceGame {
         };
     }
 
-    // Save all-time stats
+    // Save all-time stats to localStorage
     saveAllTimeStats() {
-        if (hasDiceFlipCloudMethod('updateStats')) {
-            getDiceFlipCloud().updateStats(this.allTimeStats);
-        } else {
-            localStorage.setItem('flipDiceAllTimeStats', JSON.stringify(this.allTimeStats));
-        }
+        localStorage.setItem('flipDiceAllTimeStats', JSON.stringify(this.allTimeStats));
     }
 
     // Update all-time stats with current game stats
@@ -141,10 +489,7 @@ class FlipDiceGame {
             }
         }
         
-        this.allTimeStats.lastScore = this.runningScore;
-
         this.saveAllTimeStats();
-        this.syncAchievements();
         
         // Check for skin unlocks after updating stats
         this.checkSkinUnlocks();
@@ -214,16 +559,6 @@ class FlipDiceGame {
         document.getElementById('enhanced-game-over').classList.remove('hidden');
         document.body.classList.add('screen-active');
         
-        if (hasDiceFlipCloudMethod('submitScore')) {
-            getDiceFlipCloud().submitScore(this.runningScore, {
-                level: this.level,
-                matches3: this.gameStats.matches3,
-                matches4: this.gameStats.matches4,
-                matches5: this.gameStats.matches5,
-                matches6Plus: this.gameStats.matches6Plus
-            });
-        }
-
         // Play game over sound
         this.soundSystem.playGameOver();
     }
@@ -365,27 +700,27 @@ class FlipDiceGame {
         });
     }
 
-    // Load high score
+    // Load high score from localStorage
     loadHighScore() {
-        if (hasDiceFlipCloudMethod('getHighScore')) {
-            const cloudScore = getDiceFlipCloud().getHighScore();
-            if (typeof cloudScore === 'number') {
-                return cloudScore;
-            }
-        }
-        const saved = localStorage.getItem('flipDiceHighScore');
-        return saved ? parseInt(saved) : 0;
+        return Math.max(0, Number(localHighScore) || 0);
     }
 
-    // Save high score
+    // Save high score to localStorage
     saveHighScore() {
         if (this.runningScore > this.highScore) {
             this.highScore = this.runningScore;
-            if (hasDiceFlipCloudMethod('updateHighScore')) {
-                getDiceFlipCloud().updateHighScore(this.highScore);
-            } else {
-                localStorage.setItem('flipDiceHighScore', this.highScore.toString());
-            }
+            localHighScore = this.highScore;
+            localStorage.setItem(LOCAL_HS_KEY, this.highScore.toString());
+        }
+    }
+
+    syncHighScore(value) {
+        const numeric = Math.max(0, Number(value) || 0);
+        if (numeric > this.highScore) {
+            this.highScore = numeric;
+            this.updateUI();
+        } else if (numeric === 0 && this.highScore === 0) {
+            this.updateUI();
         }
     }
 
@@ -575,22 +910,16 @@ class FlipDiceGame {
             }
         });
 
-        // Game buttons (optional elements)
-        const hintBtn = document.getElementById('hint-btn');
-        if (hintBtn) {
-            hintBtn.addEventListener('click', () => {
-                this.soundSystem.playButtonClick();
-                this.showHint();
-            });
-        }
+        // Game buttons
+        document.getElementById('hint-btn').addEventListener('click', () => {
+            this.soundSystem.playButtonClick();
+            this.showHint();
+        });
 
-        const undoBtn = document.getElementById('undo-btn');
-        if (undoBtn) {
-            undoBtn.addEventListener('click', () => {
-                this.soundSystem.playButtonClick();
-                this.undoMove();
-            });
-        }
+        document.getElementById('undo-btn').addEventListener('click', () => {
+            this.soundSystem.playButtonClick();
+            this.undoMove();
+        });
 
         document.getElementById('save-game-btn').addEventListener('click', () => {
             this.soundSystem.playButtonClick();
@@ -607,45 +936,31 @@ class FlipDiceGame {
             this.restart();
         });
 
-        // Sound controls (optional elements)
-        const soundToggle = document.getElementById('sound-toggle');
-        if (soundToggle) {
-            soundToggle.addEventListener('click', () => {
-                const enabled = this.soundSystem.toggleSound();
-                soundToggle.textContent = enabled ? 'Sound On' : 'Sound Muted';
-                this.soundSystem.playButtonClick();
-            });
-        }
+        // Sound controls
+        document.getElementById('sound-toggle').addEventListener('click', () => {
+            const isEnabled = this.soundSystem.toggleSound();
+            const button = document.getElementById('sound-toggle');
+            button.textContent = isEnabled ? '🔊 Sound' : '🔇 Muted';
+            this.soundSystem.playButtonClick();
+        });
 
-        const volumeSlider = document.getElementById('volume-slider');
-        if (volumeSlider) {
-            volumeSlider.addEventListener('input', (e) => {
-                const volume = e.target.value / 100;
-                this.soundSystem.setVolume(volume);
-            });
-        }
+        document.getElementById('volume-slider').addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            this.soundSystem.setVolume(volume);
+        });
 
         // Power-up selection handlers
-        const freeMovePowerup = document.getElementById('free-move-powerup');
-        if (freeMovePowerup) {
-            freeMovePowerup.addEventListener('click', () => {
-                this.selectPowerup('free-move');
-            });
-        }
+        document.getElementById('free-move-powerup').addEventListener('click', () => {
+            this.selectPowerup('free-move');
+        });
 
-        const bomb3x3Powerup = document.getElementById('bomb-3x3-powerup');
-        if (bomb3x3Powerup) {
-            bomb3x3Powerup.addEventListener('click', () => {
-                this.selectPowerup('bomb-3x3');
-            });
-        }
+        document.getElementById('bomb-3x3-powerup').addEventListener('click', () => {
+            this.selectPowerup('bomb-3x3');
+        });
 
-        const wildBombPowerup = document.getElementById('wild-bomb-powerup');
-        if (wildBombPowerup) {
-            wildBombPowerup.addEventListener('click', () => {
-                this.selectPowerup('wild-bomb');
-            });
-        }
+        document.getElementById('wild-bomb-powerup').addEventListener('click', () => {
+            this.selectPowerup('wild-bomb');
+        });
     }
 
     // Select a dice and show arrows around it
@@ -678,20 +993,30 @@ class FlipDiceGame {
         const dice = this.board[row][col];
         const gameBoard = document.getElementById('game-board');
         
-        // Get dice position within grid
+        // Get dice and game board positions using getBoundingClientRect for accuracy
         const diceRect = diceElement.getBoundingClientRect();
         const gameBoardRect = gameBoard.getBoundingClientRect();
         
-        // Calculate center of dice relative to game board
-        const diceCenterX = diceRect.left - gameBoardRect.left + diceRect.width / 2;
-        const diceCenterY = diceRect.top - gameBoardRect.top + diceRect.height / 2;
+        // Calculate dice position relative to game board
+        const diceLeft = diceRect.left - gameBoardRect.left;
+        const diceTop = diceRect.top - gameBoardRect.top;
+        const diceWidth = diceRect.width;
+        const diceHeight = diceRect.height;
+        
+        // Calculate dice edges
+        const diceEdges = {
+            top: diceTop,
+            bottom: diceTop + diceHeight,
+            left: diceLeft,
+            right: diceLeft + diceWidth,
+            centerX: diceLeft + diceWidth / 2,
+            centerY: diceTop + diceHeight / 2
+        };
         
         // Create halo container
         const haloContainer = document.createElement('div');
         haloContainer.className = 'dice-halo';
         haloContainer.style.position = 'absolute';
-        haloContainer.style.left = '0';
-        haloContainer.style.top = '0';
         haloContainer.style.pointerEvents = 'none';
         haloContainer.style.zIndex = '200';
         
@@ -707,16 +1032,16 @@ class FlipDiceGame {
             let previewValue;
             switch(direction.name) {
                 case 'up':
-                    previewValue = dice.front;
+                    previewValue = dice.front; // flipDice: newDice.top = dice.front
                     break;
                 case 'down':
-                    previewValue = dice.back;
+                    previewValue = dice.back; // flipDice: newDice.top = dice.back
                     break;
                 case 'left':
-                    previewValue = dice.right;
+                    previewValue = dice.right; // flipDice: newDice.top = dice.right
                     break;
                 case 'right':
-                    previewValue = dice.left;
+                    previewValue = dice.left; // flipDice: newDice.top = dice.left
                     break;
             }
             
@@ -724,33 +1049,28 @@ class FlipDiceGame {
             arrowButton.className = `pie-section ${direction.name}`;
             arrowButton.dataset.direction = direction.name;
             
-            // Arrow size and spacing
-            const arrowSize = 50;
-            const spacing = diceRect.width / 2 + 10;
+            // Position arrows relative to dice edges with fine-tuning adjustments
+            const arrowSize = 45; // From CSS: .pie-section width/height = 45px
+            const spacing = 8; // Gap between dice and arrows
             
-            // Position arrows around dice center
-            let left, top;
             switch(direction.name) {
                 case 'up':
-                    left = diceCenterX - arrowSize / 2;
-                    top = diceCenterY - spacing - arrowSize;
+                    arrowButton.style.left = (diceEdges.centerX - arrowSize/2 + 12) + 'px'; // Center horizontally + move right 12px
+                    arrowButton.style.top = (diceEdges.top - arrowSize - spacing - 4) + 'px'; // Above top edge + move up 4px
                     break;
                 case 'down':
-                    left = diceCenterX - arrowSize / 2;
-                    top = diceCenterY + spacing;
+                    arrowButton.style.left = (diceEdges.centerX - arrowSize/2 + 12) + 'px'; // Center horizontally + move right 12px
+                    arrowButton.style.top = (diceEdges.bottom + spacing - 16) + 'px'; // Below bottom edge + move up 16px (final edge)
                     break;
                 case 'left':
-                    left = diceCenterX - spacing - arrowSize;
-                    top = diceCenterY - arrowSize / 2;
+                    arrowButton.style.left = (diceEdges.left - arrowSize - spacing - 4) + 'px'; // Left of left edge + move left 4px
+                    arrowButton.style.top = (diceEdges.centerY - arrowSize/2 + 12) + 'px'; // Center vertically + move down 12px
                     break;
                 case 'right':
-                    left = diceCenterX + spacing;
-                    top = diceCenterY - arrowSize / 2;
+                    arrowButton.style.left = (diceEdges.right + spacing - 16) + 'px'; // Right of right edge + move left 16px (final edge)
+                    arrowButton.style.top = (diceEdges.centerY - arrowSize/2 + 12) + 'px'; // Center vertically + move down 12px
                     break;
             }
-            
-            arrowButton.style.left = left + 'px';
-            arrowButton.style.top = top + 'px';
             
             const arrowContent = document.createElement('div');
             arrowContent.className = 'pie-content';
@@ -1273,11 +1593,8 @@ class FlipDiceGame {
         document.getElementById('arrows-left').textContent = this.arrows.left;
         document.getElementById('arrows-right').textContent = this.arrows.right;
         
-        // Update button states (optional elements)
-        const undoBtn = document.getElementById('undo-btn');
-        if (undoBtn) {
-            undoBtn.disabled = this.moves.length === 0;
-        }
+        // Update button states
+        document.getElementById('undo-btn').disabled = this.moves.length === 0;
         
         // Update power-up UI
         this.updatePowerupUI();
@@ -1338,7 +1655,8 @@ class FlipDiceGame {
         // Add current level score to running score
         this.runningScore += this.score;
         this.saveHighScore();
-        
+        processFinalScore(this.runningScore);
+
         // Clear saved game on game over
         this.clearSavedGame();
         
@@ -1523,28 +1841,15 @@ class FlipDiceGame {
 
     updatePowerupUI() {
         // Update power-up counts
-        const freeMoveCount = document.getElementById('free-move-count');
-        if (freeMoveCount) {
-            freeMoveCount.textContent = this.powerups.freeMove;
-        }
-        
-        const bomb3x3Count = document.getElementById('bomb-3x3-count');
-        if (bomb3x3Count) {
-            bomb3x3Count.textContent = this.powerups.bomb3x3;
-        }
-        
-        const wildBombCount = document.getElementById('wild-bomb-count');
-        if (wildBombCount) {
-            wildBombCount.textContent = this.powerups.wildBomb;
-        }
+        document.getElementById('free-move-count').textContent = this.powerups.freeMove;
+        document.getElementById('bomb-3x3-count').textContent = this.powerups.bomb3x3;
+        document.getElementById('wild-bomb-count').textContent = this.powerups.wildBomb;
         
         // Update power-up states
         const powerupTypes = ['free-move', 'bomb-3x3', 'wild-bomb'];
         
         powerupTypes.forEach(type => {
             const element = document.getElementById(`${type}-powerup`);
-            if (!element) return;
-            
             const powerupKey = this.getPowerupKey(type);
             
             // Remove all state classes
@@ -1912,8 +2217,8 @@ class FlipDiceGame {
         const confirmation = document.createElement('div');
         confirmation.className = 'save-confirmation';
         confirmation.innerHTML = `
-            <span class="save-icon" aria-hidden="true"><i class="fas fa-save"></i></span>
-            <span class="save-text">Game saved</span>
+            <span class="save-icon">💾</span>
+            <span class="save-text">Game Saved!</span>
         `;
         
         document.body.appendChild(confirmation);
@@ -1948,12 +2253,6 @@ class FlipDiceGame {
 
     // Dice Skins System
     loadUnlockedSkins() {
-        if (hasDiceFlipCloudMethod('getUnlockedSkins')) {
-            const skins = getDiceFlipCloud().getUnlockedSkins();
-            if (skins && skins.length) {
-                return skins;
-            }
-        }
         const saved = localStorage.getItem('flipDiceUnlockedSkins');
         if (saved) {
             return JSON.parse(saved);
@@ -1962,30 +2261,16 @@ class FlipDiceGame {
     }
 
     saveUnlockedSkins() {
-        if (hasDiceFlipCloudMethod('updateSkins')) {
-            getDiceFlipCloud().updateSkins(this.unlockedSkins, this.currentSkin);
-        } else {
-            localStorage.setItem('flipDiceUnlockedSkins', JSON.stringify(this.unlockedSkins));
-        }
+        localStorage.setItem('flipDiceUnlockedSkins', JSON.stringify(this.unlockedSkins));
     }
 
     loadCurrentSkin() {
-        if (hasDiceFlipCloudMethod('getSelectedSkin')) {
-            const selected = getDiceFlipCloud().getSelectedSkin();
-            if (selected) {
-                return selected;
-            }
-        }
         const saved = localStorage.getItem('flipDiceCurrentSkin');
         return saved || 'classic';
     }
 
     saveCurrentSkin() {
-        if (hasDiceFlipCloudMethod('updateSkins')) {
-            getDiceFlipCloud().updateSkins(this.unlockedSkins, this.currentSkin);
-        } else {
-            localStorage.setItem('flipDiceCurrentSkin', this.currentSkin);
-        }
+        localStorage.setItem('flipDiceCurrentSkin', this.currentSkin);
     }
 
     checkSkinUnlocks() {
@@ -2010,57 +2295,6 @@ class FlipDiceGame {
         }
     }
 
-    syncAchievements() {
-        if (!hasDiceFlipCloudMethod('updateAchievements')) {
-            return;
-        }
-
-        const unlocked = [];
-
-        if (this.allTimeStats.bestLevel >= 10) {
-            unlocked.push("level-10");
-        }
-        if (this.allTimeStats.bestLevel >= 25) {
-            unlocked.push("level-25");
-        }
-        if (this.allTimeStats.bestLevel >= 50) {
-            unlocked.push("level-50");
-        }
-        if (this.allTimeStats.highestScore >= 5000) {
-            unlocked.push("score-5k");
-        }
-        if (this.allTimeStats.highestScore >= 12000) {
-            unlocked.push("score-12k");
-        }
-        if (this.allTimeStats.bestMatches6Plus >= 5) {
-            unlocked.push("combo-master");
-        }
-        if (this.unlockedSkins.includes("pastel")) {
-            unlocked.push("skin-pastel");
-        }
-        if (this.unlockedSkins.includes("neon")) {
-            unlocked.push("skin-neon");
-        }
-        if (this.unlockedSkins.includes("galaxy")) {
-            unlocked.push("skin-galaxy");
-        }
-
-        const milestones = {
-            totalGames: this.allTimeStats.totalGames,
-            bestLevel: this.allTimeStats.bestLevel,
-            highestScore: this.allTimeStats.highestScore,
-            matches3: this.allTimeStats.bestMatches3,
-            matches4: this.allTimeStats.bestMatches4,
-            matches5: this.allTimeStats.bestMatches5,
-            matches6Plus: this.allTimeStats.bestMatches6Plus
-        };
-
-        getDiceFlipCloud().updateAchievements({
-            unlocked,
-            milestones
-        });
-    }
-
     showSkinUnlockNotification(newSkins) {
         newSkins.forEach((skin, index) => {
             setTimeout(() => {
@@ -2073,8 +2307,8 @@ class FlipDiceGame {
                 const notification = document.createElement('div');
                 notification.className = 'skin-unlock-notification';
                 notification.innerHTML = `
-                    <span class="unlock-icon" aria-hidden="true"><i class="fas fa-dice"></i></span>
-                    <span class="unlock-text">New skin unlocked: ${skinNames[skin]}!</span>
+                    <span class="unlock-icon">🎨</span>
+                    <span class="unlock-text">New Skin Unlocked: ${skinNames[skin]}!</span>
                 `;
                 
                 document.body.appendChild(notification);
@@ -2103,13 +2337,13 @@ class FlipDiceGame {
             const isSelected = this.currentSkin === skin;
             
             if (isUnlocked) {
-                statusElement.textContent = "Unlocked";
+                statusElement.textContent = '✓ Unlocked';
                 statusElement.className = 'skin-status unlocked';
                 buttonElement.disabled = false;
                 buttonElement.className = isSelected ? 'skin-select-btn selected' : 'skin-select-btn';
                 buttonElement.textContent = isSelected ? 'Equipped' : 'Select';
             } else {
-                statusElement.textContent = `Reach Level ${skinUnlocks[skin]}`;
+                statusElement.textContent = `🔒 Reach Level ${skinUnlocks[skin]}`;
                 statusElement.className = 'skin-status locked';
                 buttonElement.disabled = true;
                 buttonElement.className = 'skin-select-btn locked';
@@ -2143,21 +2377,14 @@ class FlipDiceGame {
 
 // Initialize game when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    const game = new FlipDiceGame();
-    window.diceFlipGame = game;
-    if (hasDiceFlipCloudMethod('init')) {
-        getDiceFlipCloud().init(game);
+    gameInstance = new FlipDiceGame();
+    if (localHighScore > 0) {
+        gameInstance.syncHighScore(localHighScore);
     }
+    bootstrapAuth();
 });
 
-
-
-
-
-
-
-
-
-
-
-
+window.addEventListener('focus', () => {
+    authRetryCount = 0;
+    bootstrapAuth();
+});
