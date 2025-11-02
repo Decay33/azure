@@ -10,6 +10,52 @@
     display: none !important;
 }
 
+/* Circuit Line Positions */
+.circuit-line-1 {
+    top: 12%;
+    left: 6%;
+    width: 160px;
+}
+
+.circuit-line-2 {
+    top: 28%;
+    left: 10%;
+    height: 140px;
+}
+
+.circuit-dot-1 {
+    top: 28%;
+    left: 10%;
+}
+
+.circuit-line-3 {
+    top: 70%;
+    right: 8%;
+    width: 200px;
+}
+
+.circuit-line-4 {
+    top: 55%;
+    right: 22%;
+    height: 150px;
+}
+
+.circuit-dot-2 {
+    top: 55%;
+    right: 22%;
+}
+
+.circuit-line-5 {
+    top: 42%;
+    right: 30%;
+    width: 120px;
+}
+
+.circuit-dot-3 {
+    top: 42%;
+    right: 30%;
+}
+
 body {
     font-family: 'Arial', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -73,6 +119,7 @@ body {
     padding: 24px 24px 28px;
     box-shadow: 0 18px 40px rgba(18, 21, 68, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.45);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     color: #1f2b4c;
     display: flex;
@@ -268,6 +315,7 @@ body {
     border-radius: 14px;
     padding: 18px 20px;
     border: 1px solid rgba(255, 255, 255, 0.35);
+    -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
 }
 
@@ -343,6 +391,7 @@ body {
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     min-width: 220px;
     max-width: 250px;
@@ -428,6 +477,7 @@ body {
     border-radius: 15px;
     padding: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     min-width: 180px;
     max-width: 200px;
@@ -781,6 +831,7 @@ body {
     pointer-events: auto;
     cursor: pointer;
     transition: all 0.2s ease;
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
 }
@@ -963,6 +1014,7 @@ body {
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     pointer-events: auto;
 }
@@ -1481,6 +1533,7 @@ body {
     border-radius: 25px;
     padding: 40px;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    -webkit-backdrop-filter: blur(15px);
     backdrop-filter: blur(15px);
     border: 3px solid rgba(255, 255, 255, 0.5);
     max-width: 600px;
@@ -1751,6 +1804,7 @@ body {
     border-radius: 25px;
     padding: 40px;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    -webkit-backdrop-filter: blur(15px);
     backdrop-filter: blur(15px);
     border: 3px solid rgba(255, 255, 255, 0.5);
     max-width: 800px;

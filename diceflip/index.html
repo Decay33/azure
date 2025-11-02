@@ -10,14 +10,14 @@
 <body>
     <div class="scanline"></div>
     <div class="circuit-lines">
-        <div class="circuit-line horizontal-line" style="top: 12%; left: 6%; width: 160px;"></div>
-        <div class="circuit-line vertical-line" style="top: 28%; left: 10%; height: 140px;"></div>
-        <div class="circuit-dot" style="top: 28%; left: 10%;"></div>
-        <div class="circuit-line horizontal-line" style="top: 70%; right: 8%; width: 200px;"></div>
-        <div class="circuit-line vertical-line" style="top: 55%; right: 22%; height: 150px;"></div>
-        <div class="circuit-dot" style="top: 55%; right: 22%;"></div>
-        <div class="circuit-line horizontal-line" style="top: 42%; right: 30%; width: 120px;"></div>
-        <div class="circuit-dot" style="top: 42%; right: 30%;"></div>
+        <div class="circuit-line horizontal-line circuit-line-1"></div>
+        <div class="circuit-line vertical-line circuit-line-2"></div>
+        <div class="circuit-dot circuit-dot-1"></div>
+        <div class="circuit-line horizontal-line circuit-line-3"></div>
+        <div class="circuit-line vertical-line circuit-line-4"></div>
+        <div class="circuit-dot circuit-dot-2"></div>
+        <div class="circuit-line horizontal-line circuit-line-5"></div>
+        <div class="circuit-dot circuit-dot-3"></div>
     </div>
 
     <nav class="nav-bar">
@@ -419,7 +419,7 @@
             </div>
             <div class="right-controls">
                 <button id="sound-toggle" class="game-btn">🔊 Sound</button>
-                <input type="range" id="volume-slider" min="0" max="100" value="30" class="volume-slider">
+                <input type="range" id="volume-slider" min="0" max="100" value="30" class="volume-slider" aria-label="Volume control">
             </div>
         </div>
 
