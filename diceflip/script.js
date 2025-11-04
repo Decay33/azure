@@ -1630,7 +1630,6 @@ class FlipDiceGame {
         
         // Add level score to running score
         this.runningScore += this.score;
-        this.saveHighScore();
         
         // Auto-save at level completion
         this.saveGameState();
