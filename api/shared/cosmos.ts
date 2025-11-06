@@ -80,14 +80,14 @@ export async function getProfileByUserId(userId: string): Promise<Profile | null
 export async function createProfile(profile: Profile): Promise<Profile> {
   const { resource } = await profilesContainer.items.create(profile);
   if (!resource) throw new Error('Failed to create profile');
-  return resource;
+  return resource as unknown as Profile;
 }
 
 export async function updateProfile(profile: Profile): Promise<Profile> {
   profile.updatedAt = new Date().toISOString();
   const { resource } = await profilesContainer.item(profile.id, profile.handle).replace(profile);
   if (!resource) throw new Error('Failed to update profile');
-  return resource;
+  return resource as unknown as Profile;
 }
 
 export async function logEvent(event: Event): Promise<void> {
