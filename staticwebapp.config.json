@@ -73,6 +73,13 @@
   },
   "auth": {
     "identityProviders": {
+      "azureActiveDirectory": {
+        "registration": {
+          "openIdIssuer": "https://{AADB2C_TENANT_NAME}.b2clogin.com/{AADB2C_TENANT_NAME}.onmicrosoft.com/{AADB2C_SIGNUP_SIGNIN_POLICY}/v2.0",
+          "clientIdSettingName": "AADB2C_CLIENT_ID",
+          "clientSecretSettingName": "AADB2C_CLIENT_SECRET"
+        }
+      },
       "google": {
         "registration": {
           "clientIdSettingName": "GOOGLE_CLIENT_ID",

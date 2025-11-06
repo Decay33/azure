@@ -4,8 +4,9 @@ import { Check, Link as LinkIcon, Video, Palette, BarChart3 } from 'lucide-react
 import { motion } from 'framer-motion';
 
 export default function Landing() {
-  const handleLogin = (provider: 'google' | 'aad') => {
-    window.location.href = `/.auth/login/${provider}?post_login_redirect_uri=/dashboard`;
+  const handleLogin = (provider: 'google' | 'aadb2c') => {
+    const route = provider === 'aadb2c' ? 'aad' : provider;
+    window.location.href = `/.auth/login/${route}?post_login_redirect_uri=/dashboard`;
   };
 
   return (
@@ -15,8 +16,11 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="text-2xl font-bold gradient-text">YourSocialLinks</div>
           <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => handleLogin('aadb2c')}>
+              Sign In with Email
+            </Button>
             <Button variant="gradient" onClick={() => handleLogin('google')}>
-              Sign In
+              Sign In with Google
             </Button>
           </div>
         </div>
@@ -37,7 +41,7 @@ export default function Landing() {
             Share all your social profiles, content, and important links in one beautiful, mobile-friendly page.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Button size="lg" variant="gradient" onClick={() => handleLogin('google')}>
+            <Button size="lg" variant="gradient" onClick={() => handleLogin('aadb2c')}>
               Create Your YSL Page
             </Button>
             <Button size="lg" variant="glass" asChild>
@@ -166,9 +170,14 @@ export default function Landing() {
       <section className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-4xl font-bold mb-6 text-white">Ready to Get Started?</h2>
         <p className="text-xl text-white/80 mb-8">Create your personalized link page in minutes</p>
-        <Button size="lg" variant="gradient" onClick={() => handleLogin('google')}>
-          Create Your Page Now
-        </Button>
+        <div className="flex gap-4 justify-center flex-wrap">
+          <Button size="lg" variant="gradient" onClick={() => handleLogin('aadb2c')}>
+            Create Your Page Now
+          </Button>
+          <Button size="lg" variant="ghost" onClick={() => handleLogin('google')}>
+            Or Sign In with Google
+          </Button>
+        </div>
       </section>
 
       {/* Footer */}
