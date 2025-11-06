@@ -1,14 +1,30 @@
 {
   "platform": {
-    "apiRuntime": "node:18"
+    "apiRuntime": "node:20"
   },
   "routes": [
+    {
+      "route": "/",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/ping",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/health",
+      "allowedRoles": ["anonymous"]
+    },
     {
       "route": "/api/stripe/webhook",
       "allowedRoles": ["anonymous"]
     },
     {
       "route": "/api/profile/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/checkHandle",
       "allowedRoles": ["anonymous"]
     },
     {
@@ -31,6 +47,7 @@
     },
     {
       "route": "/:handle",
+      "allowedRoles": ["anonymous"],
       "rewrite": "/index.html"
     }
   ],
@@ -56,11 +73,10 @@
   },
   "auth": {
     "identityProviders": {
-      "azureActiveDirectory": {
+      "google": {
         "registration": {
-          "openIdIssuer": "https://login.microsoftonline.com/common/v2.0",
-          "clientIdSettingName": "AAD_CLIENT_ID",
-          "clientSecretSettingName": "AAD_CLIENT_SECRET"
+          "clientIdSettingName": "GOOGLE_CLIENT_ID",
+          "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
         }
       }
     }
