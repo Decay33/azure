@@ -1,4 +1,6 @@
-const ICONS: Record<string, JSX.Element> = {
+import type { ReactElement } from "react";
+
+const ICONS: Record<string, ReactElement> = {
   tiktok: (
     <svg viewBox="0 0 32 32" aria-hidden="true" className="h-6 w-6">
       <path
