@@ -2,9 +2,9 @@
   "name": "ysl-api",
   "version": "1.0.0",
   "description": "YourSocialLinks API Functions",
-  "main": "dist/src/*.js",
+  "private": true,
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20"
   },
   "scripts": {
     "build": "tsc",
@@ -14,14 +14,14 @@
     "test": "echo \"No tests yet\""
   },
   "dependencies": {
-    "@azure/functions": "^4.1.0",
+    "@azure/functions": "^4.9.0",
     "@azure/cosmos": "^4.0.0",
     "@azure/storage-blob": "^12.17.0",
     "stripe": "^14.10.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.3.0",
+    "typescript": "^5.6.3",
     "azure-functions-core-tools": "^4.0.5455"
   }
 }
