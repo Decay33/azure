@@ -12,10 +12,11 @@
     "STRIPE_SECRET_KEY": "",
     "STRIPE_WEBHOOK_SECRET": "",
     "NEXT_PUBLIC_APP_URL": "http://localhost:4280",
-    "AAD_B2C_CLIENT_ID": "",
-    "AAD_B2C_CLIENT_SECRET": "",
-    "AAD_B2C_TENANT": "",
-    "AAD_B2C_POLICY": "B2C_1_signupsignin",
+    "NEXT_PUBLIC_B2C_CLIENT_ID": "",
+    "NEXT_PUBLIC_B2C_SCOPE": "",
+    "NEXT_PUBLIC_B2C_AUTHORITY": "",
+    "NEXT_PUBLIC_B2C_POLICY": "SignUpSignIn1",
+    "B2C_API_AUDIENCE": "",
     "USE_MOCK_DATA": "true"
   }
 }

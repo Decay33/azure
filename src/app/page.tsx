@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BackgroundVideoWall } from "../components/background-video-wall";
+import { AuthButtons } from "../components/auth-buttons";
 
 const featureList = [
   {
@@ -54,13 +55,7 @@ export default function Home() {
           >
             Get started - $8/mo
           </Link>
-          <Link
-            href="/.auth/login/aadb2c?post_login_redirect_uri=/dashboard"
-            className="inline-flex items-center justify-center rounded-full border border-white/20 px-8 py-3 text-base font-semibold text-white/80 transition hover:border-white/40 hover:text-white"
-            prefetch={false}
-          >
-            Sign in with email
-          </Link>
+          <AuthButtons />
         </div>
 
         <div className="relative w-full max-w-5xl overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-1 shadow-[0_40px_120px_rgba(0,0,0,0.45)] backdrop-blur-lg">

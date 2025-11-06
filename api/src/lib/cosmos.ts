@@ -27,3 +27,8 @@ export const getLinksContainer = (): Container => {
   const { cosmos } = config;
   return getClient().database(cosmos.databaseId).container(cosmos.linksContainerId);
 };
+
+export const getUsersContainer = (): Container => {
+  const { cosmos } = config;
+  return getClient().database(cosmos.databaseId).container(cosmos.usersContainerId);
+};

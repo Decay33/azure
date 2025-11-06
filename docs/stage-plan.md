@@ -1,29 +1,31 @@
-## Stage 3 - Configure Authentication (Azure AD B2C)
+## Stage 3 - Configure Authentication (Microsoft Entra External ID - Customers)
 
-1. In the Azure portal, search for `Azure AD B2C` -> `+ Create a new Azure AD B2C Tenant`.
+1. In the Azure portal, search for `External Identities` -> `External identities (Azure AD B2C)` -> `+ Create a tenant`.
 2. Tenant details:
-   - Organization name: `YSL B2C`
-   - Initial domain name: something globally unique such as `yslb2c`
+   - Organization name: `YourSocialLinks`
+   - Initial domain name: e.g., `yslinks`
    - Country/Region: United States (keep consistent with other resources).
-3. After the tenant is created, click `Manage tenant` to switch into it, then use `Link an Azure subscription` so the tenant appears alongside your YSL-rg resources.
-4. Under `App registrations` -> `+ New registration` create the Static Web App auth application:
-   - Name: `yoursociallinks-web`
-   - Supported account types: `Accounts in this organizational directory only`.
-   - Redirect URI: `https://<your-static-web-app-name>.azurestaticapps.net/.auth/login/aadb2c/callback`
-   - Check `ID tokens`.
-5. From the new registration, capture the `Application (client) ID`.
-6. Under `Certificates & secrets`, create a client secret. Copy the secret value immediately; you will never see it again.
-7. Under `User flows`, create a `Sign up and sign in` flow (`B2C_1_signupsignin`). Configure:
-   - Identity providers: Email sign-up (disable phone unless you want it).
-   - User attributes to collect: Display Name, Email Address. Enable `Use custom policy to capture desired username`.
-   - Under `Page layouts`, customize branding later (optional).
-8. Back in the Azure portal, open your `yoursociallinks` Static Web App -> `Settings` -> `Authentication`.
-9. Add a new identity provider -> `Azure Active Directory B2C` and fill in:
-   - Metadata endpoint: `https://<tenant>.b2clogin.com/<tenant>.onmicrosoft.com/<user-flow>/v2.0/.well-known/openid-configuration`
-   - Client ID: from step 5.
-   - Client secret: from step 6.
-   - Allowed token audiences: `https://<your-static-web-app-name>.azurestaticapps.net`
-10. Save. When the site is deployed the default `/login` route will redirect to this B2C flow. The `.auth/me` endpoint will surface user info to the API layer.
+3. After the tenant is created, use `Manage tenant` to switch into it, then `Link an Azure subscription` so it appears with `YSL-rg`.
+4. Under `App registrations` create:
+   - **Client** (SPA): `ysl-spa`
+     - Redirect URIs:
+       - `https://<static-app>.azurestaticapps.net/auth/callback`
+       - `https://<static-app>.azurestaticapps.net`
+       - `http://localhost:3000/auth/callback`
+       - `http://localhost:3000`
+     - Expose permissions: none (public client).
+   - **API**: `ysl-api`
+     - Application ID URI: `https://<tenant>.onmicrosoft.com/ysl-api`
+     - Expose scope: `user_impersonation` (display “Access YourSocialLinks API”).
+5. Under `User flows`, create `SignUpSignIn1` with Email sign-up + password, collecting Email (required) and Display Name (optional).
+6. Attach the SPA application to the flow (`User flows` -> `Applications` -> add `ysl-spa`).
+7. Grant the SPA application API permissions: `ysl-api/user_impersonation`, then click `Grant admin consent`.
+8. In Static Web App Settings -> `Authentication` -> `Identity providers` -> `Azure Active Directory` (Custom):
+   - Authority: `https://<tenant>.ciamlogin.com/<tenant>.onmicrosoft.com/SignUpSignIn1/v2.0`
+   - Client ID: SPA client ID.
+   - Client Secret: not required for SPA.
+   - Allowed token audiences: `https://<tenant>.onmicrosoft.com/ysl-api`
+9. Populate SWA / GitHub secrets using the names listed in `docs/environment.md`.
 
 ## Stage 4 - Provision Cosmos DB (API for NoSQL)
 

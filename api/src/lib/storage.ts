@@ -59,3 +59,17 @@ export const getBlobUrl = (blobName: string): string => {
   const client = getContainerClient();
   return client.getBlockBlobClient(blobName).url;
 };
+
+export const createSignedUploadUrl = async (
+  blobName: string,
+  expiresInMinutes = 30
+): Promise<{ uploadUrl: string; blobUrl: string }> => {
+  await ensureContainerExists();
+  const client = getContainerClient();
+  const blobClient = client.getBlockBlobClient(blobName);
+  const sas = createUploadSas(blobName, expiresInMinutes);
+  return {
+    uploadUrl: `${blobClient.url}?${sas}`,
+    blobUrl: blobClient.url
+  };
+};

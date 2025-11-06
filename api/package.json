@@ -11,6 +11,7 @@
   "dependencies": {
     "@azure/cosmos": "^4.1.0",
     "@azure/storage-blob": "^12.18.0",
+    "jose": "^6.1.0",
     "stripe": "^14.23.0",
     "zod": "^3.23.8"
   },
