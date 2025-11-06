@@ -100,10 +100,9 @@ export default function Dashboard() {
     }
   }
 
-  // TEMP: Disabled while auth is off
-  // const handleLogin = (provider: string) => {
-  //   window.location.href = `/.auth/login/${provider}?post_login_redirect_uri=/dashboard`;
-  // };
+  const handleLogin = (provider: string) => {
+    window.location.href = `/.auth/login/${provider}?post_login_redirect_uri=/dashboard`;
+  };
 
   async function checkHandleAvailability(handle: string) {
     const validation = validateHandle(handle);
@@ -272,26 +271,25 @@ export default function Dashboard() {
     );
   }
 
-  // AUTHENTICATION DISABLED FOR TESTING - Will add back after core functionality works
-  // if (!user) {
-  //   return (
-  //     <div className="min-h-screen animated-gradient flex items-center justify-center">
-  //       <Card className="glass max-w-md w-full">
-  //         <CardHeader className="text-center space-y-2">
-  //           <CardTitle className="text-white text-2xl">Sign in to continue</CardTitle>
-  //           <CardDescription className="text-white/70">
-  //             Create your page or sign in to manage your YourSocialLinks account.
-  //           </CardDescription>
-  //         </CardHeader>
-  //         <CardContent className="space-y-3">
-  //           <Button variant="gradient" className="w-full" onClick={() => handleLogin('externalid')}>
-  //             Sign in with Email
-  //           </Button>
-  //         </CardContent>
-  //       </Card>
-  //     </div>
-  //   );
-  // }
+  if (!user) {
+    return (
+      <div className="min-h-screen animated-gradient flex items-center justify-center">
+        <Card className="glass max-w-md w-full">
+          <CardHeader className="text-center space-y-2">
+            <CardTitle className="text-white text-2xl">Sign in to continue</CardTitle>
+            <CardDescription className="text-white/70">
+              Create your account with email/password, then choose your unique handle.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button variant="gradient" className="w-full" onClick={() => handleLogin('externalid')}>
+              Create Account / Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!profile) {
     // Handle claim flow
