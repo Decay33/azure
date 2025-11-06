@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "YourSocialLinks API Functions",
   "private": true,
+  "main": "dist/index.js",
   "engines": {
     "node": ">=20"
   },
