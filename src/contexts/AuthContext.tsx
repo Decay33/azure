@@ -39,17 +39,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const raw = await response.text();
+      const trimmed = raw.trim();
 
-      if (!raw) {
+      if (!trimmed) {
         setUser(null);
         return;
       }
 
-      try {
-        const data = JSON.parse(raw);
-        setUser(data?.clientPrincipal ?? null);
-      } catch (parseError) {
-        console.warn('Auth response was not JSON, treating as anonymous user.');
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        try {
+          const data = JSON.parse(trimmed);
+          setUser(data?.clientPrincipal ?? null);
+        } catch {
+          console.warn('Auth response looked like JSON but failed to parse. Treating as anonymous.');
+          setUser(null);
+        }
+      } else {
+        console.warn('Auth response was not JSON (likely HTML login page). Treating as anonymous user.');
         setUser(null);
       }
     } catch (error) {
