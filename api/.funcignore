@@ -1,0 +1,7 @@
+# keep dist + runtime only
+**/*.ts
+**/*.map
+tests/
+.vscode/
+.github/
+node_modules/.cache/

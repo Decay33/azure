@@ -1,6 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
-// GET /api/health  -> 200 OK with a JSON payload
 export async function health(req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> {
   return {
     status: 200,
@@ -17,4 +16,3 @@ app.http("health", {
   authLevel: "anonymous",
   handler: health
 });
-
