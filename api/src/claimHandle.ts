@@ -23,21 +23,20 @@ export async function claimHandle(req: HttpRequest, context: InvocationContext):
       return { status: 400, jsonBody: { error: "User already has a handle" } };
     }
 
-    // Check if handle is taken
+    // Check if handle is taken - return 409 Conflict
     const existingHandle = await getProfileByHandle(handle);
     if (existingHandle) {
-      return { status: 400, jsonBody: { error: "Handle already taken" } };
+      return { status: 409, jsonBody: { error: "Handle already taken" } };
     }
 
-    // Create profile
+    // Create profile with proper structure
     const profile = await createProfile({
       userId,
       handle,
       displayName: "",
-      bio: "",
       links: [],
       videoLinks: [],
-      theme: "default"
+      status: "active"
     });
 
     return {
