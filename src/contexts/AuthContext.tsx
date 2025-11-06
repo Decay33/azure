@@ -25,15 +25,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function fetchUser() {
     try {
-      const response = await fetch('/.auth/me');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.clientPrincipal) {
-          setUser(data.clientPrincipal);
-        }
+      const response = await fetch('/.auth/me', {
+        credentials: 'include',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+
+      if (!response.ok) {
+        setUser(null);
+        return;
       }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        setUser(null);
+        return;
+      }
+
+      const data = await response.json();
+      setUser(data?.clientPrincipal ?? null);
     } catch (error) {
       console.error('Failed to fetch user:', error);
+      setUser(null);
     } finally {
       setLoading(false);
     }

@@ -63,12 +63,19 @@ export default function Dashboard() {
   const [saveStatus, setSaveStatus] = useState('');
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (authLoading) {
+      return;
+    }
+
+    if (user) {
       fetchData();
+    } else {
+      setLoading(false);
     }
   }, [user, authLoading]);
 
   async function fetchData() {
+    setLoading(true);
     try {
       const [profileRes, subRes] = await Promise.all([
         fetch('/api/me'),
@@ -92,6 +99,10 @@ export default function Dashboard() {
       setLoading(false);
     }
   }
+
+  const handleLogin = (provider: 'google' | 'aad') => {
+    window.location.href = `/.auth/login/${provider}?post_login_redirect_uri=/dashboard`;
+  };
 
   async function checkHandleAvailability(handle: string) {
     const validation = validateHandle(handle);
@@ -255,14 +266,32 @@ export default function Dashboard() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen animated-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+        <div className="text-white text-xl">Loading your dashboard...</div>
       </div>
     );
   }
 
   if (!user) {
-    window.location.href = '/';
-    return null;
+    return (
+      <div className="min-h-screen animated-gradient flex items-center justify-center">
+        <Card className="glass max-w-md w-full">
+          <CardHeader className="text-center space-y-2">
+            <CardTitle className="text-white text-2xl">Sign in to continue</CardTitle>
+            <CardDescription className="text-white/70">
+              Create your page or sign in to manage your YourSocialLinks account.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button variant="gradient" className="w-full" onClick={() => handleLogin('google')}>
+              Continue with Google
+            </Button>
+            <Button variant="glass" className="w-full" onClick={() => handleLogin('aad')}>
+              Sign in with Email
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!profile) {
