@@ -2,6 +2,10 @@
   "name": "ysl-api",
   "version": "1.0.0",
   "description": "YourSocialLinks API Functions",
+  "main": "dist/src/*.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
