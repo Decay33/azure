@@ -8,7 +8,15 @@
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/check-handle/*",
+      "route": "/api/checkHandle/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/getProfile/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/trackView/*",
       "allowedRoles": ["anonymous"]
     },
     {

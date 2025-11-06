@@ -79,7 +79,7 @@ export default function Dashboard() {
     try {
       const [profileRes, subRes] = await Promise.all([
         fetch('/api/me'),
-        fetch('/api/subscription-status'),
+        fetch('/api/subscriptionStatus'),
       ]);
 
       if (profileRes.ok) {
@@ -113,7 +113,7 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await fetch(`/api/check-handle/${handle}`);
+      const response = await fetch(`/api/checkHandle/${handle}`);
       const data = await response.json();
       setHandleAvailable(data.available);
       setHandleError(data.available ? '' : 'Handle is already taken');
