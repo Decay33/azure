@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Link as LinkIcon, Video, Palette, BarChart3 } from 'lucide-react';
@@ -16,11 +15,8 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="text-2xl font-bold gradient-text">YourSocialLinks</div>
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => handleLogin('google')}>
-              Sign in with Google
-            </Button>
-            <Button variant="gradient" onClick={() => handleLogin('aad')}>
-              Sign in with Email
+            <Button variant="gradient" onClick={() => handleLogin('google')}>
+              Sign In
             </Button>
           </div>
         </div>
@@ -179,11 +175,6 @@ export default function Landing() {
       <footer className="border-t border-white/10 glass">
         <div className="container mx-auto px-4 py-8 text-center text-white/60">
           <p>&copy; 2025 YourSocialLinks. All rights reserved.</p>
-          <div className="flex gap-6 justify-center mt-4">
-            <Link to="/privacy" className="hover:text-white">Privacy</Link>
-            <Link to="/terms" className="hover:text-white">Terms</Link>
-            <Link to="/contact" className="hover:text-white">Contact</Link>
-          </div>
         </div>
       </footer>
     </div>
