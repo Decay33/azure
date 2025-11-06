@@ -4,24 +4,34 @@
   },
   "routes": [
     {
-      "route": "/dashboard*",
-      "allowedRoles": ["authenticated"]
+      "route": "/api/health",
+      "allowedRoles": ["anonymous"]
     },
     {
       "route": "/api/check-handle/*",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/profile/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/trackView/*",
+      "route": "/api/ping",
       "allowedRoles": ["anonymous"]
     },
     {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/dashboard",
+      "allowedRoles": ["authenticated"],
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/dashboard/*",
+      "allowedRoles": ["authenticated"],
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/:handle",
+      "rewrite": "/index.html"
     },
     {
       "route": "/*",
@@ -34,17 +44,12 @@
   },
   "responseOverrides": {
     "401": {
-      "redirect": "/.auth/login/externalid",
+      "redirect": "/login",
       "statusCode": 302
     }
   },
   "globalHeaders": {
     "Cache-Control": "no-cache"
-  },
-  "mimeTypes": {
-    ".js": "text/javascript",
-    ".css": "text/css",
-    ".json": "application/json"
   },
   "auth": {
     "identityProviders": {
