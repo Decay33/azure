@@ -4,58 +4,8 @@
   },
   "routes": [
     {
-      "route": "/assets/*",
-      "headers": {
-        "Content-Type": "text/javascript"
-      },
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/ping",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/health",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/stripe/webhook",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/profile/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/checkHandle",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/trackView",
-      "allowedRoles": ["anonymous"]
-    },
-    {
       "route": "/api/*",
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/dashboard",
-      "allowedRoles": ["anonymous"],
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/dashboard/*",
-      "allowedRoles": ["anonymous"],
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/:handle",
-      "allowedRoles": ["anonymous"],
-      "rewrite": "/index.html"
+      "allowedRoles": ["anonymous"]
     },
     {
       "route": "/*",
@@ -65,44 +15,24 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/api/*", "/assets/*"]
+    "exclude": ["/api/*", "/assets/*", "/*.{css,js,map}"]
   },
-  "responseOverrides": {
-  },
+  "responseOverrides": {},
   "globalHeaders": {
-    "Cache-Control": "public, max-age=3600",
-    "X-Frame-Options": "SAMEORIGIN",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+    "Cache-Control": "no-cache"
   },
   "mimeTypes": {
     ".js": "text/javascript",
-    ".mjs": "text/javascript",
-    ".json": "application/json",
     ".css": "text/css",
-    ".html": "text/html",
-    ".svg": "image/svg+xml",
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".webm": "video/webm",
-    ".mp4": "video/mp4",
-    ".woff": "font/woff",
-    ".woff2": "font/woff2"
+    ".json": "application/json"
   },
   "auth": {
     "identityProviders": {
       "azureActiveDirectory": {
         "registration": {
-          "openIdIssuer": "https://{AADB2C_TENANT_NAME}.b2clogin.com/{AADB2C_TENANT_NAME}.onmicrosoft.com/{AADB2C_SIGNUP_SIGNIN_POLICY}/v2.0",
+          "openIdIssuer": "https://yoursociallinks.b2clogin.com/yoursociallinks.onmicrosoft.com/B2C_1_signupsignin/v2.0",
           "clientIdSettingName": "AADB2C_CLIENT_ID",
           "clientSecretSettingName": "AADB2C_CLIENT_SECRET"
-        }
-      },
-      "google": {
-        "registration": {
-          "clientIdSettingName": "GOOGLE_CLIENT_ID",
-          "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
         }
       }
     }
