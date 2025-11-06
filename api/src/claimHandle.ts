@@ -11,11 +11,13 @@ export async function claimHandle(req: HttpRequest, context: InvocationContext):
     context.log("COSMOS_DB:", process.env.COSMOS_DB);
     context.log("COSMOS_PROFILES:", process.env.COSMOS_PROFILES);
     
-    const userId = getUserId(req);
-    context.log("UserId from auth:", userId);
-    
+    let userId = getUserId(req);
     if (!userId) {
-      return { status: 401, jsonBody: { error: "Unauthorized - no user ID found" } };
+      // TEMP: Generate test user ID since auth is disabled
+      userId = "test-user-" + Date.now();
+      context.log("No auth, using temp userId:", userId);
+    } else {
+      context.log("UserId from auth:", userId);
     }
 
     const body: any = await req.json();
