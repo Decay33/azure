@@ -36,6 +36,9 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Copy config to dist folder
+        run: cp staticwebapp.config.json dist/
+
       - name: Build API
         run: cd api && npm run build && cd ..
 
