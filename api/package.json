@@ -5,7 +5,7 @@
   "private": true,
   "main": "dist/index.js",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "tsc",
@@ -15,9 +15,9 @@
     "test": "echo \"No tests yet\""
   },
   "dependencies": {
-    "@azure/functions": "^4.9.0",
-    "@azure/cosmos": "^4.0.0",
-    "@azure/storage-blob": "^12.17.0",
+    "@azure/functions": "4.8.0",
+    "@azure/cosmos": "4.4.1",
+    "@azure/storage-blob": "12.25.0",
     "stripe": "^14.10.0"
   },
   "devDependencies": {
