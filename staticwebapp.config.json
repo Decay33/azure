@@ -8,16 +8,29 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/dashboard",
+      "allowedRoles": ["authenticated"],
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/:handle",
+      "rewrite": "/index.html"
+    },
+    {
       "route": "/*",
       "serve": "/index.html",
       "statusCode": 200
     }
   ],
   "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/api/*", "/assets/*", "/*.{css,js,map}"]
+    "rewrite": "/index.html"
   },
-  "responseOverrides": {},
+  "responseOverrides": {
+    "401": {
+      "redirect": "/.auth/login/externalid",
+      "statusCode": 302
+    }
+  },
   "globalHeaders": {
     "Cache-Control": "no-cache"
   },
@@ -28,11 +41,20 @@
   },
   "auth": {
     "identityProviders": {
-      "azureActiveDirectory": {
-        "registration": {
-          "openIdIssuer": "https://yoursociallinks.b2clogin.com/yoursociallinks.onmicrosoft.com/B2C_1_signupsignin/v2.0",
-          "clientIdSettingName": "AADB2C_CLIENT_ID",
-          "clientSecretSettingName": "AADB2C_CLIENT_SECRET"
+      "customOpenIdConnectProviders": {
+        "externalid": {
+          "registration": {
+            "clientIdSettingName": "EXTERNALID_CLIENT_ID",
+            "clientCredential": {
+              "clientSecretSettingName": "EXTERNALID_CLIENT_SECRET"
+            },
+            "openIdConnectConfiguration": {
+              "authority": "https://yoursociallinks.ciamlogin.com/yoursociallinks.onmicrosoft.com/signupsignin/v2.0"
+            }
+          },
+          "login": {
+            "scopes": ["openid", "profile", "email"]
+          }
         }
       }
     }
