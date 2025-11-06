@@ -1,7 +1,15 @@
-# keep dist + runtime only
-**/*.ts
-**/*.map
-tests/
-.vscode/
-.github/
-node_modules/.cache/
+*.js.map
+*.ts
+.git*
+.vscode
+local.settings.json
+test
+tsconfig.json
+.editorconfig
+.gitignore
+.funcignore
+node_modules/.bin
+node_modules/typescript
+node_modules/@types
+node_modules/azure-functions-core-tools
+.oryx*
