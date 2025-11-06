@@ -48,7 +48,7 @@ export async function subscriptionStatus(req: HttpRequest, context: InvocationCo
 app.http("subscriptionStatus", {
   methods: ["GET"],
   authLevel: "anonymous",
-  route: "subscription-status",
+  route: "subscriptionStatus",
   handler: subscriptionStatus
 });
 

@@ -38,7 +38,7 @@ export async function getProfile(req: HttpRequest, context: InvocationContext): 
 app.http("getProfile", {
   methods: ["GET"],
   authLevel: "anonymous",
-  route: "profile/{handle}",
+  route: "getProfile/{handle}",
   handler: getProfile
 });
 

@@ -35,7 +35,7 @@ export async function checkHandle(req: HttpRequest, context: InvocationContext):
 app.http("checkHandle", {
   methods: ["GET"],
   authLevel: "anonymous",
-  route: "check-handle/{handle}",
+  route: "checkHandle/{handle}",
   handler: checkHandle
 });
 
