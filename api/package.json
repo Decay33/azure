@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "YourSocialLinks API Functions",
   "private": true,
-  "type": "module",
   "engines": {
     "node": ">=20"
   },
