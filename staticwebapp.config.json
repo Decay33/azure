@@ -2,6 +2,10 @@
   "platform": {
     "apiRuntime": "node:20"
   },
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/api/*"]
+  },
   "routes": [
     {
       "route": "/api/health",
@@ -28,28 +32,10 @@
       "allowedRoles": ["authenticated"]
     },
     {
-      "route": "/dashboard",
-      "allowedRoles": ["authenticated"],
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/dashboard/*",
-      "allowedRoles": ["authenticated"],
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/:handle",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/*",
-      "allowedRoles": ["anonymous"]
+      "route": "/dashboard*",
+      "allowedRoles": ["authenticated"]
     }
   ],
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/api/*", "/assets/*", "/.auth/*"]
-  },
   "responseOverrides": {
     "401": {
       "redirect": "/login",
