@@ -4,6 +4,13 @@
   },
   "routes": [
     {
+      "route": "/assets/*",
+      "headers": {
+        "Content-Type": "application/javascript"
+      },
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/",
       "allowedRoles": ["anonymous"]
     },
@@ -63,7 +70,6 @@
   "globalHeaders": {
     "Cache-Control": "public, max-age=3600",
     "X-Frame-Options": "SAMEORIGIN",
-    "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
   },
