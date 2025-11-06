@@ -6,7 +6,7 @@
     {
       "route": "/assets/*",
       "headers": {
-        "Content-Type": "application/javascript"
+        "Content-Type": "text/javascript"
       },
       "allowedRoles": ["anonymous"]
     },
