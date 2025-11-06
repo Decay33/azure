@@ -63,10 +63,6 @@
     "exclude": ["/api/*", "/assets/*", "/*.{css,js,json,svg,png,jpg,jpeg,ico}"]
   },
   "responseOverrides": {
-    "401": {
-      "redirect": "/.auth/login/google",
-      "statusCode": 302
-    }
   },
   "globalHeaders": {
     "Cache-Control": "public, max-age=3600",
