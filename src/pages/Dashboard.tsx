@@ -151,8 +151,8 @@ export default function Dashboard() {
 
     try {
       setSaveStatus('Saving...');
-      const response = await fetch('/api/profile/update', {
-        method: 'POST',
+      const response = await fetch('/api/updateProfile', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...updates, handle: profile.handle }),
       });
