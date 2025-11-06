@@ -1,7 +1,15 @@
 {
   "routes": [
     {
-      "route": "/.auth/*",
+      "route": "/api/stripe/webhook",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/profile/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/trackView",
       "allowedRoles": ["anonymous"]
     },
     {
@@ -9,30 +17,49 @@
       "allowedRoles": ["authenticated"]
     },
     {
-      "route": "/members/*",
-      "allowedRoles": ["authenticated"]
+      "route": "/dashboard",
+      "allowedRoles": ["authenticated"],
+      "rewrite": "/index.html"
     },
     {
-      "route": "/*",
-      "allowedRoles": ["anonymous"]
+      "route": "/dashboard/*",
+      "allowedRoles": ["authenticated"],
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/:handle",
+      "rewrite": "/index.html"
     }
   ],
-
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  },
   "responseOverrides": {
     "401": {
-      "statusCode": 302,
-      "redirect": "/.auth/login/google?post_login_redirect_uri=/"
+      "redirect": "/.auth/login/google",
+      "statusCode": 302
     }
   },
-
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/api/*", "/.auth/*"]
-  },
-
   "globalHeaders": {
-    "Cache-Control": "no-cache, no-store, must-revalidate",
-    "Pragma": "no-cache",
-    "Expires": "0"
+    "Cache-Control": "public, max-age=3600",
+    "X-Frame-Options": "SAMEORIGIN",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+  },
+  "mimeTypes": {
+    ".webm": "video/webm",
+    ".mp4": "video/mp4"
+  },
+  "auth": {
+    "identityProviders": {
+      "azureActiveDirectory": {
+        "registration": {
+          "openIdIssuer": "https://login.microsoftonline.com/common/v2.0",
+          "clientIdSettingName": "AAD_CLIENT_ID",
+          "clientSecretSettingName": "AAD_CLIENT_SECRET"
+        }
+      }
+    }
   }
 }
