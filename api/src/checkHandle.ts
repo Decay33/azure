@@ -3,7 +3,7 @@ import { getProfileByHandle } from "./shared/cosmos";
 
 export async function checkHandle(req: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
-    const handle = req.query.get('handle');
+    const handle = req.params.handle;
     
     if (!handle) {
       return { status: 400, jsonBody: { error: "Handle is required" } };
@@ -28,7 +28,7 @@ export async function checkHandle(req: HttpRequest, context: InvocationContext):
 app.http("checkHandle", {
   methods: ["GET"],
   authLevel: "anonymous",
-  route: "checkHandle",
+  route: "check-handle/{handle}",
   handler: checkHandle
 });
 

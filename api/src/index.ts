@@ -4,6 +4,7 @@
 import './checkHandle';
 import './claimHandle';
 import './me';
+import './subscriptionStatus';
 import './ping';
 import './health';
 
