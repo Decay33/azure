@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies (Frontend)
@@ -38,9 +38,6 @@ jobs:
 
       - name: Build API
         run: cd api && npm run build && cd ..
-
-      - name: Remove node_modules before deployment
-        run: rm -rf api/node_modules
 
       - name: Build And Deploy
         id: builddeploy

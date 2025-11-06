@@ -1,18 +1,7 @@
-*.js.map
-*.ts
-.git*
-.vscode
-local.settings.json
-test
-tsconfig.json
-tsconfig.node.json
-.editorconfig
-.gitignore
-.funcignore
-.nvmrc
-.oryxrc
-src/
-node_modules/@types/
-node_modules/typescript/
-node_modules/azure-functions-core-tools/
-package-lock.json
+# keep dist + runtime only
+**/*.ts
+**/*.map
+tests/
+.vscode/
+.github/
+node_modules/.cache/
