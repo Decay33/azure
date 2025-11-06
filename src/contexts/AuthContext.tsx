@@ -27,22 +27,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await fetch('/.auth/me', {
         credentials: 'include',
-        headers: { 'Cache-Control': 'no-cache' },
+        headers: {
+          'Cache-Control': 'no-cache',
+          Accept: 'application/json',
+        },
       });
 
-      if (!response.ok) {
+      if (!response.ok || response.type === 'opaqueredirect' || response.redirected) {
         setUser(null);
         return;
       }
 
-      const contentType = response.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) {
+      const raw = await response.text();
+
+      if (!raw) {
         setUser(null);
         return;
       }
 
-      const data = await response.json();
-      setUser(data?.clientPrincipal ?? null);
+      try {
+        const data = JSON.parse(raw);
+        setUser(data?.clientPrincipal ?? null);
+      } catch (parseError) {
+        console.warn('Auth response was not JSON, treating as anonymous user.');
+        setUser(null);
+      }
     } catch (error) {
       console.error('Failed to fetch user:', error);
       setUser(null);
