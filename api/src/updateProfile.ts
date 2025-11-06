@@ -1,6 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { getUserId } from "./shared/auth";
-import { updateProfile } from "./shared/cosmos";
+import { CosmosConfigError, getProfileByHandle, updateProfile as updateProfileDocument } from "./shared/cosmos";
 
 export async function updateUserProfile(req: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
@@ -11,40 +10,31 @@ export async function updateUserProfile(req: HttpRequest, context: InvocationCon
       return { status: 400, jsonBody: { error: "Handle is required" } };
     }
 
-    // Find user by handle instead of userId (for now)
-    const { getProfileByHandle } = await import("./shared/cosmos");
+    // Find profile by handle (partition key)
     const profile = await getProfileByHandle(handle);
     
     if (!profile) {
       return { status: 404, jsonBody: { error: "Profile not found" } };
     }
 
-    // Update profile directly by handle
-    const { CosmosClient } = await import("@azure/cosmos");
-    const endpoint = process.env.COSMOS_ENDPOINT || "";
-    const key = process.env.COSMOS_KEY || "";
-    const databaseId = process.env.COSMOS_DB || "gamehub";
-    const containerId = process.env.COSMOS_PROFILES || "Profiles";
-    
-    const client = new CosmosClient({ endpoint, key });
-    const container = client.database(databaseId).container(containerId);
-    
-    const updated = {
-      ...profile,
+    const updated = await updateProfileDocument(profile.userId, {
       displayName: displayName !== undefined ? displayName : profile.displayName,
       links: links !== undefined ? links : profile.links,
-      videoLinks: videoLinks !== undefined ? videoLinks : profile.videoLinks,
-      updatedAt: new Date().toISOString()
-    };
-    
-    const { resource } = await container.item(handle, handle).replace(updated);
-    if (!resource) throw new Error("Failed to update profile");
+      videoLinks: videoLinks !== undefined ? videoLinks : profile.videoLinks
+    });
 
     return {
       status: 200,
-      jsonBody: { success: true, profile: resource }
+      jsonBody: { success: true, profile: updated }
     };
   } catch (error: any) {
+    if (error instanceof CosmosConfigError) {
+      context.error("Cosmos configuration error:", error.message);
+      return {
+        status: 500,
+        jsonBody: { error: error.message }
+      };
+    }
     context.error("Error updating profile:", error);
     return {
       status: 500,

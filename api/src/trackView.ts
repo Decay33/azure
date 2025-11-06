@@ -1,9 +1,10 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { getProfileByHandle } from "./shared/cosmos";
+import { CosmosConfigError, getProfileByHandle, incrementProfileViews } from "./shared/cosmos";
 
 export async function trackView(req: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
-    const handle = req.params.handle;
+    const body = (await req.json().catch(() => ({}))) as { handle?: string };
+    const handle = body.handle || req.params?.handle;
     
     if (!handle) {
       return { status: 400, jsonBody: { error: "Handle is required" } };
@@ -15,29 +16,20 @@ export async function trackView(req: HttpRequest, context: InvocationContext): P
       return { status: 404, jsonBody: { error: "Profile not found" } };
     }
 
-    // Increment view count
-    const endpoint = process.env.COSMOS_ENDPOINT || "";
-    const key = process.env.COSMOS_KEY || "";
-    const databaseId = process.env.COSMOS_DB || "gamehub";
-    const containerId = process.env.COSMOS_PROFILES || "profiles";
-
-    const { CosmosClient } = await import("@azure/cosmos");
-    const client = new CosmosClient({ endpoint, key });
-    const container = client.database(databaseId).container(containerId);
-
-    const updatedProfile = {
-      ...profile,
-      views: (profile.views || 0) + 1,
-      updatedAt: new Date().toISOString()
-    };
-
-    await container.item(handle, handle).replace(updatedProfile);
+    await incrementProfileViews(handle);
 
     return {
       status: 200,
       jsonBody: { success: true }
     };
   } catch (error: any) {
+    if (error instanceof CosmosConfigError) {
+      context.error("Cosmos configuration error:", error.message);
+      return {
+        status: 500,
+        jsonBody: { error: error.message }
+      };
+    }
     context.error("Error tracking view:", error);
     return {
       status: 500,
@@ -49,7 +41,7 @@ export async function trackView(req: HttpRequest, context: InvocationContext): P
 app.http("trackView", {
   methods: ["POST"],
   authLevel: "anonymous",
-  route: "trackView/{handle}",
+  route: "trackView",
   handler: trackView
 });
 

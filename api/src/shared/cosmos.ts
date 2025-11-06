@@ -1,14 +1,77 @@
-import { CosmosClient } from "@azure/cosmos";
-import { randomUUID } from "crypto";
+import { CosmosClient, Container, Database } from "@azure/cosmos";
 
-const endpoint = process.env.COSMOS_ENDPOINT || "";
-const key = process.env.COSMOS_KEY || "";
-const databaseId = process.env.COSMOS_DB || "gamehub";
-const containerId = process.env.COSMOS_PROFILES || "profiles";
+export class CosmosConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CosmosConfigError";
+  }
+}
 
-const client = new CosmosClient({ endpoint, key });
-const database = client.database(databaseId);
-const profilesContainer = database.container(containerId);
+let client: CosmosClient | null = null;
+let database: Database | null = null;
+let profilesContainer: Container | null = null;
+
+function getRequiredEnv(name: string, fallback?: string): string | undefined {
+  const value = process.env[name];
+  if (value && value.trim().length > 0) {
+    return value.trim();
+  }
+  return fallback?.trim();
+}
+
+function initialiseClient(): CosmosClient {
+  if (client) {
+    return client;
+  }
+
+  const connectionString = getRequiredEnv("COSMOS_CONNECTION_STRING");
+  const endpoint = getRequiredEnv("COSMOS_ENDPOINT");
+  const key = getRequiredEnv("COSMOS_KEY");
+
+  try {
+    if (connectionString) {
+      client = new CosmosClient(connectionString);
+    } else if (endpoint && key) {
+      client = new CosmosClient({ endpoint, key });
+    } else {
+      throw new CosmosConfigError(
+        "Cosmos configuration missing. Set COSMOS_CONNECTION_STRING or both COSMOS_ENDPOINT and COSMOS_KEY."
+      );
+    }
+  } catch (error: any) {
+    if (error instanceof CosmosConfigError) {
+      throw error;
+    }
+    throw new CosmosConfigError(
+      `Failed to initialise Cosmos client: ${error?.message || "Unknown error"}`
+    );
+  }
+
+  return client!;
+}
+
+function getDatabase(): Database {
+  if (!database) {
+    const dbId = getRequiredEnv("COSMOS_DB", "ysl");
+    if (!dbId) {
+      throw new CosmosConfigError("COSMOS_DB is not configured.");
+    }
+    database = initialiseClient().database(dbId);
+  }
+  return database!;
+}
+
+function getProfilesContainer(): Container {
+  if (!profilesContainer) {
+    const containerId =
+      getRequiredEnv("COSMOS_PROFILES") ||
+      getRequiredEnv("COSMOS_PROFILES_CONTAINER") ||
+      "profiles";
+
+    profilesContainer = getDatabase().container(containerId);
+  }
+  return profilesContainer!;
+}
 
 export interface Profile {
   id: string;
@@ -28,7 +91,8 @@ export interface Profile {
 
 export async function getProfileByUserId(userId: string): Promise<Profile | null> {
   try {
-    const { resources } = await profilesContainer.items
+    const container = getProfilesContainer();
+    const { resources } = await container.items
       .query<Profile>({
         query: "SELECT * FROM c WHERE c.userId = @userId",
         parameters: [{ name: "@userId", value: userId }]
@@ -45,7 +109,8 @@ export async function getProfileByUserId(userId: string): Promise<Profile | null
 export async function getProfileByHandle(handle: string): Promise<Profile | null> {
   try {
     // Use point read with partition key for efficiency
-    const { resource } = await profilesContainer.item(handle, handle).read<Profile>();
+    const container = getProfilesContainer();
+    const { resource } = await container.item(handle, handle).read<Profile>();
     return resource || null;
   } catch (error: any) {
     // 404 means not found, which is valid
@@ -74,7 +139,8 @@ export async function createProfile(profile: Omit<Profile, 'id' | 'createdAt' | 
     updatedAt: new Date().toISOString()
   };
 
-  const { resource } = await profilesContainer.items.create(newProfile);
+  const container = getProfilesContainer();
+  const { resource } = await container.items.create(newProfile);
   if (!resource) throw new Error("Failed to create profile");
   return resource as Profile;
 }
@@ -93,8 +159,25 @@ export async function updateProfile(userId: string, updates: Partial<Profile>): 
   };
 
   // Use handle as partition key
-  const { resource } = await profilesContainer.item(existing.handle, existing.handle).replace(updated);
+  const container = getProfilesContainer();
+  const { resource } = await container.item(existing.handle, existing.handle).replace(updated);
   if (!resource) throw new Error("Failed to update profile");
   return resource as Profile;
+}
+
+export async function incrementProfileViews(handle: string): Promise<void> {
+  const container = getProfilesContainer();
+  const { resource } = await container.item(handle, handle).read<Profile>();
+  if (!resource) {
+    throw new Error("Profile not found");
+  }
+
+  const updated: Profile = {
+    ...resource,
+    views: (resource.views || 0) + 1,
+    updatedAt: new Date().toISOString()
+  };
+
+  await container.item(handle, handle).replace(updated);
 }
 

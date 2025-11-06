@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getUserId } from "./shared/auth";
-import { createProfile, getProfileByUserId, getProfileByHandle } from "./shared/cosmos";
+import { CosmosConfigError, createProfile, getProfileByUserId, getProfileByHandle } from "./shared/cosmos";
 import { validateHandle } from "./shared/validation";
 
 export async function claimHandle(req: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
@@ -59,6 +59,13 @@ export async function claimHandle(req: HttpRequest, context: InvocationContext):
       jsonBody: { success: true, profile }
     };
   } catch (error: any) {
+    if (error instanceof CosmosConfigError) {
+      context.error("Cosmos configuration error:", error.message);
+      return {
+        status: 500,
+        jsonBody: { error: error.message }
+      };
+    }
     context.error("=== ERROR CLAIMING HANDLE ===");
     context.error("Error message:", error.message);
     context.error("Error stack:", error.stack);

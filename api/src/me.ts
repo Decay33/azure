@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getUserId } from "./shared/auth";
-import { getProfileByUserId } from "./shared/cosmos";
+import { CosmosConfigError, getProfileByUserId } from "./shared/cosmos";
 
 export async function me(req: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
@@ -20,6 +20,13 @@ export async function me(req: HttpRequest, context: InvocationContext): Promise<
       jsonBody: profile
     };
   } catch (error: any) {
+    if (error instanceof CosmosConfigError) {
+      context.error("Cosmos configuration error:", error.message);
+      return {
+        status: 500,
+        jsonBody: { error: error.message }
+      };
+    }
     context.error("Error fetching user profile:", error);
     return {
       status: 500,

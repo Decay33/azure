@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getUserId } from "./shared/auth";
-import { getProfileByUserId } from "./shared/cosmos";
+import { CosmosConfigError, getProfileByUserId } from "./shared/cosmos";
 
 export async function subscriptionStatus(req: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
@@ -30,6 +30,13 @@ export async function subscriptionStatus(req: HttpRequest, context: InvocationCo
       }
     };
   } catch (error: any) {
+    if (error instanceof CosmosConfigError) {
+      context.error("Cosmos configuration error:", error.message);
+      return {
+        status: 500,
+        jsonBody: { error: error.message }
+      };
+    }
     context.error("Error fetching subscription status:", error);
     return {
       status: 500,

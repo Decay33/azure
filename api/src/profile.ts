@@ -1,5 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { getProfileByHandle } from "./shared/cosmos";
+import { CosmosConfigError, getProfileByHandle } from "./shared/cosmos";
 
 export async function getProfile(req: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
@@ -20,6 +20,13 @@ export async function getProfile(req: HttpRequest, context: InvocationContext): 
       jsonBody: profile
     };
   } catch (error: any) {
+    if (error instanceof CosmosConfigError) {
+      context.error("Cosmos configuration error:", error.message);
+      return {
+        status: 500,
+        jsonBody: { error: error.message }
+      };
+    }
     context.error("Error fetching profile:", error);
     return {
       status: 500,
