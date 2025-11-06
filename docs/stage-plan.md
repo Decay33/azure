@@ -38,16 +38,14 @@
    - Capacity mode: Start with `Serverless` (cost optimized) unless you expect heavy load immediately.
 3. Review + Create -> Create. Wait for the deployment to finish.
 4. Once provisioned, open `Data Explorer` and create:
-   - Database: `YSLData`.
-   - Container: `Profiles`
-     - Partition key: `/tenantId`
-     - Unique keys: `/username`
-   - Container: `Links`
-     - Partition key: `/tenantId`
+   - Database: `ysldb`.
+   - Container: `users` (partition key `/id`)
+   - Container: `profiles` (partition key `/userId`, unique key `/username`)
+   - Container: `links` (partition key `/profileId`)
 5. Collect connection details under `Keys` -> `Primary connection string`. This is needed for the API environment variables.
 6. Security best practices:
-   - Disable public network access if you will connect only through Azure Functions with a VNet or private endpoint. (For development, you can leave it on and restrict with firewall rules to your static web app and office IP.)
-   - Do not check the `Primary key` into source control. Store it in Azure Function app settings or GitHub secrets.
+   - Disable public network access if you will connect only through a VNet/private endpoint. (During development you can leave it on and restrict with firewall rules to your office IP or the SWA outbound range.)
+   - Do not check the `Primary key` into source control. Store it in SWA app settings or Azure Key Vault.
 
 ## Stage 5 - Create Storage Account for Media Assets
 
@@ -72,25 +70,27 @@
 3. Developers -> Webhooks -> `+ Add endpoint`.
    - Endpoint URL (test): `https://<your-static-web-app-name>.azurestaticapps.net/api/stripe-webhook`.
    - Events to send: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`.
-4. Save the `Signing secret`; this will be an environment variable for the webhook Azure Function (`STRIPE_WEBHOOK_SECRET`).
+4. Save the `Signing secret`; this will be consumed by the Next.js `/api/stripe/webhook` route (`STRIPE_WEBHOOK_SECRET`).
 5. Create a Stripe Connect restricted key if you want users to collect payments directly (optional).
 
 ## Stage 7 - Repository Secrets and Environment Variables
 
 Once the GitHub Actions workflow exists, set repo-level secrets (`Settings -> Secrets and variables -> Actions`):
 
-- `AZURE_STATIC_WEB_APPS_API_TOKEN`: Provided by Azure Static Web App (Deployment token).
-- `NEXT_PUBLIC_AAD_B2C_AUTHORITY`: `https://<tenant>.b2clogin.com/<tenant>.onmicrosoft.com/<user_flow>`
-- `NEXT_PUBLIC_AAD_B2C_CLIENT_ID`: Client ID from Stage 3.
-- `AAD_B2C_CLIENT_SECRET`: Client secret from Stage 3.
-- `COSMOS_DB_CONNECTION_STRING`: From Stage 4.
-- `STORAGE_CONNECTION_STRING`: From Stage 5.
-- `STORAGE_CONTAINER_NAME`: `user-media`.
-- `STRIPE_SECRET_KEY`: From Stage 6.
-- `STRIPE_WEBHOOK_SECRET`: From Stage 6.
-- `APP_URL`: `https://<your-static-web-app-name>.azurestaticapps.net`
+- `AZURE_STATIC_WEB_APPS_API_TOKEN`
+- `NEXT_PUBLIC_B2C_AUTHORITY`
+- `NEXT_PUBLIC_B2C_CLIENT_ID`
+- `NEXT_PUBLIC_B2C_SCOPE`
+- `NEXT_PUBLIC_B2C_POLICY`
+- `B2C_API_AUDIENCE`
+- `COSMOS_DB_CONNECTION_STRING`
+- `STORAGE_CONNECTION_STRING`
+- `STORAGE_CONTAINER_NAME`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `APP_URL`
 
-Locally (we will create an `.env.local` template), replicate these values with development/test credentials.
+Mirror these settings locally via `.env.local` and, in production, back them with Key Vault references.
 
 ## Stage 8 - Custom Domain (yoursociallinks.com)
 
@@ -102,8 +102,7 @@ Locally (we will create an `.env.local` template), replicate these values with d
 
 ## Stage 9 - Monitoring and Observability
 
-1. For Azure Functions, enable Application Insights:
-   - In the Static Web App resource -> `Functions` -> `Application Insights` -> `Turn on`.
+1. In the Static Web App resource enable Application Insights (`Monitoring` -> `Application Insights`) and keep GitHub Actions logs for traceability.
 2. In GitHub Actions, enable deployment logs as artifacts (default).
 3. Set up Azure Monitor alerts on billing thresholds or failure spikes.
 

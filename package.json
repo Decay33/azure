@@ -7,19 +7,20 @@
   },
   "scripts": {
     "dev": "next dev",
-    "dev:api": "npm run start --prefix api",
     "build": "next build",
-    "build:api": "npm run build --prefix api",
-    "build:all": "npm run build:api && npm run build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@azure/cosmos": "^4.2.0",
+    "@azure/storage-blob": "^12.18.0",
     "@azure/msal-browser": "^4.26.1",
     "@azure/msal-react": "^3.0.21",
+    "jose": "^5.9.3",
     "next": "16.0.1",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

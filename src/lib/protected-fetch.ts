@@ -16,7 +16,9 @@ export async function callAuthorizedApi<T>(
   const tokenResult = await acquireToken(instance);
   const token = tokenResult.accessToken;
   const baseUrl = getApiBaseUrl().replace(/\/$/, "");
-  const url = `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+  const url = baseUrl
+    ? `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`
+    : `${path.startsWith("/") ? "" : "/"}${path}`;
 
   const response = await fetch(url, {
     ...options,

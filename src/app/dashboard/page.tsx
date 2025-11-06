@@ -252,13 +252,13 @@ export default function DashboardPage() {
     setMessage(null);
 
     try {
-      const response = await callAuthorizedApi<UploadResponse>(instance, "/api/videos/sign-upload", {
-        method: "POST",
-        body: JSON.stringify({
-          contentType: file.type || "video/mp4",
-          fileExtension: file.name.split(".").pop() ?? "mp4"
-        })
-      });
+    const response = await callAuthorizedApi<UploadResponse>(instance, "/api/videos/sign-upload", {
+      method: "POST",
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type || "video/mp4"
+      })
+    });
 
       const headers = {
         "x-ms-blob-type": "BlockBlob",

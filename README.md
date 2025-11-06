@@ -5,10 +5,10 @@ Premium link-in-bio platform with cinematic video backdrops, Stripe-powered subs
 ## Tech Stack
 
 - **Frontend**: Next.js 16 (App Router, Tailwind CSS v4)
-- **Backend API**: Azure Functions (TypeScript)
+- **Server routes**: Next.js Route Handlers (Node runtime) with Cosmos/Blob/Stripe access
 - **Database**: Azure Cosmos DB (API for NoSQL)
 - **Storage**: Azure Blob Storage for background video loops
-- **Auth**: Azure AD B2C via Azure Static Web Apps authentication
+- **Auth**: Microsoft Entra External ID (CIAM) via MSAL.js
 - **Billing**: Stripe subscriptions (YSL Base Subscription - `prod_TN0iLZlXlOo8iH`)
 
 ## Stage Checklist
@@ -31,45 +31,30 @@ Complete the infrastructure stages before moving to the dashboard/user managemen
 
 ### Prerequisites
 
-- Node.js 18.18+ or 20.x
+- Node.js 20.9+ (use `.nvmrc`)
 - npm 9+
-- [Azure Functions Core Tools v4](https://learn.microsoft.com/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools) (for local API emulator)
 
 ### Install
 
 ```bash
 npm install
-npm install --prefix api
-```
-
-Create environment files:
-
-```bash
 cp .env.example .env.local
-cp api/local.settings.json.example api/local.settings.json
 ```
 
-Fill in the placeholders with dev/test credentials (Stripe test key, local Cosmos emulator, etc.). Use `"USE_MOCK_DATA": "true"` until Cosmos DB is ready.
+Fill in Cosmos/Storage/Stripe settings (use `"USE_MOCK_DATA": "true"` until Cosmos DB is ready).
 
 ### Run
 
 ```bash
-# Start Next.js frontend
 npm run dev
-
-# In another terminal, start Azure Functions (requires Core Tools)
-npm run dev:api
 ```
 
-- Frontend: `http://localhost:3000`
-- Functions: `http://localhost:7071/api` (proxied through Static Web Apps emulator when running `swa start`, optional)
+- App + API routes: `http://localhost:3000`
 
 ### Build
 
 ```bash
-npm run build          # Next.js build
-npm run build:api      # TypeScript -> dist/ for Azure Functions
-npm run build:all      # Convenience to run both
+npm run build
 ```
 
 ## Stripe Configuration
@@ -81,37 +66,27 @@ npm run build:all      # Convenience to run both
 
 ## Authentication Notes
 
-Azure Static Web Apps handles the auth handshake. Once Stage 3 is complete:
-
-- `/.auth/login/aadb2c` starts the sign-in flow.
-- `/.auth/me` returns the authenticated principal. The frontend dashboard page redirects anonymous users to the login endpoint.
-- Azure Functions can read `x-ms-client-principal` header using the helper in `api/src/utils/auth.ts`.
+MSAL React handles the client-side flow against the Entra External ID tenant. Server routes validate the resulting JWT with `jose`, so any request to `/api/profile`, `/api/links`, or `/api/videos/sign-upload` must include `Authorization: Bearer <token>` from MSAL.
 
 ## Repository Structure
 
 ```
 .
-|- api/                  # Azure Functions (TypeScript)
-|  |- src/
-|  |  |- health/
-|  |  |- profile-get/
-|  |  \- ...shared libs
-|  |- host.json
-|  \- package.json
 |- docs/
-|  \- stage-plan.md     # Azure staging checklist
-|- public/               # Static assets
+|  \- stage-plan.md
+|- public/
 \- src/
-   |- app/              # Next.js App Router
-   |- components/       # UI components
-   \- lib/              # Shared client utilities
+   |- app/                # Next.js App Router + API routes
+   |- components/         # UI components
+   |- lib/                # Shared client utilities
+   \- server/             # Cosmos/Blob/auth helpers for API routes
 ```
 
 ## Next Steps
 
 1. Finish Stage 3-7 provisioning (see `docs/stage-plan.md`) and populate local/GitHub secrets.
-2. Wire Azure AD B2C JWT claims into the dashboard API to create user records in Cosmos DB.
-3. Implement link CRUD, video upload SAS tokens, and Stripe checkout/session creation flows.
+2. Wire Microsoft Entra External ID JWT claims into the dashboard API to create user records in Cosmos DB.
+3. Finalize link CRUD, video upload SAS tokens, and Stripe checkout/session creation flows.
 4. Add automated testing (Playwright for frontend smoke, Vitest for shared logic) once APIs are stable.
 
 Refer to `docs/stage-plan.md` for full Azure portal click-through guidance.

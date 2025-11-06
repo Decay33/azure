@@ -13,7 +13,8 @@ export const getAppUrl = (): string => {
 };
 
 export const getApiBaseUrl = (): string => {
-  return process.env.NEXT_PUBLIC_API_BASE_URL ?? getAppUrl();
+  return process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 };
 
-export const isMockMode = (): boolean => process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+export const isMockMode = (): boolean =>
+  process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true" || process.env.USE_MOCK_DATA === "true";
