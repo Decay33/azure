@@ -100,10 +100,9 @@ export default function Dashboard() {
     }
   }
 
-  // TEMP: Disabled for testing
-  // const handleLogin = (provider: 'google' | 'aad') => {
-  //   window.location.href = `/.auth/login/${provider}?post_login_redirect_uri=/dashboard`;
-  // };
+  const handleLogin = (provider: string) => {
+    window.location.href = `/.auth/login/${provider}?post_login_redirect_uri=/dashboard`;
+  };
 
   async function checkHandleAvailability(handle: string) {
     const validation = validateHandle(handle);
@@ -272,29 +271,25 @@ export default function Dashboard() {
     );
   }
 
-  // TEMP: Skip auth check for testing
-  // if (!user) {
-  //   return (
-  //     <div className="min-h-screen animated-gradient flex items-center justify-center">
-  //       <Card className="glass max-w-md w-full">
-  //         <CardHeader className="text-center space-y-2">
-  //           <CardTitle className="text-white text-2xl">Sign in to continue</CardTitle>
-  //           <CardDescription className="text-white/70">
-  //             Create your page or sign in to manage your YourSocialLinks account.
-  //           </CardDescription>
-  //         </CardHeader>
-  //         <CardContent className="space-y-3">
-  //           <Button variant="gradient" className="w-full" onClick={() => handleLogin('google')}>
-  //             Continue with Google
-  //           </Button>
-  //           <Button variant="glass" className="w-full" onClick={() => handleLogin('aad')}>
-  //             Sign in with Email
-  //           </Button>
-  //         </CardContent>
-  //       </Card>
-  //     </div>
-  //   );
-  // }
+  if (!user) {
+    return (
+      <div className="min-h-screen animated-gradient flex items-center justify-center">
+        <Card className="glass max-w-md w-full">
+          <CardHeader className="text-center space-y-2">
+            <CardTitle className="text-white text-2xl">Sign in to continue</CardTitle>
+            <CardDescription className="text-white/70">
+              Create your page or sign in to manage your YourSocialLinks account.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button variant="gradient" className="w-full" onClick={() => handleLogin('externalid')}>
+              Sign in with Email
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!profile) {
     // Handle claim flow
