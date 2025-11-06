@@ -63,7 +63,7 @@ export async function getProfileByHandle(handle: string): Promise<Profile | null
     parameters: [{ name: '@handle', value: handle }],
   };
 
-  const { resources } = await profilesContainer.items.query(query).fetchAll();
+  const { resources } = await profilesContainer.items.query<Profile>(query).fetchAll();
   return resources[0] || null;
 }
 
@@ -73,19 +73,21 @@ export async function getProfileByUserId(userId: string): Promise<Profile | null
     parameters: [{ name: '@userId', value: userId }],
   };
 
-  const { resources } = await profilesContainer.items.query(query).fetchAll();
+  const { resources } = await profilesContainer.items.query<Profile>(query).fetchAll();
   return resources[0] || null;
 }
 
 export async function createProfile(profile: Profile): Promise<Profile> {
   const { resource } = await profilesContainer.items.create(profile);
-  return resource as Profile;
+  if (!resource) throw new Error('Failed to create profile');
+  return resource;
 }
 
 export async function updateProfile(profile: Profile): Promise<Profile> {
   profile.updatedAt = new Date().toISOString();
   const { resource } = await profilesContainer.item(profile.id, profile.handle).replace(profile);
-  return resource as Profile;
+  if (!resource) throw new Error('Failed to update profile');
+  return resource;
 }
 
 export async function logEvent(event: Event): Promise<void> {
