@@ -11,6 +11,12 @@ on:
 
 jobs:
   build_and_deploy_job:
+    env:
+      NEXT_PUBLIC_B2C_TENANT: ${{ vars.NEXT_PUBLIC_B2C_TENANT }}
+      NEXT_PUBLIC_B2C_POLICY: ${{ vars.NEXT_PUBLIC_B2C_POLICY }}
+      NEXT_PUBLIC_B2C_CLIENT_ID: ${{ vars.NEXT_PUBLIC_B2C_CLIENT_ID }}
+      NEXT_PUBLIC_B2C_AUTHORITY: ${{ vars.NEXT_PUBLIC_B2C_AUTHORITY }}
+      NEXT_PUBLIC_B2C_SCOPE: ${{ vars.NEXT_PUBLIC_B2C_SCOPE }}
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
